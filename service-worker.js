@@ -1,17 +1,18 @@
-const CACHE_NAME = 'habit-tracker-v1';
+const CACHE_NAME = 'habit-tracker-v2';
+const BASE = self.registration.scope;
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/css/styles.css',
-  '/js/app.js',
-  '/js/data.js',
-  '/js/daily-view.js',
-  '/js/grid-view.js',
-  '/js/habit-editor.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-];
+  '',
+  'index.html',
+  'css/styles.css',
+  'js/app.js',
+  'js/data.js',
+  'js/daily-view.js',
+  'js/grid-view.js',
+  'js/habit-editor.js',
+  'manifest.json',
+  'icons/icon-192.png',
+  'icons/icon-512.png',
+].map(p => BASE + p);
 
 // Install: pre-cache all assets
 self.addEventListener('install', (event) => {
