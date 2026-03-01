@@ -1,0 +1,65 @@
+gmail:
+  recipient_email: "rbpasternak@gmail.com"
+  lookback_days: 4
+  max_emails: 200
+
+newsletters:
+  sender_whitelist:
+    - "@substack.com"
+    - "@beehiiv.com"
+    - "@convertkit.com"
+    - "@mailchimp.com"
+    - "@sendinblue.com"
+  keywords:
+    - "artificial intelligence"
+    - "legal tech"
+    - "legaltech"
+    - "legal technology"
+    - "machine learning"
+    - "generative AI"
+    - "gen AI"
+    - "SaaS"
+    - "startup"
+    - "e-discovery"
+    - "ediscovery"
+    - "compliance"
+    - "contract management"
+    - "courtroom technology"
+    - "regulation"
+    - "LLM"
+    - "large language model"
+    - "GPT"
+    - "Claude"
+    - "deep learning"
+    - "automation"
+    - "legal ops"
+    - "legal operations"
+    - "AI agent"
+    - "prompt engineering"
+
+rss_feeds:
+  - name: "TechCrunch"
+    url: "https://techcrunch.com/feed/"
+  - name: "Ars Technica"
+    url: "https://feeds.arstechnica.com/arstechnica/index"
+  - name: "The Verge"
+    url: "https://www.theverge.com/rss/index.xml"
+  - name: "Hacker News (Best)"
+    url: "https://hnrss.org/best"
+  - name: "Artificial Lawyer"
+    url: "https://www.artificiallawyer.com/feed/"
+  - name: "Above the Law"
+    url: "https://abovethelaw.com/feed/"
+  - name: "LawSites (Bob Ambrogi)"
+    url: "https://www.lawnext.com/feed"
+  - name: "One Useful Thing (Ethan Mollick)"
+    url: "https://www.oneusefulthing.org/feed"
+  - name: "How to AI (Ruben Hassid)"
+    url: "https://ruben.substack.com/feed"
+
+summarizer:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 4096
+
+digest:
+  subject_prefix: "Your Tech & Legal Tech Digest"
