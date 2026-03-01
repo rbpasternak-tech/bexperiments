@@ -1,0 +1,14 @@
+{
+  "last_updated": "2026-02-28T21:56:35.487901",
+  "digests": [
+    {
+      "id": "2026-W09-sat",
+      "run_date": "2026-02-28",
+      "date_range_start": "2026-02-24",
+      "date_range_end": "2026-02-28",
+      "file": "digest-2026-W09-sat.json",
+      "newsletter_count": 19,
+      "rss_article_count": 123
+    }
+  ]
+}

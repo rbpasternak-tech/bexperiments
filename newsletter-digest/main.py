@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import os
 import sys
 from datetime import datetime, timedelta
 
@@ -19,6 +20,7 @@ from newsletter_detector import detect_newsletters
 from rss_fetcher import fetch_feeds
 from summarizer import summarize
 from digest_formatter import format_digest_html
+from trend_extractor import extract_trends
 
 
 def main():
@@ -32,6 +34,16 @@ def main():
         "--config",
         default=None,
         help="Path to config.yaml (defaults to config.yaml in project dir)",
+    )
+    parser.add_argument(
+        "--skip-trends",
+        action="store_true",
+        help="Skip trend data extraction for dashboard",
+    )
+    parser.add_argument(
+        "--trends-only",
+        action="store_true",
+        help="Only extract trend data, skip email digest",
     )
     args = parser.parse_args()
 
@@ -75,13 +87,31 @@ def main():
         print("No content found for this period. Skipping digest.")
         return
 
-    print(f"Summarizing {len(newsletters)} newsletters + {len(rss_articles)} articles with Claude...")
-    digest_markdown = summarize(
-        newsletters=newsletters,
-        rss_articles=rss_articles,
-        model=config["summarizer"]["model"],
-        max_tokens=config["summarizer"]["max_tokens"],
-    )
+    if not args.trends_only:
+        print(f"Summarizing {len(newsletters)} newsletters + {len(rss_articles)} articles with Claude...")
+        digest_markdown = summarize(
+            newsletters=newsletters,
+            rss_articles=rss_articles,
+            model=config["summarizer"]["model"],
+            max_tokens=config["summarizer"]["max_tokens"],
+        )
+
+    # Step 4b: Extract structured trend data for dashboard
+    if not args.skip_trends:
+        print("Extracting structured trend data for dashboard...")
+        trends_output_dir = os.path.join(os.path.dirname(__file__), "..", "trends-dashboard", "data")
+        extract_trends(
+            newsletters=newsletters,
+            rss_articles=rss_articles,
+            date_start=date_start,
+            date_end=date_end,
+            model=config["summarizer"]["model"],
+            output_dir=trends_output_dir,
+        )
+
+    if args.trends_only:
+        print("Trends extraction complete (--trends-only mode).")
+        return
 
     # Step 5: Format and send/display
     date_range_start = date_start.strftime("%b %d, %Y")
