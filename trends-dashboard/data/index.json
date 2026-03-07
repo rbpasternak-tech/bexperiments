@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-02-28T21:56:35.487901",
+  "last_updated": "2026-03-06T19:54:41.446197",
   "digests": [
     {
       "id": "2026-W09-sat",
@@ -9,6 +9,24 @@
       "file": "digest-2026-W09-sat.json",
       "newsletter_count": 19,
       "rss_article_count": 123
+    },
+    {
+      "id": "2026-W10-wed",
+      "run_date": "2026-03-04",
+      "date_range_start": "2026-02-28",
+      "date_range_end": "2026-03-04",
+      "file": "digest-2026-W10-wed.json",
+      "newsletter_count": 19,
+      "rss_article_count": 124
+    },
+    {
+      "id": "2026-W10-fri",
+      "run_date": "2026-03-06",
+      "date_range_start": "2026-03-02",
+      "date_range_end": "2026-03-06",
+      "file": "digest-2026-W10-fri.json",
+      "newsletter_count": 13,
+      "rss_article_count": 129
     }
   ]
 }

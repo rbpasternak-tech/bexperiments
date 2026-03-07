@@ -1,0 +1,363 @@
+{
+  "meta": {
+    "id": "2026-W10-fri",
+    "run_date": "2026-03-06T19:54:41.442410",
+    "date_range_start": "2026-03-02",
+    "date_range_end": "2026-03-06",
+    "newsletter_count": 13,
+    "rss_article_count": 129,
+    "sources_analyzed": [
+      "Substack",
+      "The Code",
+      "TechCrunch",
+      "LawSites (Bob Ambrogi)",
+      "Ruben Hassid",
+      "Project Management Institute via LinkedIn",
+      "Hacker News (Best)",
+      "Kaj Rozga",
+      "The Verge",
+      "She Breaks the Law via LinkedIn",
+      "How to AI (Ruben Hassid)",
+      "\"Jake Haupert | Make it Soulful! \"",
+      "Artificial Lawyer",
+      "Ars Technica",
+      "GenAI Works via LinkedIn",
+      "Above the Law"
+    ]
+  },
+  "topics": [
+    {
+      "name": "GPT-5.4 Release",
+      "category": "ai",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "OpenAI Finally Drops GPT-5.4. Watch AI Use Your Computer.",
+        "OpenAI Launches GPT-5.4: The Era of the Autonomous Agent",
+        "OpenAI drops GPT-5.4"
+      ]
+    },
+    {
+      "name": "AI Agents",
+      "category": "ai",
+      "mention_count": 8,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Claude Cowork Might Be the Most Consequential Piece of Software You're Not Using",
+        "How to orchestrate coding agents",
+        "30 for 30: A dev swapped his 30-person engineering team for 30 AI agents"
+      ]
+    },
+    {
+      "name": "Pentagon AI Contract",
+      "category": "regulation",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Pentagon formally labels Anthropic supply-chain risk",
+        "Anthropic's Pentagon deal is a cautionary tale for startups chasing federal contracts",
+        "Where things stand with the Department of War"
+      ]
+    },
+    {
+      "name": "Legal Tech Adoption",
+      "category": "legal_tech",
+      "mention_count": 6,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "HFW Appoints First Head of Legal Technology Adoption",
+        "AI Adoption Among Legal Professionals Has More Than Doubled In A Year",
+        "&AI Launches Opportunities: Real-Time Patent Defence Feed"
+      ]
+    },
+    {
+      "name": "Block Layoffs",
+      "category": "workforce",
+      "mention_count": 1,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Block just fired 4,000 people due to an AI agent \u2014 and its stock soared"
+      ]
+    },
+    {
+      "name": "Computer Use",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Watch AI Use Your Computer",
+        "GPT-5.4 features native computer use",
+        "AI that can physically operate your device"
+      ]
+    },
+    {
+      "name": "Claude Code",
+      "category": "ai",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "100 Pro-Hacks for using Claude Code in 2026",
+        "How to cut Claude Code's token usage by 70%",
+        "How to auto-format Claude Code's output"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "product_launch",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI launches GPT-5.4 with native computer use and 1M token context",
+      "source": "GenAI Works",
+      "source_url": null
+    },
+    {
+      "type": "layoff",
+      "entity": "Block",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Block fires 4,000 employees due to AI agent productivity gains",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Spellbook",
+      "amount": "$40M",
+      "amount_usd": 40000000,
+      "headline": "Spellbook secures $40M debt financing from RBCx for legal AI M&A",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/04/spellbook-gets-40m-debt-for-legal-ai-ma/"
+    },
+    {
+      "type": "funding",
+      "entity": "Pasqal",
+      "amount": "$2B",
+      "amount_usd": 2000000000,
+      "headline": "Quantum scale-up Pasqal plans $2B SPAC listing",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/06/quantum-scale-up-pasqal-plans-2b-spac-listing-promises-to-remain-french/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Google",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Google ships Workspace CLI and launches Gemini 3.1 Flash-Lite",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Anthropic",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Claude found 22 vulnerabilities in Firefox over two weeks",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/06/anthropics-claude-found-22-vulnerabilities-in-firefox-over-two-weeks/"
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "US",
+      "type": "enforcement_action",
+      "title": "Pentagon labels Anthropic as supply-chain risk",
+      "summary": "Department of Defense officially designated Anthropic as a supply-chain risk after failed contract negotiations over military AI usage restrictions.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "ai",
+        "security"
+      ],
+      "source": "Hacker News",
+      "source_url": "https://www.wsj.com/politics/national-security/pentagon-formally-labels-anthropic-supply-chain-risk-escalating-conflict-ebdf0523"
+    },
+    {
+      "jurisdiction": "US",
+      "type": "court_ruling",
+      "title": "Judge orders $130B+ in tariff refunds",
+      "summary": "Federal judge ruled Trump's tariffs violated law and ordered government to begin processing billions in refunds to affected companies.",
+      "sentiment": "permissive",
+      "impact_area": [
+        "enterprise"
+      ],
+      "source": "Hacker News",
+      "source_url": "https://www.wsj.com/politics/policy/judge-orders-government-to-begin-refunding-more-than-130-billion-in-tariffs-fdc1e62c"
+    },
+    {
+      "jurisdiction": "Australia",
+      "type": "new_regulation",
+      "title": "Social media ban for under-16s",
+      "summary": "Australia was the first country to implement a ban on social media access for children under 16, with other countries following suit.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "data_privacy"
+      ],
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/06/social-media-ban-children-countries-list/"
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "firm_adoption",
+      "entity": "HFW",
+      "description": "International law firm appoints first Head of Legal Technology Adoption role",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/05/hfw-appoints-first-head-of-legal-technology-adoption/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "&AI",
+      "description": "Patent litigation startup launches Opportunities, a real-time patent defense feed",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/05/ai-launches-opportunities-real-time-patent-defence-feed/"
+    },
+    {
+      "type": "integration",
+      "entity": "Harvey",
+      "description": "Harvey builds Microsoft 365 Copilot integration for legal intelligence",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/04/harvey-builds-ms-copilot-integration-for-smoother-working/"
+    },
+    {
+      "type": "milestone",
+      "entity": "Legal Professionals",
+      "description": "AI adoption among legal professionals has more than doubled in one year to nearly 70%",
+      "source": "LawSites",
+      "source_url": "https://www.lawnext.com/2026/03/ai-adoption-among-legal-professionals-has-more-than-doubled-in-a-year-new-8am-report-finds-but-firms-lag-far-behind-individual-practitioners.html"
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "GenAI Works",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "GPT-5.4 Release",
+        "AI Agents",
+        "Computer Use"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Code",
+      "source_type": "newsletter",
+      "article_count": 3,
+      "top_topics": [
+        "GPT-5.4 Release",
+        "AI Agents",
+        "Claude Code"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "newsletter",
+      "article_count": 9,
+      "top_topics": [
+        "Legal Tech Adoption"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 12,
+      "top_topics": [
+        "Pentagon AI Contract",
+        "AI Agents"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 25,
+      "top_topics": [
+        "Legal Tech Adoption"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Hacker News",
+      "source_type": "rss",
+      "article_count": 15,
+      "top_topics": [
+        "GPT-5.4 Release",
+        "Pentagon AI Contract"
+      ],
+      "signal_strength": "high"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "OpenAI launches GPT-5.4 with native computer control",
+        "why_it_matters": "This represents the first major AI model capable of autonomously operating desktop applications, marking the transition from conversational AI to truly autonomous agents that can perform complex workflows.",
+        "sources": [
+          {
+            "name": "GenAI Works",
+            "url": null
+          },
+          {
+            "name": "The Code",
+            "url": null
+          },
+          {
+            "name": "Hacker News",
+            "url": "https://openai.com/index/introducing-gpt-5-4/"
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "Pentagon designates Anthropic as supply-chain risk",
+        "why_it_matters": "The official DoD designation creates a precedent for how AI companies that refuse military contracts may be treated, potentially impacting the broader AI industry's relationship with government.",
+        "sources": [
+          {
+            "name": "Hacker News",
+            "url": "https://www.wsj.com/politics/national-security/pentagon-formally-labels-anthropic-supply-chain-risk-escalating-conflict-ebdf0523"
+          },
+          {
+            "name": "TechCrunch",
+            "url": "https://techcrunch.com/2026/03/05/anthropic-to-challenge-dods-supply-chain-label-in-court/"
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Block fires 4,000 employees after AI productivity surge",
+        "why_it_matters": "This represents one of the first major corporate layoffs directly attributed to AI productivity gains, with the company's stock price surging in response, signaling how markets may reward AI-driven workforce reductions.",
+        "sources": [
+          {
+            "name": "The Code",
+            "url": null
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "Legal AI adoption doubles while firms lag behind individual practitioners",
+      "why_it_matters": "The 70% individual adoption rate versus slower firm-wide implementation suggests a grassroots legal tech revolution that could force institutional changes in how legal services are delivered.",
+      "sources": [
+        {
+          "name": "LawSites",
+          "url": "https://www.lawnext.com/2026/03/ai-adoption-among-legal-professionals-has-more-than-doubled-in-a-year-new-8am-report-finds-but-firms-lag-far-behind-individual-practitioners.html"
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 75,
+      "funding_total_usd": 2040000000,
+      "new_regulations_count": 3,
+      "product_launches_count": 6,
+      "dominant_topic": "AI Agents",
+      "sentiment_balance": {
+        "positive": 65,
+        "neutral": 25,
+        "negative": 10
+      }
+    }
+  }
+}

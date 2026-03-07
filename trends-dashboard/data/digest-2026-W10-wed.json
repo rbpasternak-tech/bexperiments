@@ -1,0 +1,404 @@
+{
+  "meta": {
+    "id": "2026-W10-wed",
+    "run_date": "2026-03-04T11:08:53.847850",
+    "date_range_start": "2026-02-28",
+    "date_range_end": "2026-03-04",
+    "newsletter_count": 19,
+    "rss_article_count": 124,
+    "sources_analyzed": [
+      "Above the Law",
+      "How to AI (Ruben Hassid)",
+      "The Verge",
+      "LawSites (Bob Ambrogi)",
+      "Substack",
+      "Hacker News (Best)",
+      "Artificial Lawyer",
+      "She Breaks the Law via LinkedIn",
+      "IAPP Daily Dashboard",
+      "Mert Ozler",
+      "Sivanandhan S",
+      "GenAI Works via LinkedIn",
+      "Kaj Rozga",
+      "The Code",
+      "Justin Vergara",
+      "Ars Technica",
+      "TechCrunch",
+      "\"Adina M. Newman\""
+    ]
+  },
+  "topics": [
+    {
+      "name": "AI Safety Ethics",
+      "category": "ai",
+      "mention_count": 8,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "OpenAI Takes the Pentagon Deal Anthropic Refused. Why Users Are Canceling ChatGPT",
+        "Anthropic emphasizes AI safety priorities in the face of DOD contract dispute",
+        "Claude outage hits all services"
+      ]
+    },
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 12,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Lawyer Uses Claude Skills, Legal World Loses It...",
+        "Harvey Hires Tara Waters",
+        "The Mobile-AI Gap: The Problem in Legal Tech No One is Talking About"
+      ]
+    },
+    {
+      "name": "AI Coding Tools",
+      "category": "ai",
+      "mention_count": 7,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "AI agents control desktop apps",
+        "Cursor's code review agent now fixes bugs automatically",
+        "Claude Code rolls out a voice mode capability"
+      ]
+    },
+    {
+      "name": "Legal Tech Partnerships",
+      "category": "legal_tech",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Sandstone Partners With Ex-Ironclad Legal Ops Group",
+        "Chamelio + UpLevel Ops Offer 'Forward Deployed' Model",
+        "Paladin and PLI Partner to Connect Law Students with Pro Bono Training"
+      ]
+    },
+    {
+      "name": "AI Governance",
+      "category": "regulation",
+      "mention_count": 4,
+      "sentiment": "neutral",
+      "representative_headlines": [
+        "OneTrust's new CEO shares vision for company amid maturing AI governance landscape",
+        "EU cybersecurity reboot: Practical impacts of the proposed NIS2 and CSA2 reforms"
+      ]
+    },
+    {
+      "name": "Women in Law Tech",
+      "category": "workforce",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "7 years of breaking the law \u2013 finally, the wait is over",
+        "Aderant Makes History, Of A Sort, Naming Its First Female CRO"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "funding",
+      "entity": "Eight Sleep",
+      "amount": "$50M",
+      "amount_usd": 50000000,
+      "headline": "Eight Sleep raises $50M at $1.5B valuation",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/04/eight-sleep-raises-50m-at-1-5b-valuation/"
+    },
+    {
+      "type": "funding",
+      "entity": "OpenAI",
+      "amount": "$110B",
+      "amount_usd": 110000000000,
+      "headline": "OpenAI secured conditional $110 billion funding round at $840 billion valuation",
+      "source": "GenAI Works",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Anduril",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Anduril aims at $60 billion valuation in new funding round",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/03/anduril-aims-at-60-billion-valuation-in-new-funding-round/"
+    },
+    {
+      "type": "funding",
+      "entity": "DeepIP",
+      "amount": "$25M",
+      "amount_usd": 25000000,
+      "headline": "DeepIP Raises $25m For AI-Driven Patent Work",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/03/deepip-raises-25m-for-ai-driven-patent-work/"
+    },
+    {
+      "type": "funding",
+      "entity": "Confido Legal",
+      "amount": "$9M",
+      "amount_usd": 9000000,
+      "headline": "Confido Legal Raises $9 Million To Expand Embedded Payments And Disbursements For Law Firms",
+      "source": "Above the Law",
+      "source_url": "https://www.lawnext.com/2026/02/exclusive-confido-legal-raises-9-million-to-expand-embedded-payments-and-disbursements-for-law-firms.html"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Harvey",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Harvey Does 2nd Acquihire, This Time With Lume",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/03/harvey-does-2nd-acquihire-this-time-with-lume/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Accenture",
+      "amount": "$1.2B",
+      "amount_usd": 1200000000,
+      "headline": "Downdetector, Speedtest sold to IT service provider Accenture in $1.2B deal",
+      "source": "Ars Technica",
+      "source_url": "https://arstechnica.com/information-technology/2026/03/downdetector-speedtest-sold-to-it-service-provider-accenture-in-1-2b-deal/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Apple",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Apple unveils two $599 devices built for on-device AI: iPhone 17e and iPad Air",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "partnership",
+      "entity": "OpenAI",
+      "amount": "$200M",
+      "amount_usd": 200000000,
+      "headline": "OpenAI signed Pentagon contract after Anthropic's $200M deal collapsed",
+      "source": "The Code",
+      "source_url": null
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "US",
+      "type": "enforcement_action",
+      "title": "Anthropic Blacklisted by White House",
+      "summary": "Trump administration labeled Anthropic a 'supply chain risk' and ordered federal agencies to stop using Claude after the company refused to lift safety guardrails for military use.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "ai",
+        "legal_tech"
+      ],
+      "source": "GenAI Works",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "Australia",
+      "type": "guidance",
+      "title": "Privacy Commissioner Updates Enforcement Guidance",
+      "summary": "Australian Privacy Commissioner provided updated guidance on Privacy Act enforcement approach, prioritizing rental tech, connected vehicles and tracking pixels.",
+      "sentiment": "neutral",
+      "impact_area": [
+        "data_privacy"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "guidance",
+      "title": "EU AI Act Training Data Transparency",
+      "summary": "Researchers found many AI companies have not fulfilled EU AI Act obligations requiring companies to share summaries about how their AI models were trained.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "ai"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "new_regulation",
+      "title": "Proposed NIS2 and CSA2 Reforms",
+      "summary": "European Commission's new cybersecurity package proposes to overhaul the Cybersecurity Act and amend the NIS2 Directive while companies prepare for existing NIS2 implementation.",
+      "sentiment": "neutral",
+      "impact_area": [
+        "security"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "product_launch",
+      "entity": "August",
+      "description": "Launched 'Live Assist' capability that can join legal conversations in real time to detect contradictions",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/02/august-launches-live-assist-contradiction-detector/"
+    },
+    {
+      "type": "integration",
+      "entity": "Sandstone",
+      "description": "Formed partnership with LegalEng Consulting Group (ex-Ironclad team) to provide 'forward deployed' offerings for in-house teams",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/03/sandstone-partners-with-ex-ironclad-legal-ops-group/"
+    },
+    {
+      "type": "integration",
+      "entity": "Chamelio",
+      "description": "Partnered with UpLevel Ops to provide AI-native legal intelligence platform with forward deployed model for in-house teams",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/02/chamelio-uplevel-ops-offer-forward-deployed-model/"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Law Firm",
+      "description": "Lawyer Zack Shapiro used Claude Skills facility to create what he calls a 'Claude-Native Law Firm', generating 7M+ views and significant industry reaction",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/02/lawyer-uses-claude-skills-legal-world-loses-it/"
+    },
+    {
+      "type": "milestone",
+      "entity": "Harvey",
+      "description": "Survey found 80% of lawyers now use AI at least weekly, 40% use it several times per day for both personal and professional use",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/03/the-mobile-ai-gap-the-problem-in-legal-tech-no-one-is-talking-about/"
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "newsletter",
+      "article_count": 12,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Tech Partnerships",
+        "AI Coding Tools"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Code",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "AI Coding Tools",
+        "AI Safety Ethics"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 20,
+      "top_topics": [
+        "Legal Tech Partnerships",
+        "AI Governance"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "AI Governance",
+        "Data Privacy"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 15,
+      "top_topics": [
+        "AI Economy",
+        "Enterprise"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "GenAI Works",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Safety Ethics"
+      ],
+      "signal_strength": "high"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "OpenAI Takes Pentagon Contract After Anthropic Refuses on Safety Grounds",
+        "why_it_matters": "This represents the first major split in the AI industry along ethical lines, with Anthropic being blacklisted as a 'supply chain risk' for refusing to compromise safety guardrails for military use, while OpenAI immediately stepped in to take the deal.",
+        "sources": [
+          {
+            "name": "GenAI Works",
+            "url": null
+          },
+          {
+            "name": "The Code",
+            "url": null
+          },
+          {
+            "name": "IAPP Daily Dashboard",
+            "url": null
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "Lawyer's Claude Skills Implementation Goes Viral with 7M+ Views",
+        "why_it_matters": "Zack Shapiro's 'Claude-Native Law Firm' demonstrates practical AI adoption in legal practice, showing how lawyers can leverage AI tools for competitive advantage and generating massive industry attention.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/03/02/lawyer-uses-claude-skills-legal-world-loses-it/"
+          },
+          {
+            "name": "The Code",
+            "url": null
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Major Legal Tech Partnerships Signal Industry Consolidation",
+        "why_it_matters": "Multiple partnerships including Sandstone with ex-Ironclad team and Chamelio with UpLevel Ops suggest the legal tech sector is maturing with more sophisticated 'forward deployed' service models for enterprise clients.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/03/03/sandstone-partners-with-ex-ironclad-legal-ops-group/"
+          },
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/03/02/chamelio-uplevel-ops-offer-forward-deployed-model/"
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "Harvey Survey Shows 80% of Lawyers Now Use AI Weekly",
+      "why_it_matters": "This represents a tipping point in legal AI adoption, with significant implications for mobile AI integration and the future of legal practice workflows.",
+      "sources": [
+        {
+          "name": "Artificial Lawyer",
+          "url": "https://www.artificiallawyer.com/2026/03/03/the-mobile-ai-gap-the-problem-in-legal-tech-no-one-is-talking-about/"
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 52,
+      "funding_total_usd": 110084000000,
+      "new_regulations_count": 4,
+      "product_launches_count": 8,
+      "dominant_topic": "Legal AI Adoption",
+      "sentiment_balance": {
+        "positive": 45,
+        "neutral": 35,
+        "negative": 20
+      }
+    }
+  }
+}
