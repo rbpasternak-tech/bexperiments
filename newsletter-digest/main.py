@@ -11,6 +11,7 @@ Usage:
 
 import argparse
 import os
+import subprocess
 import sys
 from datetime import datetime, timedelta
 
@@ -109,6 +110,10 @@ def main():
             output_dir=trends_output_dir,
         )
 
+    # Push dashboard data to GitHub so Pages stays current
+    if not args.skip_trends:
+        push_dashboard_data()
+
     if args.trends_only:
         print("Trends extraction complete (--trends-only mode).")
         return
@@ -134,6 +139,34 @@ def main():
         print(f"Sending digest to {recipient}...")
         send_email(recipient, subject, html)
         print("Digest sent successfully!")
+
+
+def push_dashboard_data():
+    """Commit and push any new dashboard data files to GitHub."""
+    repo_dir = os.path.join(os.path.dirname(__file__), "..")
+    data_dir = os.path.join(repo_dir, "trends-dashboard", "data")
+
+    try:
+        # Check if there are changes in the data directory
+        result = subprocess.run(
+            ["git", "status", "--porcelain", "trends-dashboard/data/"],
+            cwd=repo_dir, capture_output=True, text=True,
+        )
+        if not result.stdout.strip():
+            print("  No dashboard data changes to push.")
+            return
+
+        # Stage, commit, push
+        subprocess.run(["git", "add", "trends-dashboard/data/"], cwd=repo_dir, check=True)
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        subprocess.run(
+            ["git", "commit", "-m", f"Update trends dashboard data — {date_str}"],
+            cwd=repo_dir, check=True,
+        )
+        subprocess.run(["git", "push"], cwd=repo_dir, check=True)
+        print("  Dashboard data pushed to GitHub.")
+    except subprocess.CalledProcessError as e:
+        print(f"  Warning: failed to push dashboard data: {e}")
 
 
 if __name__ == "__main__":
