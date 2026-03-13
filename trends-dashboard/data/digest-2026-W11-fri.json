@@ -1,0 +1,462 @@
+{
+  "meta": {
+    "id": "2026-W11-fri",
+    "run_date": "2026-03-13T08:47:55.211541",
+    "date_range_start": "2026-03-09",
+    "date_range_end": "2026-03-13",
+    "newsletter_count": 17,
+    "rss_article_count": 115,
+    "sources_analyzed": [
+      "Joseph Colucci",
+      "Above the Law",
+      "Hacker News (Best)",
+      "TechCrunch",
+      "LinkedIn",
+      "The Verge",
+      "IAPP Daily Dashboard",
+      "Ruben Hassid",
+      "LawSites (Bob Ambrogi)",
+      "GenAI Works via LinkedIn",
+      "How to AI (Ruben Hassid)",
+      "IAPP Buzz Weekly",
+      "IAPP Career Central Digest",
+      "\"Jake Haupert | Make it Soulful! \"",
+      "Ethan Mollick from One Useful Thing",
+      "Substack",
+      "Chelsea with IFTTT",
+      "Azhar Aziz-Ismail",
+      "One Useful Thing (Ethan Mollick)",
+      "LinkedIn Job Alerts",
+      "Ars Technica",
+      "The Code",
+      "Ant at Supabase",
+      "Murtaza Amirali"
+    ]
+  },
+  "topics": [
+    {
+      "name": "EU AI Act",
+      "category": "regulation",
+      "mention_count": 2,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "MEPs reach preliminary political agreement on AI omnibus",
+        "EDPB-EDPS joint opinion on sensitive data provisions under proposed Biotech Act"
+      ]
+    },
+    {
+      "name": "AI Agents",
+      "category": "ai",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "The Shape of the Thing",
+        "Perplexity ships your digital proxy",
+        "Rolling Disruption"
+      ]
+    },
+    {
+      "name": "Claude Code",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "How to use btw in Claude Code",
+        "ChatGPT \u2192 to Claude",
+        "How to share Claude Code sessions as replays"
+      ]
+    },
+    {
+      "name": "Privacy Regulation",
+      "category": "data_privacy",
+      "mention_count": 5,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "South Korea overhauls PIPA and ties fines to CEO accountability",
+        "Maine's governor urges compromise on comprehensive privacy bill",
+        "ICO urges platforms to improve age assurance compliance"
+      ]
+    },
+    {
+      "name": "Children's Online Safety",
+      "category": "regulation",
+      "mention_count": 3,
+      "sentiment": "restrictive",
+      "representative_headlines": [
+        "US House committee probes surveillance pricing schemes",
+        "Op-ed: How the proposed US KIDS Act will advance children's online privacy",
+        "Nigeria's government announces public consultation on improving children's online safety"
+      ]
+    },
+    {
+      "name": "Legal AI Tools",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "AI Legal Research Startup Descrybe Launches 'Legal Reasoning' Tool",
+        "What lawyers actually sell \u2013 and why AI changes the answer",
+        "AI hallucinations are down 96%. Legal is the exception."
+      ]
+    },
+    {
+      "name": "Software Factory",
+      "category": "enterprise",
+      "mention_count": 1,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "A three-person team at StrongDM announced they had built a Software Factory"
+      ]
+    },
+    {
+      "name": "AI Computing Hardware",
+      "category": "ai",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Mira Murati's Thinking Machines Inks Massive NVIDIA Compute Deal",
+        "How to watch Jensen Huang's Nvidia GTC 2026 keynote"
+      ]
+    },
+    {
+      "name": "Perplexity Personal Computer",
+      "category": "ai",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Perplexity turns a Mac mini into a 24/7 AI agent",
+        "Perplexity's Personal Computer brings its AI agents to the, uh, Personal Computer"
+      ]
+    },
+    {
+      "name": "Machine Learning",
+      "category": "ai",
+      "mention_count": 1,
+      "sentiment": "neutral",
+      "representative_headlines": [
+        "On privacy and machine unlearning: A discussion with Jevan Hutson"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "partnership",
+      "entity": "Thinking Machines Lab",
+      "amount": "$2B",
+      "amount_usd": 2000000000,
+      "headline": "Mira Murati's startup inks massive multi-year strategic partnership with Nvidia including strategic investment",
+      "source": "GenAI Works",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Rox AI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Sales automation startup Rox AI hits $1.2B valuation",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/12/sales-automation-startup-rox-ai-hits-1-2b-valuation-sources-say/"
+    },
+    {
+      "type": "funding",
+      "entity": "Gumloop",
+      "amount": "$50M",
+      "amount_usd": 50000000,
+      "headline": "Gumloop lands $50M from Benchmark to turn every employee into an AI agent builder",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/12/gumloop-lands-50m-from-benchmark-to-turn-every-employee-into-an-ai-agent-builder/"
+    },
+    {
+      "type": "funding",
+      "entity": "Wonderful",
+      "amount": "$150M",
+      "amount_usd": 150000000,
+      "headline": "Wonderful raises $150M Series B at $2B valuation",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/12/wonderful-raises-150m-series-b-at-2b-valuation/"
+    },
+    {
+      "type": "funding",
+      "entity": "Sunday",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Humanoid robotics maker Sunday reaches $1.15B valuation to build household robots",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/12/humanoid-robotics-maker-sunday-reaches-1-15b-valuation-to-build-household-robots/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Webflow",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Webflow buys AI content-generation platform Vidoso to bolster its marketing suite",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/12/webflow-buys-ai-content-generation-platform-vidoso-to-bolster-its-marketing-suite/"
+    },
+    {
+      "type": "layoff",
+      "entity": "Atlassian",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Atlassian laid off 10% of its workforce, around 1,600 people, as the company looks to funnel more funds to AI",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/12/atlassian-follows-blocks-footsteps-and-cuts-staff-in-the-name-of-ai/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "UHS",
+      "amount": "$835M",
+      "amount_usd": 835000000,
+      "headline": "Universal Health Services plans to acquire Talkspace for $835 million",
+      "source": "Above the Law",
+      "source_url": "https://medcitynews.com/2026/03/why-uhs-is-acquiring-talkspace-for-835m/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Google",
+      "amount": "$32B",
+      "amount_usd": 32000000000,
+      "headline": "Google closes deal to acquire Wiz",
+      "source": "Hacker News",
+      "source_url": "https://www.wiz.io/blog/google-closes-deal-to-acquire-wiz"
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "EU",
+      "type": "new_regulation",
+      "title": "AI Act Amendments",
+      "summary": "MEPs reach preliminary agreement on AI Act amendments including extended deadlines for high-risk requirements, sensitive data processing provisions, and ban on nonconsensual explicit deepfakes.",
+      "sentiment": "mixed",
+      "impact_area": [
+        "ai",
+        "data_privacy"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "South Korea",
+      "type": "new_regulation",
+      "title": "PIPA Amendment",
+      "summary": "South Korea amended Personal Information Protection Act with penalty ceiling of 10% of total turnover and places personal supervisory liability on CEOs, effective September 11.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "data_privacy",
+        "enterprise"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "UK",
+      "type": "guidance",
+      "title": "Age Assurance Compliance",
+      "summary": "ICO published letter to social media and video-sharing platforms calling for increased age verification measures to protect children online.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "data_privacy",
+        "ai"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "legislative_proposal",
+      "title": "KIDS Act",
+      "summary": "US House Committee on Energy and Commerce approved KIDS Act, containing Kids Online Safety Act and other children's digital safety legislation.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "data_privacy",
+        "ai"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "enforcement_action",
+      "title": "Surveillance Pricing Investigation",
+      "summary": "US House Committee on Oversight probes booking apps on surveillance pricing schemes using harvested personal data for individualized pricing.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "data_privacy",
+        "ai"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "product_launch",
+      "entity": "Descrybe",
+      "description": "AI legal research startup launches 'Legal Reasoning' tool that outperforms ChatGPT, Claude, and Gemini on bar exam benchmark, answering all 200 questions correctly",
+      "source": "Above the Law",
+      "source_url": "https://www.lawnext.com/2026/03/ai-legal-research-startup-descrybe-launches-legal-reasoning-tool-says-it-outperforms-chatgpt-claude-and-gemini-on-bar-exam-benchmark.html"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Goldman Sachs",
+      "description": "Goldman Sachs hiring Legal, Artificial Intelligence Attorney at Vice President level for New York/Dallas offices",
+      "source": "LinkedIn Job Alerts",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Clio",
+      "description": "Clio launched Clio Capital, financing program for law firms using their practice management platform",
+      "source": "LawSites",
+      "source_url": "https://www.lawnext.com/2026/03/clio-launches-clio-capital-to-provide-fast-low-friction-financing-for-law-firms.html"
+    },
+    {
+      "type": "milestone",
+      "entity": "Mary Technology",
+      "description": "Australian legal tech startup raises A$7M to bring 'fact management' platform to U.S. market, opening San Francisco office",
+      "source": "LawSites",
+      "source_url": "https://www.lawnext.com/2026/03/mary-technology-raises-a7m-to-bring-fact-management-platform-to-u-s-market.html"
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 3,
+      "top_topics": [
+        "EU AI Act",
+        "Privacy Regulation",
+        "Children's Online Safety"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "One Useful Thing",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Agents",
+        "Software Factory"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Code",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Perplexity Personal Computer",
+        "Claude Code"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "GenAI Works",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Computing Hardware"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 15,
+      "top_topics": [
+        "AI Agents",
+        "Privacy Regulation",
+        "AI Computing Hardware"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 12,
+      "top_topics": [
+        "Legal AI Tools"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Hacker News",
+      "source_type": "rss",
+      "article_count": 10,
+      "top_topics": [
+        "AI Agents",
+        "Machine Learning"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LawSites",
+      "source_type": "rss",
+      "article_count": 3,
+      "top_topics": [
+        "Legal AI Tools"
+      ],
+      "signal_strength": "medium"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "Mira Murati's Thinking Machines Inks Massive NVIDIA Compute Deal",
+        "why_it_matters": "This $2B partnership with one-gigawatt compute allocation signals massive infrastructure investment in AI development and represents a significant shift in how AI startups are scaling their operations.",
+        "sources": [
+          {
+            "name": "GenAI Works",
+            "url": null
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "MEPs reach preliminary political agreement on AI omnibus",
+        "why_it_matters": "The EU continues to lead global AI regulation with amendments extending deadlines and banning nonconsensual deepfakes, setting precedent for other jurisdictions considering AI governance.",
+        "sources": [
+          {
+            "name": "IAPP Daily Dashboard",
+            "url": null
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "The Shape of the Thing: AI Agents Move From Co-Intelligence to Management",
+        "why_it_matters": "We're entering a new phase where humans manage AI agents rather than collaborate with them, with exponential capability improvements enabling radical changes to how work gets done.",
+        "sources": [
+          {
+            "name": "One Useful Thing",
+            "url": "https://www.oneusefulthing.org/p/the-shape-of-the-thing"
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "South Korea overhauls PIPA with 10% revenue penalties and CEO liability",
+      "why_it_matters": "This represents one of the most significant privacy law updates globally, with personal CEO liability setting a new standard that could influence privacy regulation worldwide.",
+      "sources": [
+        {
+          "name": "IAPP Daily Dashboard",
+          "url": null
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 47,
+      "funding_total_usd": 35035000000,
+      "new_regulations_count": 5,
+      "product_launches_count": 8,
+      "dominant_topic": "AI Agents",
+      "sentiment_balance": {
+        "positive": 6,
+        "neutral": 2,
+        "negative": 0,
+        "mixed": 2
+      }
+    }
+  }
+}
