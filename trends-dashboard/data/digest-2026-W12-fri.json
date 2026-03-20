@@ -1,0 +1,382 @@
+{
+  "meta": {
+    "id": "2026-W12-fri",
+    "run_date": "2026-03-20T08:02:56.081795",
+    "date_range_start": "2026-03-16",
+    "date_range_end": "2026-03-20",
+    "newsletter_count": 23,
+    "rss_article_count": 128,
+    "sources_analyzed": [
+      "The Verge",
+      "Gamma",
+      "Substack",
+      "\"Farrah Saracevic, Esq.\"",
+      "Zach Abramowitz from Zach Abramowitz is Legally Disrupted",
+      "Chelsea with IFTTT",
+      "How to AI (Ruben Hassid)",
+      "Ars Technica",
+      "LawSites (Bob Ambrogi)",
+      "\"Colin S. Levy via LinkedIn\"",
+      "\"J. Trevor Hughes\"",
+      "Reuters Legal via LinkedIn",
+      "TechCrunch",
+      "Heather McAuliffe",
+      "Ruben Hassid",
+      "Hacker News (Best)",
+      "IAPP Daily Dashboard",
+      "IAPP Buzz Weekly",
+      "GenAI Works via LinkedIn",
+      "LinkedIn Job Alerts",
+      "Artificial Lawyer",
+      "The Code",
+      "Daria Arzy",
+      "Above the Law"
+    ]
+  },
+  "topics": [
+    {
+      "name": "Claude Code AI",
+      "category": "ai",
+      "mention_count": 8,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Claude Code. A guide for people who don't code, and never will",
+        "\ud83e\udd16 OpenAI drops subagents",
+        "How to setup Claude Code (without coding)"
+      ]
+    },
+    {
+      "name": "OpenAI GPT Models",
+      "category": "ai",
+      "mention_count": 6,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "GPT-5.4 Mini: OpenAI Just Hired Its Own Sub-Interns!",
+        "OpenAI's Codex now lets you spawn parallel subagents",
+        "OpenAI is planning a desktop 'superapp'"
+      ]
+    },
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 7,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Claude Legal Prompt Shock, LegalOn GPT 5.4 Review, Legal Innovators +",
+        "Biglaw Partner Primes Columbia Law Students On AI Adoption",
+        "Law Firm AI Adoption: So Many Choices"
+      ]
+    },
+    {
+      "name": "AI Governance",
+      "category": "regulation",
+      "mention_count": 5,
+      "sentiment": "neutral",
+      "representative_headlines": [
+        "Governance is the Work",
+        "Singapore Has Set the Rules for GenAI in Legal",
+        "Making AI Work for Privacy: How to Scale Privacy Operations with Secure AI"
+      ]
+    },
+    {
+      "name": "Legal Tech Funding",
+      "category": "startup",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Newcode Raises $6.5m + Maged Helmy Interview",
+        "Kim Launches Enterprise AI Execution Layer",
+        "Anthropic's Claude Partner Network"
+      ]
+    },
+    {
+      "name": "AI Sanctions & Ethics",
+      "category": "regulation",
+      "mention_count": 4,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "US appeals court fines lawyers $30,000 in latest AI-related sanction",
+        "Sixth Circuit Slaps Steep Sanctions On Two Lawyers For Fake Citations",
+        "AI Hallucinations And Judicial Derangements"
+      ]
+    },
+    {
+      "name": "Enterprise AI Solutions",
+      "category": "enterprise",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Kim Launches Enterprise AI Execution Layer",
+        "7 Ways LOIS's AI Features Can Save Legal Teams 100+ Hours A Month",
+        "Aderant Adds AI-Powered Performance Evaluation Tools"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "acquisition",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI is acquiring open source Python tool-maker Astral",
+      "source": "Ars Technica",
+      "source_url": "https://arstechnica.com/ai/2026/03/openai-is-acquiring-open-source-python-tool-maker-astral/"
+    },
+    {
+      "type": "funding",
+      "entity": "Newcode",
+      "amount": "$6.5M",
+      "amount_usd": 6500000,
+      "headline": "Norway-based legal AI platform Newcode raises $6.5m",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/17/newcode-raises-6-5m-maged-helmy-interview/"
+    },
+    {
+      "type": "funding",
+      "entity": "Bluesky",
+      "amount": "$100M",
+      "amount_usd": 100000000,
+      "headline": "Bluesky announces $100M Series B after CEO transition",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/19/bluesky-announces-100m-series-b-after-ceo-transition/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Amazon",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Amazon acquires Rivr, maker of a stair-climbing delivery robot",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/19/amazon-acquires-rivr-maker-of-a-stair-climbing-delivery-robot/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI releases GPT-5.4 Mini and Nano with subagent capabilities",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Kim",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Kim launches enterprise AI execution layer for deterministic operational outcomes",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/19/kim-launches-enterprise-ai-execution-layer/"
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "US",
+      "type": "enforcement_action",
+      "title": "Sixth Circuit AI Sanctions",
+      "summary": "US appeals court fines lawyers $30,000 for fake citations and misrepresentations in appellate briefs involving AI-generated content.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "legal_tech",
+        "ai"
+      ],
+      "source": "Reuters Legal",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "guidance",
+      "title": "EU AI Act Simplification Discussion",
+      "summary": "European Parliament committees approved negotiating position on AI Act simplification, aiming to introduce ban on explicit AI deepfakes.",
+      "sentiment": "mixed",
+      "impact_area": [
+        "ai",
+        "regulation"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "new_regulation",
+      "title": "Oklahoma Privacy Bill Passes",
+      "summary": "Oklahoma Senate passes comprehensive privacy legislation covering businesses processing data of 100,000+ residents, effective Jan 1, 2027.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "data_privacy"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "Global",
+      "type": "guidance",
+      "title": "Singapore GenAI Legal Rules",
+      "summary": "Singapore establishes comprehensive rules for generative AI use in legal practice, setting precedent for AI governance in legal sector.",
+      "sentiment": "neutral",
+      "impact_area": [
+        "legal_tech",
+        "ai"
+      ],
+      "source": "Innovate Legal",
+      "source_url": null
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "product_launch",
+      "entity": "Bird & Bird",
+      "description": "Bird & Bird lawyer creates BunTool, free legal bundle maker for court and legal settings",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/19/bird-bird-lawyer-creates-buntool-free-legal-bundle-maker/"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Hand Arendall Harrison Sale",
+      "description": "Law firm transforms document workflows with Litera's AI-powered drafting and comparison tools, seeing immediate ROI",
+      "source": "LawSites",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Aderant",
+      "description": "Adds AI-powered performance evaluation tools to vi Talent Management Suite with sentiment analysis and auto-summarization",
+      "source": "LawSites",
+      "source_url": null
+    },
+    {
+      "type": "milestone",
+      "entity": "Pro Bono Net",
+      "description": "Rebrands as 'Scale Justice' to reflect evolution beyond pro bono services to broader access-to-justice technology mission",
+      "source": "LawSites",
+      "source_url": null
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "rss",
+      "article_count": 8,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Tech Funding",
+        "Enterprise AI Solutions"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Code",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "Claude Code AI",
+        "OpenAI GPT Models",
+        "AI Agents"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "AI Governance",
+        "Data Privacy",
+        "Regulatory Events"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 12,
+      "top_topics": [
+        "Legal AI Adoption",
+        "AI Sanctions & Ethics",
+        "Legal Practice"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LawSites",
+      "source_type": "rss",
+      "article_count": 6,
+      "top_topics": [
+        "Legal Tech Funding",
+        "Enterprise AI Solutions",
+        "Legal Tech Innovation"
+      ],
+      "signal_strength": "high"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "OpenAI launches GPT-5.4 Mini with parallel subagents capability",
+        "why_it_matters": "Represents a fundamental shift from single-agent workflows to coordinated AI teams, potentially revolutionizing how legal work gets automated at scale.",
+        "sources": [
+          {
+            "name": "The Code",
+            "url": null
+          },
+          {
+            "name": "GenAI Works",
+            "url": null
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "US appeals court fines lawyers $30,000 for AI-generated fake citations",
+        "why_it_matters": "Latest in growing trend of AI-related legal sanctions, highlighting urgent need for proper AI governance and verification protocols in legal practice.",
+        "sources": [
+          {
+            "name": "Reuters Legal",
+            "url": null
+          },
+          {
+            "name": "LawSites",
+            "url": "https://www.lawnext.com/2026/03/sixth-circuit-slaps-steep-sanctions-on-two-lawyers-for-fake-citations-and-misrepresentations-in-appellate-briefs.html"
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Claude Code emerges as leading no-code AI development platform",
+        "why_it_matters": "Democratizing AI development for non-technical users could accelerate legal tech adoption and enable smaller firms to compete with enterprise-level AI capabilities.",
+        "sources": [
+          {
+            "name": "How to AI",
+            "url": "https://ruben.substack.com/p/claude-code"
+          },
+          {
+            "name": "The Code",
+            "url": null
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "Kim launches enterprise AI execution layer for deterministic outcomes",
+      "why_it_matters": "Addresses the critical gap between AI's probabilistic nature and enterprise needs for deterministic workflows, potentially solving a major adoption barrier.",
+      "sources": [
+        {
+          "name": "Artificial Lawyer",
+          "url": "https://www.artificiallawyer.com/2026/03/19/kim-launches-enterprise-ai-execution-layer/"
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 89,
+      "funding_total_usd": 106500000,
+      "new_regulations_count": 4,
+      "product_launches_count": 6,
+      "dominant_topic": "Claude Code AI",
+      "sentiment_balance": {
+        "positive": 45,
+        "neutral": 35,
+        "negative": 20
+      }
+    }
+  }
+}
