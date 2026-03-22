@@ -124,7 +124,9 @@ function trendBadges(trends) {
 
 function formatShortDate(dateStr) {
   try {
-    const d = new Date(dateStr + 'T00:00:00');
+    const dateOnly = String(dateStr).slice(0, 10);
+    const d = new Date(dateOnly + 'T00:00:00');
+    if (isNaN(d)) return dateStr;
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   } catch {
     return dateStr;

@@ -116,9 +116,10 @@ function populateWeekSelector(data) {
 
   for (const d of digests) {
     const date = d?.meta?.run_date || d?.meta?.date || d?.meta?.week_ending || d?.date || 'unknown';
+    const labelDate = d?.meta?.date_range_start || date;
     const opt = document.createElement('option');
     opt.value = date;
-    opt.textContent = formatWeekLabel(date);
+    opt.textContent = formatWeekLabel(labelDate);
     selector.appendChild(opt);
   }
 
@@ -251,7 +252,9 @@ function detectDataPath() {
 
 function formatWeekLabel(dateStr) {
   try {
-    const d = new Date(dateStr + 'T00:00:00');
+    const dateOnly = String(dateStr).slice(0, 10);
+    const d = new Date(dateOnly + 'T00:00:00');
+    if (isNaN(d)) return dateStr;
     return `Week of ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   } catch {
     return dateStr;
