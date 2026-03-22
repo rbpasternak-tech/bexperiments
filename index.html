@@ -2,40 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#faf8f5">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Habit Tracker</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <header id="app-header">
-    <button id="prev-month" class="nav-btn" aria-label="Previous month">&#8249;</button>
-    <h1 id="month-label">February 2026</h1>
-    <button id="next-month" class="nav-btn" aria-label="Next month">&#8250;</button>
-  </header>
-
-  <nav id="view-toggle">
-    <button id="btn-daily" class="toggle-btn active">Daily</button>
-    <button id="btn-grid" class="toggle-btn">Monthly</button>
-  </nav>
-
-  <main id="app-content"></main>
-
-  <button id="btn-edit-habits" aria-label="Edit habits">
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M14.5 2.5l3 3L6 17H3v-3L14.5 2.5z"/>
-    </svg>
-  </button>
-
-  <div id="habit-editor-modal" class="modal hidden">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content"></div>
-  </div>
-
-  <script type="module" src="js/app.js"></script>
-</body>
-</html>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>bexperiments</title>
+        <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+                body {
+                      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                            background: #faf8f5;
+                                  color: #1a1a1a;
+                                        min-height: 100vh;
+                                              display: flex;
+                                                    flex-direction: column;
+                                                          align-items: center;
+                                                                justify-content: center;
+                                                                      padding: 2rem;
+                                                                          }
+                                                                              h1 {
+                                                                                    font-size: 2rem;
+                                                                                          font-weight: 700;
+                                                                                                letter-spacing: -0.02em;
+                                                                                                      margin-bottom: 0.5rem;
+                                                                                                          }
+                                                                                                              .subtitle {
+                                                                                                                    color: #666;
+                                                                                                                          margin-bottom: 3rem;
+                                                                                                                                font-size: 0.95rem;
+                                                                                                                                    }
+                                                                                                                                        .projects {
+                                                                                                                                              display: grid;
+                                                                                                                                                    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                                                                                                                                                          gap: 1.5rem;
+                                                                                                                                                                width: 100%;
+                                                                                                                                                                      max-width: 700px;
+                                                                                                                                                                          }
+                                                                                                                                                                              .card {
+                                                                                                                                                                                    background: #fff;
+                                                                                                                                                                                          border: 1px solid #e5e2dd;
+                                                                                                                                                                                                border-radius: 12px;
+                                                                                                                                                                                                      padding: 1.5rem;
+                                                                                                                                                                                                            text-decoration: none;
+                                                                                                                                                                                                                  color: inherit;
+                                                                                                                                                                                                                        transition: box-shadow 0.15s, transform 0.15s;
+                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                .card:hover {
+                                                                                                                                                                                                                                      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                                                                                                                                                                                                                                            transform: translateY(-2px);
+                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                    .card h2 {
+                                                                                                                                                                                                                                                          font-size: 1.1rem;
+                                                                                                                                                                                                                                                                font-weight: 600;
+                                                                                                                                                                                                                                                                      margin-bottom: 0.4rem;
+                                                                                                                                                                                                                                                                          }
+                                                                                                                                                                                                                                                                              .card p {
+                                                                                                                                                                                                                                                                                    font-size: 0.875rem;
+                                                                                                                                                                                                                                                                                          color: #555;
+                                                                                                                                                                                                                                                                                                line-height: 1.5;
+                                                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                                                        .tag {
+                                                                                                                                                                                                                                                                                                              display: inline-block;
+                                                                                                                                                                                                                                                                                                                    font-size: 0.75rem;
+                                                                                                                                                                                                                                                                                                                          background: #f0ede8;
+                                                                                                                                                                                                                                                                                                                                color: #555;
+                                                                                                                                                                                                                                                                                                                                      border-radius: 4px;
+                                                                                                                                                                                                                                                                                                                                            padding: 0.15rem 0.5rem;
+                                                                                                                                                                                                                                                                                                                                                  margin-bottom: 0.75rem;
+                                                                                                                                                                                                                                                                                                                                                      }
+                                                                                                                                                                                                                                                                                                                                                        </style>
+                                                                                                                                                                                                                                                                                                                                                        </head>
+                                                                                                                                                                                                                                                                                                                                                        <body>
+                                                                                                                                                                                                                                                                                                                                                          <h1>bexperiments</h1>
+                                                                                                                                                                                                                                                                                                                                                            <p class="subtitle">A collection of personal tools & experiments</p>
+                                                                                                                                                                                                                                                                                                                                                              <div class="projects">
+                                                                                                                                                                                                                                                                                                                                                                  <a class="card" href="habit-tracker/">
+                                                                                                                                                                                                                                                                                                                                                                        <span class="tag">PWA</span>
+                                                                                                                                                                                                                                                                                                                                                                              <h2>Habit Tracker</h2>
+                                                                                                                                                                                                                                                                                                                                                                                    <p>A digital bullet journal for tracking daily habits, with monthly grid view and offline support.</p>
+                                                                                                                                                                                                                                                                                                                                                                                        </a>
+                                                                                                                                                                                                                                                                                                                                                                                            <a class="card" href="trends-dashboard/">
+                                                                                                                                                                                                                                                                                                                                                                                                  <span class="tag">Dashboard</span>
+                                                                                                                                                                                                                                                                                                                                                                                                        <h2>Trends Dashboard</h2>
+                                                                                                                                                                                                                                                                                                                                                                                                              <p>Interactive tech &amp; legal tech intelligence tracker with topic heatmaps, trend lines, and AI economy signals.</p>
+                                                                                                                                                                                                                                                                                                                                                                                                                  </a>
+                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                    </body>
+                                                                                                                                                                                                                                                                                                                                                                                                                    </html>
