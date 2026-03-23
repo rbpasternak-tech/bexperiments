@@ -23,6 +23,9 @@ telegram-bot-env/
 *.env
 .env
 
+# GSD plugin artifacts
+.planning/
+
 # Editor
 .vscode/
 .idea/
