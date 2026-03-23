@@ -1,13 +1,24 @@
 # bexperiments
 
-Personal monorepo for tools and experiments, deployed via GitHub Pages.
+Personal monorepo (parent repo) for all projects and experiments. Each project lives in its own subfolder. Deployed via GitHub Pages.
 
-## Projects
+## Repo Structure
+
+This is a monorepo — all projects share one git repo. New projects go in new subfolders at the root (e.g., `my-new-project/`). Each subfolder is self-contained.
+
+## Current Projects
 
 - **habit-tracker/** — Vanilla JS PWA for daily habit tracking. Uses localStorage, service worker for offline. Entry: `habit-tracker/index.html`
 - **newsletter-digest/** — Python pipeline: fetches Gmail newsletters + RSS feeds, summarizes with Claude API, emails HTML digest. Entry: `newsletter-digest/main.py`
 - **trends-dashboard/** — Static JS dashboard visualizing digest data with Chart.js. Entry: `trends-dashboard/index.html`
 - **telegram_bot.py** — Standalone Telegram bot script
+
+## Adding a New Project
+
+1. Create a new folder at the repo root: `mkdir my-new-project`
+2. Build inside that folder — keep it self-contained
+3. Update the "Current Projects" list above with a one-liner
+4. Commit and push
 
 ## Tech & Conventions
 

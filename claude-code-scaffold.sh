@@ -1,11 +1,16 @@
 #!/bin/bash
 # claude-code-scaffold.sh
-# Run this in any new project directory to set up the Claude Code file structure.
-# Usage: bash claude-code-scaffold.sh
+#
+# USE THIS ONLY for brand-new standalone repos (NOT for new projects inside bexperiments).
+# For bexperiments sub-projects, just make a folder — the root CLAUDE.md and .gitignore
+# already have you covered.
+#
+# Usage: cd into your new repo, then run:
+#   bash ~/bexperiments/claude-code-scaffold.sh
 
 set -e
 
-echo "Setting up Claude Code scaffold..."
+echo "Setting up Claude Code scaffold for a standalone repo..."
 
 # --- Create directory structure ---
 mkdir -p .claude/rules
@@ -92,7 +97,7 @@ else
   echo "  .claude/rules/code-style.md already exists — skipping"
 fi
 
-# --- .gitignore additions ---
+# --- .gitignore ---
 GITIGNORE_ENTRIES=(
   "# Claude Code local files"
   ".claude/settings.local.json"
@@ -101,6 +106,10 @@ GITIGNORE_ENTRIES=(
   "# OS"
   ".DS_Store"
   "Thumbs.db"
+  ""
+  "# Secrets"
+  "*.env"
+  ".env"
 )
 
 if [ -f .gitignore ]; then
@@ -120,7 +129,6 @@ echo "Done! Next steps:"
 echo "  1. Edit CLAUDE.md with your project details"
 echo "  2. Edit .claude/rules/code-style.md with your conventions"
 echo "  3. Add any secrets/env vars to .claude/settings.local.json"
-echo "  4. Run: git add CLAUDE.md .claude/settings.json .claude/rules/ .gitignore"
-echo "  5. Run: git commit -m 'Add Claude Code project scaffold'"
-echo ""
-echo "  Optional: run 'claude /init' to auto-generate more CLAUDE.md content"
+echo "  4. Commit:"
+echo "     git add CLAUDE.md .claude/settings.json .claude/rules/ .gitignore"
+echo "     git commit -m 'Add Claude Code project scaffold'"

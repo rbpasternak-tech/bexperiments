@@ -1,85 +1,74 @@
-# New Project Setup Checklist for Claude Code
+# Starting a New Project in bexperiments
 
-Use this every time you start a new project in Claude Code to get the scaffolding right from the start.
+Your projects all live as subfolders inside bexperiments, which is one git repo. Here's what to do every time you start something new.
 
 ---
 
-## 1. Initialize the repo
+## Steps
 
-- [ ] `git init` (if not cloned from an existing repo)
-- [ ] Create your first file or `README.md` so you have something to commit
-
-## 2. Create the Claude Code scaffold
-
-Run the setup script (`claude-code-scaffold.sh` — see companion file), **or** do it manually:
-
-- [ ] Create `CLAUDE.md` at the project root
-- [ ] Create `.claude/settings.json` (shared team/project settings)
-- [ ] Create `.claude/settings.local.json` (your local-only settings — secrets, env vars)
-- [ ] Create `.claude/rules/` directory with at least one rule file
-- [ ] Optionally create `.claude/skills/` and `.claude/agents/` directories
-
-## 3. Write your CLAUDE.md
-
-Keep it under 200 lines. Include:
-
-- [ ] One-line project description
-- [ ] List of sub-projects or key directories with entry points
-- [ ] Tech stack and language conventions (indent style, naming, etc.)
-- [ ] Key commands (build, test, run, serve)
-- [ ] Credentials/secrets and where they live (so Claude knows what NOT to commit)
-- [ ] Deployment notes (how and where it ships)
-- [ ] Any "rules of the road" for working in the codebase
-
-**Tip:** Run `claude /init` in your project first to auto-generate a draft, then trim it down.
-
-## 4. Set up .gitignore BEFORE your first commit
-
-- [ ] Add `.claude/settings.local.json` (contains secrets)
-- [ ] Add `.claude/worktrees/` (Claude Code temp files)
-- [ ] Add OS files (`.DS_Store`, `Thumbs.db`)
-- [ ] Add language-specific ignores (`__pycache__/`, `node_modules/`, `venv/`)
-- [ ] Add credential files (`*.env`, `credentials.json`, `token.json`)
-
-## 5. Git commit structure
-
-- [ ] Commit these files to git (so they persist and sync):
-  - `CLAUDE.md`
-  - `.claude/settings.json`
-  - `.claude/rules/*.md`
-  - `.claude/skills/` (if any)
-  - `.claude/agents/` (if any)
-  - `.gitignore`
-
-- [ ] Do NOT commit (should be in `.gitignore`):
-  - `.claude/settings.local.json`
-  - `.claude/worktrees/`
-  - Any plugin state directories
-  - Credentials, tokens, `.env` files
-
-## 6. First commit
+### 1. Open Terminal and go to bexperiments
 
 ```bash
-git add CLAUDE.md .claude/settings.json .claude/rules/ .gitignore
-git commit -m "Add Claude Code project scaffold"
+cd ~/bexperiments
 ```
 
-## 7. Verify
+### 2. Make a folder for your new project
 
-- [ ] Run `git status` — no secrets or local-only files should appear as tracked
-- [ ] Open Claude Code in the project — it should pick up your CLAUDE.md automatically
-- [ ] Try asking Claude about your project — it should know the structure and conventions
+```bash
+mkdir my-new-project
+cd my-new-project
+```
+
+(Replace "my-new-project" with whatever you're building.)
+
+### 3. Start building
+
+That's it for setup. You don't need to run `git init` — bexperiments already has git. You don't need a new `.gitignore` — the one at the root already covers you. You don't need a new `CLAUDE.md` — the one at the root tells Claude about the whole repo.
+
+Just start creating files. Open Claude Code from inside bexperiments and tell it what you want to build.
+
+### 4. Update the root CLAUDE.md
+
+Once your project has taken shape, add a one-liner to the "Current Projects" section in `~/bexperiments/CLAUDE.md` so Claude knows it exists. For example:
+
+```
+- **my-new-project/** — Short description of what it does. Entry: `my-new-project/index.html`
+```
+
+### 5. Commit your work
+
+```bash
+cd ~/bexperiments
+git add my-new-project/ CLAUDE.md
+git commit -m "Add my-new-project"
+git push
+```
 
 ---
 
-## Quick Reference: What Goes Where
+## What's already set up (you don't need to redo these)
 
-| File | Purpose | Commit to git? |
-|------|---------|----------------|
-| `CLAUDE.md` | Project instructions Claude reads every session | Yes |
-| `.claude/settings.json` | Shared permissions and config | Yes |
-| `.claude/settings.local.json` | Your secrets, env vars, local prefs | **No** |
-| `.claude/rules/*.md` | Topic-specific instructions | Yes |
-| `.claude/skills/*/SKILL.md` | On-demand workflows | Yes |
-| `.claude/agents/*.md` | Custom subagents | Yes |
-| `.gitignore` | Protects secrets from accidental commits | Yes |
+These files live at the root of bexperiments and cover all projects:
+
+| File | What it does |
+|------|-------------|
+| `CLAUDE.md` | Tells Claude about the repo, conventions, and all projects |
+| `.claude/settings.json` | Shared permissions (e.g., pre-approved commands) |
+| `.claude/settings.local.json` | Your secrets — Telegram token, etc. (gitignored) |
+| `.claude/rules/code-style.md` | Code style conventions Claude follows |
+| `.gitignore` | Keeps secrets, `.DS_Store`, `__pycache__`, etc. out of git |
+
+---
+
+## When would I need the scaffold script?
+
+Only if you start a brand-new, separate repo that is NOT inside bexperiments. For example, if you start a work project or something you want in its own GitHub repo. Then you'd do:
+
+```bash
+mkdir ~/Documents/totally-separate-project
+cd ~/Documents/totally-separate-project
+git init
+bash ~/bexperiments/claude-code-scaffold.sh
+```
+
+That creates all the Claude Code files from scratch since there's no parent repo providing them.
