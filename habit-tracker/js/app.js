@@ -3,6 +3,7 @@
 import { getOrCreateMonth, getConfig, saveConfig, todayInfo, formatMonthLabel, offsetMonth } from './data.js';
 import { renderDailyView } from './daily-view.js';
 import { renderGridView } from './grid-view.js';
+import { renderStatsView } from './stats-view.js';
 import { openHabitEditor } from './habit-editor.js';
 
 const state = {
@@ -33,11 +34,19 @@ function init() {
 
 function render() {
   const container = document.getElementById('app-content');
-  document.getElementById('month-label').textContent = formatMonthLabel(state.currentMonthKey);
+  const isStats = state.currentView === 'stats';
+
+  document.getElementById('month-label').textContent =
+    isStats ? 'Statistics' : formatMonthLabel(state.currentMonthKey);
+
+  // Show/hide month nav in stats view
+  document.getElementById('prev-month').style.visibility = isStats ? 'hidden' : '';
+  document.getElementById('next-month').style.visibility = isStats ? 'hidden' : '';
 
   // Update toggle buttons
   document.getElementById('btn-daily').classList.toggle('active', state.currentView === 'daily');
   document.getElementById('btn-grid').classList.toggle('active', state.currentView === 'grid');
+  document.getElementById('btn-stats').classList.toggle('active', state.currentView === 'stats');
 
   if (state.currentView === 'daily') {
     renderDailyView(container, state.currentMonthKey, state.currentDay, (newMonthKey, newDay) => {
@@ -48,8 +57,10 @@ function render() {
       state.currentDay = newDay;
       render();
     });
-  } else {
+  } else if (state.currentView === 'grid') {
     renderGridView(container, state.currentMonthKey);
+  } else {
+    renderStatsView(container);
   }
 
   // Wire up welcome setup button if present
@@ -79,6 +90,12 @@ function bindEvents() {
   document.getElementById('btn-grid').addEventListener('click', () => {
     if (state.currentView === 'grid') return;
     state.currentView = 'grid';
+    render();
+  });
+
+  document.getElementById('btn-stats').addEventListener('click', () => {
+    if (state.currentView === 'stats') return;
+    state.currentView = 'stats';
     render();
   });
 
