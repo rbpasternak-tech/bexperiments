@@ -19,6 +19,7 @@ venv/
 # Credentials & secrets
 newsletter-digest/credentials.json
 newsletter-digest/token.json
+telegram_bot.py
 telegram-bot-env/
 *.env
 .env
