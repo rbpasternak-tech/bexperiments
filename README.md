@@ -2,13 +2,14 @@
 
 A collection of personal tools and experiments, deployed via GitHub Pages.
 
-**Live site:** https://rbpasternak-tech.github.io/bexperiments/
+
 
 ---
 
 ## Projects
 
 ### Habit Tracker
+**Live site:** https://rbpasternak-tech.github.io/bexperiments/
 [`habit-tracker/`](habit-tracker/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/habit-tracker/)
 
 A progressive web app (PWA) for daily habit tracking, styled as a digital bullet journal. Built with vanilla HTML/CSS/JS and localStorage. Supports daily checklist view, monthly grid view, habit editing with carry-forward between months, and offline use via service worker.
