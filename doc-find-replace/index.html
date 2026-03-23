@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doc Find &amp; Replace</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+  <header id="header">
+    <h1>Doc Find &amp; Replace</h1>
+    <div class="header-actions">
+      <button id="btn-apply-all" class="btn btn-action" title="Apply all checked replacements">Apply All</button>
+      <div class="export-group">
+        <button id="btn-export-clean" class="btn btn-export" title="Download each doc with replacements applied">Clean</button>
+        <button id="btn-export-clean-zip" class="btn btn-export" title="All clean docs in a zip">Clean (Zip)</button>
+        <button id="btn-export-redline" class="btn btn-export" title="Download redline docs individually">Redlines</button>
+        <button id="btn-export-redline-zip" class="btn btn-export" title="All redline docs in a zip">Redlines (Zip)</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="app-container">
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <h2>Documents</h2>
+        <span id="doc-stats" class="doc-stats"></span>
+      </div>
+      <ul id="doc-list"></ul>
+      <div id="upload-area" class="upload-area">
+        <input type="file" id="file-input" multiple accept=".docx,.pdf" hidden>
+        <p>Drag &amp; drop files here<br>or <a href="#" id="browse-link">browse</a></p>
+        <p class="upload-hint">.docx and .pdf</p>
+      </div>
+    </aside>
+
+    <main id="main-area">
+      <div class="table-toolbar">
+        <input type="text" id="table-filter" placeholder="Filter rows..." class="filter-input">
+        <button id="btn-add-row" class="btn btn-secondary">Add Row</button>
+        <button id="btn-extract-all" class="btn btn-secondary">Extract All Brackets</button>
+      </div>
+      <div class="table-container">
+        <table id="replace-table">
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Find</th>
+              <th>Replace</th>
+              <th>Source</th>
+              <th class="col-check"><input type="checkbox" id="check-all" checked title="Toggle all"></th>
+            </tr>
+          </thead>
+          <tbody id="replace-tbody"></tbody>
+        </table>
+        <p id="no-rows-msg" class="no-rows-msg">No replacements yet. Upload documents or add rows manually.</p>
+      </div>
+    </main>
+  </div>
+
+  <div id="progress-overlay" class="progress-overlay hidden">
+    <div class="progress-box">
+      <div class="spinner"></div>
+      <p id="progress-text">Processing...</p>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

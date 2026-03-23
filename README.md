@@ -17,6 +17,13 @@ A progressive web app (PWA) for daily habit tracking, styled as a digital bullet
 ### Newsletter Digest + Trends Dashboard
 [`newsletter-digest/`](newsletter-digest/) · [`trends-dashboard/`](trends-dashboard/) · [Live dashboard](https://rbpasternak-tech.github.io/bexperiments/trends-dashboard/)
 
+### Doc Find & Replace
+[`doc-find-replace/`](doc-find-replace/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/doc-find-replace/)
+
+A browser-based bulk document editor. Upload hundreds of `.docx` and `.pdf` files, then manage global find-and-replace across all of them from a spreadsheet-style table. Auto-extracts `[bracketed]` placeholders into the Find column. Downloads as clean files or native tracked-changes redlines, individually or as a zip. Documents persist across sessions via IndexedDB.
+
+---
+
 A two-part pipeline for tracking tech and legal tech trends:
 
 - **Newsletter Digest** — Python tool that fetches Gmail newsletters and RSS feeds (TechCrunch, Ars Technica, Hacker News, Artificial Lawyer, etc.), summarizes with the Claude API, and sends a formatted HTML digest email. Runs automatically via macOS launchd.

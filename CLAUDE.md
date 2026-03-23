@@ -11,6 +11,7 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 - **habit-tracker/** — Vanilla JS PWA for daily habit tracking. Uses localStorage, service worker for offline. Entry: `habit-tracker/index.html`
 - **newsletter-digest/** — Python pipeline: fetches Gmail newsletters + RSS feeds, summarizes with Claude API, emails HTML digest. Entry: `newsletter-digest/main.py`
 - **trends-dashboard/** — Static JS dashboard visualizing digest data with Chart.js. Entry: `trends-dashboard/index.html`
+- **doc-find-replace/** — Browser-based document find-and-replace tool for .docx and .pdf files. Vanilla JS, IndexedDB persistence. Entry: `doc-find-replace/index.html`
 - **telegram_bot.py** — Standalone Telegram bot script
 
 ## Adding a New Project
