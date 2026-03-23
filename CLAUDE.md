@@ -18,7 +18,8 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 1. Create a new folder at the repo root: `mkdir my-new-project`
 2. Build inside that folder — keep it self-contained
 3. Update the "Current Projects" list above with a one-liner
-4. Commit and push
+4. Update `README.md` with a description and links for the new project
+5. Commit and push
 
 ## Tech & Conventions
 
