@@ -1,0 +1,30 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code local files (never commit)
+.claude/settings.local.json
+.claude/telegram-state/
+.claude/worktrees/
+.claude/launch.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Credentials & secrets
+newsletter-digest/credentials.json
+newsletter-digest/token.json
+telegram-bot-env/
+*.env
+.env
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
