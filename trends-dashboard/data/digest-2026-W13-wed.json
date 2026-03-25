@@ -1,0 +1,345 @@
+{
+  "meta": {
+    "id": "2026-W13-wed",
+    "run_date": "2026-03-25T08:01:59.746075",
+    "date_range_start": "2026-03-21",
+    "date_range_end": "2026-03-25",
+    "newsletter_count": 24,
+    "rss_article_count": 124,
+    "sources_analyzed": [
+      "GenAI Works via LinkedIn",
+      "3 Geeks and a Law Blog",
+      "Gustavo Rearte",
+      "Above the Law",
+      "LinkedIn Job Alerts",
+      "How to AI (Ruben Hassid)",
+      "The Code",
+      "Artificial Lawyer",
+      "Lincoln Center",
+      "Riley Smith",
+      "The Verge",
+      "Claire Mullaney",
+      "LinkedIn",
+      "Ars Technica",
+      "TechCrunch",
+      "LawSites (Bob Ambrogi)",
+      "Hacker News (Best)",
+      "Crunchbase",
+      "Ruben Hassid",
+      "Jackson Heights-Elmhurst Patch",
+      "Daria from AI blew my mind",
+      "IAPP Daily Dashboard",
+      "Zach Abramowitz from Zach Abramowitz is Legally Disrupted"
+    ]
+  },
+  "topics": [
+    {
+      "name": "Claude Computer Control",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Claude is now YOUR computer",
+        "\ud83d\udda5\ufe0f Claude now controls your computer",
+        "Anthropic's Claude Code gets 'safer' auto mode"
+      ]
+    },
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "AI Adoption is Surging With In-House Teams",
+        "Legal AI Access at 83%, But Trust Issues Remain",
+        "AI Won't Replace Lawyers But Can Create Critical Shortage Of Good Ones"
+      ]
+    },
+    {
+      "name": "Legal Tech IPOs",
+      "category": "legal_tech",
+      "mention_count": 2,
+      "sentiment": "neutral",
+      "representative_headlines": [
+        "Relativity Confirms IPO, But Is This A Good Time?",
+        "Data Intelligence Company Relativity Confidentially Files For IPO"
+      ]
+    },
+    {
+      "name": "AI Search Evolution",
+      "category": "ai",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Search.",
+        "Grok 4.20 is now #1 for search"
+      ]
+    },
+    {
+      "name": "Legal Innovation Hiring",
+      "category": "legal_tech",
+      "mention_count": 1,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "\"legal innovation\": K&L Gates - Director, Practice Innovation and more"
+      ]
+    },
+    {
+      "name": "Expert Digital Twins",
+      "category": "ai",
+      "mention_count": 1,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Eudia Launches Expert Digital Twins, Partners With ServiceNow"
+      ]
+    },
+    {
+      "name": "Thomson Reuters LLM",
+      "category": "legal_tech",
+      "mention_count": 1,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Thomson Is Coming, TR's Own Legally-Trained LLM"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "funding",
+      "entity": "PointOne",
+      "amount": "$16M",
+      "amount_usd": 16000000,
+      "headline": "PointOne raises $16M Series A for time entry startup",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/23/pointone-raises-16m-10xs-revenue/"
+    },
+    {
+      "type": "funding",
+      "entity": "Kleiner Perkins",
+      "amount": "$3.5B",
+      "amount_usd": 3500000000,
+      "headline": "Kleiner Perkins raises $3.5B fresh capital going all in on AI",
+      "source": "TechCrunch",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Lucid Bots",
+      "amount": "$20M",
+      "amount_usd": 20000000,
+      "headline": "Lucid Bots raises $20M to keep up with demand for window-washing drones",
+      "source": "TechCrunch",
+      "source_url": null
+    },
+    {
+      "type": "acquisition",
+      "entity": "Amazon",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Amazon acquires Fauna Robotics making kid-size humanoid robots",
+      "source": "TechCrunch",
+      "source_url": null
+    },
+    {
+      "type": "acquisition",
+      "entity": "Soxton",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "NewMod law firm Soxton acquires Cipher security company",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/24/newmod-soxton-acquires-cipher-security-company/"
+    },
+    {
+      "type": "ipo",
+      "entity": "Relativity",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "eDiscovery pioneer Relativity files confidential IPO registration",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/23/relativity-confirms-ipo-but-is-this-a-good-time/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Eudia",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Eudia launches Expert Digital Twins with ServiceNow partnership",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/24/eudia-launches-expert-digital-twins-partners-with-servicenow/"
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "US",
+      "type": "legislative_proposal",
+      "title": "New York Anti-AI Professional Services Bill",
+      "summary": "Proposed legislation would limit AI use in professional fields like law and medicine, raising protectionism concerns.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "legal_tech",
+        "ai"
+      ],
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/23/new-yorks-anti-ai-bill-looks-like-protectionism/"
+    },
+    {
+      "jurisdiction": "US",
+      "type": "new_regulation",
+      "title": "FCC Bans Foreign-Made Consumer Routers",
+      "summary": "FCC imposes sweeping ban on foreign-manufactured routers, affecting all new models with Trump admin deciding exemptions.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "security"
+      ],
+      "source": "Ars Technica",
+      "source_url": null
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "firm_adoption",
+      "entity": "K&L Gates",
+      "description": "Hiring Director of Practice Innovation position",
+      "source": "LinkedIn Job Alerts",
+      "source_url": null
+    },
+    {
+      "type": "integration",
+      "entity": "Centerbase",
+      "description": "Launches native ndMAX integration connecting practice management to AI-powered document workflows",
+      "source": "LawSites",
+      "source_url": "https://www.lawnext.com/2026/03/centerbase-launches-native-ndmax-integration-connecting-practice-management-to-ai-powered-document-workflows.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Thomson Reuters",
+      "description": "Preparing to launch 'Thomson' legally-trained LLM this summer",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/24/thomson-is-coming-trs-own-legally-trained-llm/"
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "newsletter",
+      "article_count": 6,
+      "top_topics": [
+        "Legal Tech IPOs",
+        "Expert Digital Twins",
+        "Thomson Reuters LLM"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "How to AI (Ruben Hassid)",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "Claude Computer Control",
+        "AI Search Evolution"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 15,
+      "top_topics": [
+        "AI Economy",
+        "Funding"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 12,
+      "top_topics": [
+        "Legal Innovation Hiring",
+        "Legal AI Adoption"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "The Verge",
+      "source_type": "rss",
+      "article_count": 8,
+      "top_topics": [
+        "Claude Computer Control",
+        "AI Search Evolution"
+      ],
+      "signal_strength": "medium"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "Claude Gains Computer Control Capabilities",
+        "why_it_matters": "Anthropic's Claude can now directly control desktop computers, marking a significant leap in AI agent capabilities that could transform how professionals interact with technology.",
+        "sources": [
+          {
+            "name": "How to AI",
+            "url": "https://ruben.substack.com/p/claude-computer"
+          },
+          {
+            "name": "The Verge",
+            "url": "https://www.theverge.com/ai-artificial-intelligence/900201/anthropic-claude-code-auto-mode"
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "Legal AI Adoption Reaches 83% Despite Trust Issues",
+        "why_it_matters": "While AI tools are becoming standard across legal organizations, persistent trust and context issues highlight the gap between accessibility and effective implementation.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": null
+          },
+          {
+            "name": "Zach Abramowitz",
+            "url": null
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Relativity Files for Legal Tech's First IPO Since 2021",
+        "why_it_matters": "The eDiscovery pioneer's IPO filing signals potential market confidence in legal tech, though timing amid current market conditions raises questions about reception.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/03/23/relativity-confirms-ipo-but-is-this-a-good-time/"
+          },
+          {
+            "name": "LawSites",
+            "url": "https://www.lawnext.com/2026/03/data-intelligence-company-relativity-confidentially-files-for-ipo-would-be-first-in-legal-tech-since-2021.html"
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "Expert Digital Twins Launch at Enterprise Scale",
+      "why_it_matters": "Eudia's partnership with ServiceNow to deploy AI replicas of expert decision-making processes could revolutionize how organizations scale specialized knowledge across teams.",
+      "sources": [
+        {
+          "name": "Artificial Lawyer",
+          "url": "https://www.artificiallawyer.com/2026/03/24/eudia-launches-expert-digital-twins-partners-with-servicenow/"
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 47,
+      "funding_total_usd": 3536000000,
+      "new_regulations_count": 2,
+      "product_launches_count": 4,
+      "dominant_topic": "Claude Computer Control",
+      "sentiment_balance": {
+        "positive": 45,
+        "neutral": 35,
+        "negative": 20
+      }
+    }
+  }
+}
