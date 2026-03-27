@@ -1,0 +1,460 @@
+{
+  "meta": {
+    "id": "2026-W13-fri",
+    "run_date": "2026-03-27T08:04:32.618021",
+    "date_range_start": "2026-03-23",
+    "date_range_end": "2026-03-27",
+    "newsletter_count": 18,
+    "rss_article_count": 127,
+    "sources_analyzed": [
+      "LawSites (Bob Ambrogi)",
+      "Daria from AI blew my mind",
+      "Crunchbase",
+      "Hacker News (Best)",
+      "Artificial Lawyer",
+      "Rajasankar Viswanathan",
+      "Chris Catoggio",
+      "Jackson Heights-Elmhurst Patch",
+      "Ruben Hassid",
+      "LinkedIn Job Alerts",
+      "Elena Dickinson",
+      "IAPP Daily Dashboard",
+      "How to AI (Ruben Hassid)",
+      "The Verge",
+      "LegalGeek via LinkedIn",
+      "Above the Law",
+      "TechCrunch",
+      "The Code",
+      "Substack",
+      "GenAI Works via LinkedIn",
+      "Ars Technica",
+      "Chelsea with IFTTT"
+    ]
+  },
+  "topics": [
+    {
+      "name": "AI Agents",
+      "category": "ai",
+      "mention_count": 8,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Claude now controls your computer",
+        "How to build software using multi-agent AI workflows",
+        "Anthropic gives Claude direct control of your Mac"
+      ]
+    },
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 12,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Harvey announced a $200M raise, valuing the company at $11B",
+        "Legal Industry Reaches AI Tipping Point: Majority of Lawyers Now Using Gen AI",
+        "AI Training Is A Must At This Biglaw Firm, But Lawyers Won't Receive Any Billable Hours For It"
+      ]
+    },
+    {
+      "name": "Claude Computer Use",
+      "category": "ai",
+      "mention_count": 6,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Claude is now YOUR computer",
+        "Claude Cowork Might Be the Most Consequential Piece of Software You're Not Using",
+        "Anthropic gives Claude direct control of your Mac"
+      ]
+    },
+    {
+      "name": "Legal Tech Funding",
+      "category": "startup",
+      "mention_count": 6,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Steno Raises $49m, Hits $150m Total Funding",
+        "NewMod General Legal Hits $11.5m Funding in 3 Months",
+        "PointOne Raises $16m, 10Xs Revenue"
+      ]
+    },
+    {
+      "name": "OpenAI Product Changes",
+      "category": "ai",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "OpenAI Kills Sora Dead",
+        "OpenAI abandons yet another side quest: ChatGPT's erotic mode",
+        "OpenAI to close its AI video platform Sora"
+      ]
+    },
+    {
+      "name": "Legal Practice Innovation",
+      "category": "legal_tech",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Practice Innovation Project Manager (AI & Legal Tech) role",
+        "Director, Practice Innovation",
+        "Advise Practice Leadership on Gen AI/IT - Sr. BRM - LAW Firm"
+      ]
+    },
+    {
+      "name": "Document Analysis AI",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Clausul, a new legal tech startup out of Stockholm Sweden, that is redesigning the world of redlining",
+        "Centerbase Launches Native ndMAX Integration",
+        "Eudia Launches Expert Digital Twins"
+      ]
+    },
+    {
+      "name": "Government AI Regulation",
+      "category": "regulation",
+      "mention_count": 4,
+      "sentiment": "restrictive",
+      "representative_headlines": [
+        "Anthropic wins injunction against Trump administration over Defense Department saga",
+        "Judge blocks Pentagon effort to 'punish' Anthropic with supply chain risk label",
+        "David Sacks is no longer the White House AI and Crypto Czar"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "funding",
+      "entity": "Harvey",
+      "amount": "$200M",
+      "amount_usd": 200000000,
+      "headline": "Harvey announced a $200M raise, valuing the company at $11B",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Steno",
+      "amount": "$49M",
+      "amount_usd": 49000000,
+      "headline": "Steno Raises $49m, Hits $150m Total Funding",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/26/steno-raises-49m-hits-150m-total-funding/"
+    },
+    {
+      "type": "funding",
+      "entity": "NewMod General Legal",
+      "amount": "$11.5M",
+      "amount_usd": 11500000,
+      "headline": "NewMod General Legal Hits $11.5m Funding in 3 Months",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/26/newmod-general-legal-hits-11-5m-funding-in-3-months/"
+    },
+    {
+      "type": "funding",
+      "entity": "PointOne",
+      "amount": "$16M",
+      "amount_usd": 16000000,
+      "headline": "PointOne Raises $16m, 10Xs Revenue",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/23/pointone-raises-16m-10xs-revenue/"
+    },
+    {
+      "type": "funding",
+      "entity": "Shield AI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Defense startup Shield AI lands $12.7B valuation, up 140%",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/03/26/defense-startup-shield-ai-lands-12-7b-valuation-up-140-after-u-s-air-force-deal/"
+    },
+    {
+      "type": "ipo",
+      "entity": "Relativity",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Relativity began the process for a public listing, submitting its draft S-1 to the SEC",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/23/relativity-confirms-ipo-but-is-this-a-good-time/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Epiq",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Epiq acquired AI communication monitoring platform LitLingo",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "acquisition",
+      "entity": "Soxton",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "NewMod Soxton Acquires Cipher Security Company",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/24/newmod-soxton-acquires-cipher-security-company/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI shuts down Sora video generation platform to focus on 'Spud' model",
+      "source": "GenAI Works",
+      "source_url": null
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "US",
+      "type": "court_ruling",
+      "title": "Anthropic wins injunction against Pentagon blacklisting",
+      "summary": "Federal judge granted Anthropic preliminary injunction against Trump administration's designation as supply chain risk, finding evidence of retaliation.",
+      "sentiment": "permissive",
+      "impact_area": [
+        "ai",
+        "enterprise"
+      ],
+      "source": "The Verge",
+      "source_url": "https://www.theverge.com/ai-artificial-intelligence/902149/anthropic-dod-pentagon-lawsuit-supply-chain-risk-injunction"
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "legislative_proposal",
+      "title": "EU Parliament stops Chat Control mass surveillance",
+      "summary": "European Parliament voted to end Chat Control 1.0 mass surveillance program in what privacy advocates call a major victory.",
+      "sentiment": "permissive",
+      "impact_area": [
+        "data_privacy",
+        "regulation"
+      ],
+      "source": "Hacker News",
+      "source_url": "https://www.patrick-breyer.de/en/end-of-chat-control-eu-parliament-stops-mass-surveillance-in-voting-thriller-paving-the-way-for-genuine-child-protection/"
+    },
+    {
+      "jurisdiction": "US",
+      "type": "court_ruling",
+      "title": "Meta ordered to pay $375M over children's online safety",
+      "summary": "New Mexico jury found Meta did not adequately protect underage users from predatory behavior and harmful algorithms on its platforms.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "data_privacy",
+        "ai"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "product_launch",
+      "entity": "Clausul",
+      "description": "Stockholm-based startup launches redlining redesign platform",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/03/27/clausul-harvey-docusign-legal-innovators-europe/"
+    },
+    {
+      "type": "integration",
+      "entity": "Smokeball and Thomson Reuters",
+      "description": "Partnership integrates CoCounsel Legal AI with practice management platform",
+      "source": "LawSites",
+      "source_url": "https://www.lawnext.com/2026/03/exclusive-smokeball-and-thomson-reuters-partner-to-integrate-cocounsel-legal-ai-with-practice-management-platform.html"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Thompson Hine LLP",
+      "description": "Introduced SmartPaTH Plus with gen-AI across 100+ workflows",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "DeepJudge",
+      "description": "Unveiled SuperSearch for internal legal and business data retrieval",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "milestone",
+      "entity": "Legal Industry",
+      "description": "Majority of lawyers now using generative AI for first time, reaching tipping point",
+      "source": "LawSites",
+      "source_url": "https://www.lawnext.com/2026/03/legal-industry-reaches-ai-tipping-point-majority-of-lawyers-now-using-gen-ai-despite-persistent-reliability-concerns.html"
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "newsletter",
+      "article_count": 8,
+      "top_topics": [
+        "Legal Tech Funding",
+        "Document Analysis AI",
+        "Legal AI Adoption"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Code",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "AI Agents",
+        "Claude Computer Use"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "LegalGeek",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Tech Funding"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "GenAI Works",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "OpenAI Product Changes",
+        "AI Agents"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Government AI Regulation",
+        "Legal AI Adoption"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 15,
+      "top_topics": [
+        "AI Agents",
+        "OpenAI Product Changes",
+        "Legal Tech Funding"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Verge",
+      "source_type": "rss",
+      "article_count": 8,
+      "top_topics": [
+        "Government AI Regulation",
+        "AI Agents"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "LawSites",
+      "source_type": "rss",
+      "article_count": 5,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Practice Innovation"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 25,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Practice Innovation"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Hacker News",
+      "source_type": "rss",
+      "article_count": 20,
+      "top_topics": [
+        "AI Agents",
+        "Government AI Regulation"
+      ],
+      "signal_strength": "medium"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "Claude gains computer control capabilities while Harvey raises $200M",
+        "why_it_matters": "Anthropic's computer use feature represents a major leap in AI agent capabilities, allowing Claude to directly control desktops, while Harvey's massive funding round signals continued investor confidence in legal AI despite market uncertainty.",
+        "sources": [
+          {
+            "name": "The Code",
+            "url": null
+          },
+          {
+            "name": "LegalGeek",
+            "url": null
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "Legal industry crosses AI adoption tipping point",
+        "why_it_matters": "For the first time, more lawyers are using generative AI than not, marking a watershed moment for the profession even as reliability concerns persist across firms.",
+        "sources": [
+          {
+            "name": "LawSites",
+            "url": "https://www.lawnext.com/2026/03/legal-industry-reaches-ai-tipping-point-majority-of-lawyers-now-using-gen-ai-despite-persistent-reliability-concerns.html"
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Anthropic wins court victory against Pentagon blacklisting",
+        "why_it_matters": "Federal judge grants injunction against Trump administration's supply chain risk designation, finding evidence of retaliation and preserving Anthropic's government contracting eligibility.",
+        "sources": [
+          {
+            "name": "The Verge",
+            "url": "https://www.theverge.com/ai-artificial-intelligence/902149/anthropic-dod-pentagon-lawsuit-supply-chain-risk-injunction"
+          },
+          {
+            "name": "TechCrunch",
+            "url": "https://techcrunch.com/2026/03/26/anthropic-wins-injunction-against-trump-administration-over-defense-department-saga/"
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "OpenAI shuts down Sora to focus on 'Spud' model",
+      "why_it_matters": "OpenAI's decision to kill its video generation platform after just six months signals a major strategic shift toward its next foundational model, potentially reshaping the AI video generation landscape.",
+      "sources": [
+        {
+          "name": "GenAI Works",
+          "url": null
+        },
+        {
+          "name": "IAPP Daily Dashboard",
+          "url": null
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 87,
+      "funding_total_usd": 276500000,
+      "new_regulations_count": 3,
+      "product_launches_count": 8,
+      "dominant_topic": "Legal AI Adoption",
+      "sentiment_balance": {
+        "positive": 45,
+        "neutral": 30,
+        "negative": 25
+      }
+    }
+  }
+}
