@@ -11,7 +11,7 @@ import { SENTIMENT_COLORS, formatCurrency, formatNumber } from './chart-utils.js
 
 /**
  * @param {HTMLElement} container — the section element to render into
- * @param {Object}      data     — full dashboard data (uses data.latest)
+ * @param {Object}      data     — full dashboard data (uses data.latest, data.digests)
  */
 export function renderWeeklySnapshot(container, data) {
   const digest = data.latest;
@@ -25,7 +25,18 @@ export function renderWeeklySnapshot(container, data) {
   const oneToWatch = snap.one_to_watch;
   const stats = snap.quick_stats || {};
 
+  // Find previous digest for WoW comparison (digests sorted newest-first)
+  const digests = data.digests || [];
+  const prevDigest = digests.length > 1 ? digests[1] : null;
+  const prevStats = prevDigest?.weekly_snapshot?.quick_stats || null;
+
   let html = '<h2 class="section-title">Weekly Snapshot</h2>';
+
+  /* ---- Weekly Narrative ---- */
+  const narrative = digest.weekly_narrative || snap.narrative || '';
+  if (narrative) {
+    html += `<p class="weekly-narrative">${esc(narrative)}</p>`;
+  }
 
   /* ---- Top Stories ---- */
   html += '<div class="story-grid">';
@@ -40,7 +51,7 @@ export function renderWeeklySnapshot(container, data) {
   html += '</div>'; // .story-grid
 
   /* ---- Quick Stats ---- */
-  html += quickStatsRow(stats, digest);
+  html += quickStatsRow(stats, prevStats, digest);
 
   container.innerHTML = html;
 }
@@ -81,7 +92,23 @@ function oneToWatchCard(item) {
 /*  Quick Stats Row                                                    */
 /* ------------------------------------------------------------------ */
 
-function quickStatsRow(stats, digest) {
+/**
+ * Compute week-over-week percentage change between two numeric values.
+ * Returns null if comparison is not meaningful.
+ * @param {number} current
+ * @param {number} prev
+ * @returns {{pct: number, html: string}|null}
+ */
+function wowChange(current, prev) {
+  if (prev == null || prev === 0) return null;
+  const pct = Math.round(((current - prev) / prev) * 100);
+  if (Math.abs(pct) < 2) return null; // ignore noise
+  const cls = pct > 0 ? 'wow-up' : 'wow-down';
+  const arrow = pct > 0 ? '↑' : '↓';
+  return { pct, html: `<span class="wow-badge ${cls}">${arrow} ${Math.abs(pct)}%</span>` };
+}
+
+function quickStatsRow(stats, prevStats, digest) {
   const totalArticles   = stats.total_articles_analyzed ?? stats.total_articles ?? stats.article_count ?? 0;
   const fundingTotal    = stats.funding_total_usd ?? stats.funding_total ?? stats.total_funding ?? 0;
   const regulationCount = stats.new_regulations_count ?? stats.regulations_count ?? stats.regulation_count ?? 0;
@@ -89,12 +116,23 @@ function quickStatsRow(stats, digest) {
   const dominantTopic   = stats.dominant_topic ?? stats.top_topic ?? '';
   const sentimentDist   = stats.sentiment_balance ?? stats.sentiment_distribution ?? stats.sentiment ?? null;
 
+  // Previous stats for WoW
+  const prevArticles   = prevStats ? (prevStats.total_articles_analyzed ?? prevStats.total_articles ?? 0) : null;
+  const prevFunding    = prevStats ? (prevStats.funding_total_usd ?? prevStats.funding_total ?? 0) : null;
+  const prevRegCount   = prevStats ? (prevStats.new_regulations_count ?? prevStats.regulations_count ?? 0) : null;
+  const prevLaunches   = prevStats ? (prevStats.product_launches_count ?? prevStats.product_launches ?? 0) : null;
+
+  const wowArticles = wowChange(totalArticles, prevArticles);
+  const wowFunding  = wowChange(fundingTotal, prevFunding);
+  const wowRegs     = wowChange(regulationCount, prevRegCount);
+  const wowLaunches = wowChange(launches, prevLaunches);
+
   let html = '<div class="quick-stats">';
 
-  html += statCard('Articles', formatNumber(totalArticles), 'article-count');
-  html += statCard('Funding', formatCurrency(fundingTotal), 'funding-total');
-  html += statCard('Regulations', formatNumber(regulationCount), 'regulation-count');
-  html += statCard('Launches', formatNumber(launches), 'launch-count');
+  html += statCard('Articles', formatNumber(totalArticles) + (wowArticles?.html || ''), 'article-count');
+  html += statCard('Funding', formatCurrency(fundingTotal) + (wowFunding?.html || ''), 'funding-total');
+  html += statCard('Regulations', formatNumber(regulationCount) + (wowRegs?.html || ''), 'regulation-count');
+  html += statCard('Launches', formatNumber(launches) + (wowLaunches?.html || ''), 'launch-count');
 
   if (dominantTopic) {
     html += `

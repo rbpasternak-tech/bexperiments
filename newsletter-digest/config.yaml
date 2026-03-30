@@ -1,6 +1,6 @@
 gmail:
   recipient_email: "rbpasternak@gmail.com"
-  lookback_days: 4
+  lookback_days: 3
   max_emails: 200
 
 newsletters:

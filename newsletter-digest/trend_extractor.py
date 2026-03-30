@@ -8,15 +8,41 @@ import anthropic
 
 from email_parser import extract_text
 
+CANONICAL_TOPICS = """\
+Use these canonical topic names whenever content matches. Only create a new topic name if none of these fit:
+- "AI Agents" — autonomous AI agents, agentic workflows, computer use, multi-agent systems
+- "Large Language Models" — LLMs, foundation models, model releases, model benchmarks
+- "Legal AI Adoption" — law firms using AI, lawyer AI usage, legal AI statistics, in-house AI
+- "Legal Tech Funding" — investments, funding rounds, valuations, M&A in legal tech
+- "Contract Analysis AI" — contract review, redlining, CLM, NDA tools, document drafting AI
+- "E-Discovery & Litigation AI" — ediscovery, litigation support, document review, legal hold
+- "Compliance Technology" — RegTech, compliance automation, AML, KYC, audit tools
+- "AI Regulation" — government AI policy, AI laws, executive orders on AI, AI legislation
+- "Data Privacy" — GDPR, CCPA, privacy laws, data protection rulings, surveillance
+- "Law Firm Technology" — BigLaw tech adoption, practice management, firm IT, DMS
+- "Legal Practice Innovation" — legal ops, new service delivery, legal innovation, legal design
+- "Enterprise AI" — AI in enterprise, corporate AI adoption, B2B AI, AI strategy
+- "AI Safety & Ethics" — AI safety, bias, responsible AI, AI ethics, alignment
+- "Open Source AI" — open source models, Llama, Mistral, open weights, community AI
+- "Workforce & Jobs" — AI job displacement, hiring trends, legal jobs, skills, reskilling
+- "Cybersecurity" — security threats, breaches, AI security, ransomware
+- "Court Technology" — courts using AI, judicial AI, e-filing, court systems
+- "IP & Copyright" — AI copyright, patent AI, IP law, training data rights
+- "Startup Ecosystem" — new AI/legal tech startups, accelerators, incubators, founders
+- "AI Infrastructure" — compute, GPUs, cloud AI, data centers, inference costs
+"""
+
 EXTRACTION_PROMPT = """\
 You are a structured data extraction system. You will receive tech and legal tech newsletter content and RSS articles. Extract structured data for a trends dashboard.
 
 Return ONLY valid JSON matching the schema below. No text before or after the JSON.
 
+""" + CANONICAL_TOPICS + """
+
 Extract:
 
 1. **topics**: Distinct topics across all sources. Each:
-   - "name": Short label (2-5 words, e.g., "AI Agents", "EU AI Act")
+   - "name": Use a canonical topic name from the list above whenever possible. Only create new names for truly novel topics.
    - "category": One of: "ai", "legal_tech", "regulation", "startup", "enterprise", "open_source", "security", "data_privacy", "workforce"
    - "mention_count": How many distinct articles mention this
    - "sentiment": "positive", "neutral", "negative", or "mixed"
@@ -56,6 +82,8 @@ Extract:
    - "top_stories": Exactly 3 objects with "rank" (1-3), "headline", "why_it_matters" (1-2 sentences), "sources" ([{name, url}])
    - "one_to_watch": {headline, why_it_matters, sources}
    - "quick_stats": {total_articles_analyzed, funding_total_usd, new_regulations_count, product_launches_count, dominant_topic, sentiment_balance: {positive, neutral, negative}}
+
+7. **weekly_narrative**: A 2-3 sentence synthesis of the week's dominant themes and their significance for the legal tech and AI industry. Write for a senior executive — connect the dots between stories, not just a list of events.
 
 IMPORTANT:
 - Only extract what is EXPLICITLY in the content. Do not invent data.

@@ -156,6 +156,79 @@ a:hover {
 }
 
 /* ================================================================
+   Data Meta Bar
+   ================================================================ */
+
+.data-meta-bar {
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+  padding: 0.4rem 1.5rem;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.meta-item {
+  white-space: nowrap;
+}
+
+.meta-sep {
+  color: #cbd5e1;
+}
+
+/* ================================================================
+   Week-over-Week Change Badges
+   ================================================================ */
+
+.wow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+  border-radius: 100px;
+  margin-left: 0.35rem;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.wow-up {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.wow-down {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.wow-neutral {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ================================================================
+   Weekly Narrative
+   ================================================================ */
+
+.weekly-narrative {
+  background: #f8faff;
+  border-left: 3px solid #4f46e5;
+  border-radius: 0 8px 8px 0;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.65;
+  font-style: italic;
+}
+
+/* ================================================================
    Main Layout
    ================================================================ */
 

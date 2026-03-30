@@ -64,7 +64,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   /* ---- 5. Render everything ---- */
   renderAllSections(data);
 
-  /* ---- 6. Done ---- */
+  /* ---- 6. Populate meta bar ---- */
+  updateMetaBar(data);
+
+  /* ---- 7. Done ---- */
   showLoading(false);
 });
 
@@ -229,6 +232,48 @@ function updateFilterUI() {
 /* ------------------------------------------------------------------ */
 /*  Loading State                                                      */
 /* ------------------------------------------------------------------ */
+
+/**
+ * Populate the data meta bar with last-updated info from the latest digest.
+ * @param {Object} data
+ */
+function updateMetaBar(data) {
+  const bar = document.getElementById('data-meta-bar');
+  if (!bar || !data.latest) return;
+
+  const meta = data.latest.meta || {};
+
+  const runDate = meta.run_date
+    ? new Date(meta.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : null;
+
+  const rangeStart = meta.date_range_start
+    ? new Date(meta.date_range_start + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : null;
+  const rangeEnd = meta.date_range_end
+    ? new Date(meta.date_range_end + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : null;
+
+  const sourceCount = Array.isArray(meta.sources_analyzed) ? meta.sources_analyzed.length : null;
+  const articleCount = (meta.newsletter_count || 0) + (meta.rss_article_count || 0);
+  const digestCount = (data.digests || []).length;
+
+  if (runDate) {
+    document.getElementById('meta-last-updated').textContent = `Updated ${runDate}`;
+  }
+  if (rangeStart && rangeEnd) {
+    document.getElementById('meta-digest-range').textContent = `${rangeStart} – ${rangeEnd}`;
+  }
+  if (sourceCount) {
+    document.getElementById('meta-sources').textContent = `${sourceCount} sources`;
+  }
+  if (articleCount) {
+    document.getElementById('meta-articles').textContent =
+      `${articleCount} items · ${digestCount} digest${digestCount !== 1 ? 's' : ''}`;
+  }
+
+  bar.style.display = 'flex';
+}
 
 function showLoading(show) {
   const loader = document.getElementById('loading-overlay');
