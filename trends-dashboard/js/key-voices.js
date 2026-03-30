@@ -79,6 +79,16 @@ export function renderKeyVoices(container, data) {
 /* ------------------------------------------------------------------ */
 
 function buildSourceProfiles(sourcesArray, digests) {
+  // Build a topic name -> category map from all digests
+  const topicCategoryMap = new Map();
+  for (const d of digests) {
+    for (const t of d.topics || []) {
+      const name = t.name || t.topic || '';
+      const cat = (t.category || '').toLowerCase().replace(/\s+/g, '_');
+      if (name && cat) topicCategoryMap.set(name, cat);
+    }
+  }
+
   // Aggregate: source name -> { total articles, category counts, top topics }
   const map = new Map();
 
@@ -96,22 +106,21 @@ function buildSourceProfiles(sourcesArray, digests) {
     const articles = s.article_count || s.count || 1;
     profile.totalArticles += articles;
 
-    // Category / topic breakdown
-    const category = (s.category || s.topic || '').toLowerCase().replace(/\s+/g, '_');
-    if (category) {
-      profile.categoryCounts[category] = (profile.categoryCounts[category] || 0) + articles;
-    }
-
-    // Top topics
+    // Derive category counts from top_topics via the topic->category map
     const topics = s.topics || s.top_topics || [];
     if (Array.isArray(topics)) {
       for (const t of topics) {
-        profile.topTopics.add(typeof t === 'string' ? t : t.name || t.topic || '');
+        const topicName = typeof t === 'string' ? t : t.name || t.topic || '';
+        profile.topTopics.add(topicName);
+        const cat = topicCategoryMap.get(topicName) || (s.category || s.topic || '').toLowerCase().replace(/\s+/g, '_');
+        if (cat) {
+          profile.categoryCounts[cat] = (profile.categoryCounts[cat] || 0) + 1;
+        }
       }
     }
   }
 
-  // Also scan digests for source_contributions to capture topic info
+  // Also scan digests for source_contributions to capture additional topic info
   for (const d of digests) {
     const contributions = d.source_contributions || [];
     for (const c of contributions) {
@@ -121,7 +130,12 @@ function buildSourceProfiles(sourcesArray, digests) {
       const topics = c.topics || c.top_topics || [];
       if (Array.isArray(topics)) {
         for (const t of topics) {
-          profile.topTopics.add(typeof t === 'string' ? t : t.name || t.topic || '');
+          const topicName = typeof t === 'string' ? t : t.name || t.topic || '';
+          profile.topTopics.add(topicName);
+          const cat = topicCategoryMap.get(topicName);
+          if (cat) {
+            profile.categoryCounts[cat] = (profile.categoryCounts[cat] || 0) + 1;
+          }
         }
       }
     }
