@@ -2,6 +2,7 @@
 
 import base64
 import os
+import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -9,6 +10,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
@@ -79,12 +81,7 @@ def fetch_emails(lookback_days, max_emails=200):
             break
 
         for msg_stub in messages:
-            msg = (
-                service.users()
-                .messages()
-                .get(userId="me", id=msg_stub["id"], format="full")
-                .execute()
-            )
+            msg = _fetch_message_with_retry(service, msg_stub["id"])
             results.append(_parse_message(msg))
 
             if len(results) >= max_emails:
@@ -95,6 +92,27 @@ def fetch_emails(lookback_days, max_emails=200):
             break
 
     return results
+
+
+def _fetch_message_with_retry(service, message_id, max_attempts=3):
+    """Fetch a single Gmail message with exponential backoff on 5xx errors."""
+    for attempt in range(max_attempts):
+        try:
+            return (
+                service.users()
+                .messages()
+                .get(userId="me", id=message_id, format="full")
+                .execute()
+            )
+        except HttpError as e:
+            if e.resp.status >= 500 and attempt < max_attempts - 1:
+                wait = 2 ** attempt
+                print(f"  Gmail API error {e.resp.status} for message {message_id} "
+                      f"(attempt {attempt + 1}/{max_attempts}), retrying in {wait}s")
+                time.sleep(wait)
+            else:
+                raise
+    return None  # unreachable
 
 
 def _parse_message(msg):

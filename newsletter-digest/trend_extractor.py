@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 from datetime import datetime
 
 import anthropic
@@ -111,12 +112,27 @@ def extract_trends(newsletters, rss_articles, date_start, date_end, model, outpu
         return
 
     client = anthropic.Anthropic()
-    response = client.messages.create(
-        model=model,
-        max_tokens=8192,
-        system=EXTRACTION_PROMPT,
-        messages=[{"role": "user", "content": "Extract structured data:\n\n" + "\n".join(content_parts)}],
-    )
+    prompt = "Extract structured data:\n\n" + "\n".join(content_parts)
+
+    # Retry up to 3 times on transient API errors
+    last_error = None
+    for attempt in range(3):
+        try:
+            response = client.messages.create(
+                model=model,
+                max_tokens=16000,
+                system=EXTRACTION_PROMPT,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            break
+        except Exception as e:
+            last_error = e
+            if attempt < 2:
+                wait = 10 * (2 ** attempt)
+                print(f"  Claude API error (attempt {attempt + 1}/3), retrying in {wait}s: {e}")
+                time.sleep(wait)
+    else:
+        raise RuntimeError(f"Claude API failed after 3 attempts: {last_error}") from last_error
 
     raw_text = response.content[0].text.strip()
     # Handle potential markdown code fences
@@ -124,8 +140,19 @@ def extract_trends(newsletters, rss_articles, date_start, date_end, model, outpu
         raw_text = raw_text.split("\n", 1)[1]
         if raw_text.endswith("```"):
             raw_text = raw_text[:-3].strip()
+        elif "```" in raw_text:
+            raw_text = raw_text[:raw_text.rfind("```")].strip()
 
-    extracted = json.loads(raw_text)
+    try:
+        extracted = json.loads(raw_text)
+    except json.JSONDecodeError:
+        # Response was truncated — trim to last complete top-level value
+        extracted = _repair_truncated_json(raw_text)
+        if extracted is None:
+            raise RuntimeError(
+                f"Could not parse Claude's response as JSON (stop_reason={response.stop_reason}). "
+                "Try reducing content volume or check max_tokens."
+            )
 
     # Build digest ID from date
     digest_id = _make_digest_id(date_end)
@@ -160,7 +187,14 @@ def extract_trends(newsletters, rss_articles, date_start, date_end, model, outpu
 
 
 def _build_content(newsletters, rss_articles):
-    """Build content string from newsletters and RSS articles."""
+    """Build content string from newsletters and RSS articles.
+
+    Caps newsletter body at 2500 chars and RSS articles at 80 to keep
+    the total input within a safe token budget.
+    """
+    MAX_NEWSLETTER_CHARS = 2500
+    MAX_RSS_ARTICLES = 80
+
     parts = []
 
     if newsletters:
@@ -169,6 +203,8 @@ def _build_content(newsletters, rss_articles):
             text = extract_text(email)
             if not text.strip():
                 continue
+            if len(text) > MAX_NEWSLETTER_CHARS:
+                text = text[:MAX_NEWSLETTER_CHARS] + "\n[truncated]"
             parts.append(
                 f"--- Newsletter {i} ---\n"
                 f"From: {email.get('sender', 'Unknown')}\n"
@@ -179,7 +215,7 @@ def _build_content(newsletters, rss_articles):
 
     if rss_articles:
         parts.append("\n=== RSS FEED ARTICLES ===\n")
-        for article in rss_articles:
+        for article in rss_articles[:MAX_RSS_ARTICLES]:
             parts.append(
                 f"--- {article.source} ---\n"
                 f"Title: {article.title}\n"
@@ -189,6 +225,24 @@ def _build_content(newsletters, rss_articles):
             )
 
     return parts
+
+
+def _repair_truncated_json(raw_text):
+    """Attempt to recover a truncated JSON response.
+
+    Tries increasingly aggressive truncation to find the longest valid prefix.
+    Returns parsed dict on success, None on failure.
+    """
+    # Try stripping from the last closing brace/bracket backwards
+    for end_char in ('}', ']'):
+        pos = raw_text.rfind(end_char)
+        while pos > 0:
+            candidate = raw_text[:pos + 1]
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                pos = raw_text.rfind(end_char, 0, pos)
+    return None
 
 
 def _make_digest_id(date_end):
