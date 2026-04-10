@@ -1,0 +1,676 @@
+{
+  "meta": {
+    "id": "2026-W15-fri",
+    "run_date": "2026-04-10T08:04:15.831001",
+    "date_range_start": "2026-04-07",
+    "date_range_end": "2026-04-10",
+    "newsletter_count": 12,
+    "rss_article_count": 124,
+    "sources_analyzed": [
+      "Ruben Hassid",
+      "Joaquin Norman",
+      "The Economist via LinkedIn",
+      "LinkedIn Job Alerts",
+      "Katya Linossi via LinkedIn",
+      "Daria from AI blew my mind",
+      "Hacker News (Best)",
+      "How to AI (Ruben Hassid)",
+      "The Code",
+      "New York Business Journal",
+      "IAPP Daily Dashboard",
+      "Above the Law",
+      "Ars Technica",
+      "LawSites (Bob Ambrogi)",
+      "The Verge",
+      "Artificial Lawyer",
+      "TechCrunch"
+    ]
+  },
+  "topics": [
+    {
+      "name": "AI Agents",
+      "category": "ai",
+      "mention_count": 7,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Anthropic ships a faster way to build production agents: Claude Managed Agents",
+        "I Built a Claude Managed Agent in 30 Minutes. Here's How They Work and Why They Matter.",
+        "Clio Rolls Out Agents For Work and Vincent"
+      ]
+    },
+    {
+      "name": "Large Language Models",
+      "category": "ai",
+      "mention_count": 6,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Meta launches its first model from Superintelligence Labs: Muse Spark",
+        "Is Anthropic limiting the release of Mythos to protect the internet \u2014 or Anthropic?",
+        "AI on the couch: Anthropic gives Claude 20 hours of psychiatry"
+      ]
+    },
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "More AI + More Jobs, Eudia Webinar, Felix, Legal Innovators +",
+        "On-Demand Webinar: The Path To AI Maturity In The Legal Industry",
+        "LawNext Podcast: Learned Hand's Shlomo Klapper On Why Courts Are The Next Frontier For Legal AI"
+      ]
+    },
+    {
+      "name": "Legal Tech Funding",
+      "category": "legal_tech",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Haast Raises $12m For AI Marketing 'Slop' Compliance",
+        "Priyanka Singh Promoted to EVP, Operations & CFO at Litera, Taking on Expanded Strategic Role as Litera Sees Ongoing Strong Growth"
+      ]
+    },
+    {
+      "name": "Law Firm Technology",
+      "category": "legal_tech",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "UK Firm Rolls Out August Across Multiple Business Functions",
+        "Latham & Watkins is hiring: Manager of AI & Innovation \u2013 Legal Technology",
+        "Haynes & Boone: Let's Talk Legal Ops and AI!"
+      ]
+    },
+    {
+      "name": "Legal Practice Innovation",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "April newsletter: Unlocking knowledge stuck in silos",
+        "NewMod Norm Law Hires Ex-Ropes & Gray Partner Bill Mone",
+        "Managing In The Age Of AI: Bring Back Walking Around"
+      ]
+    },
+    {
+      "name": "Court Technology",
+      "category": "legal_tech",
+      "mention_count": 1,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "LawNext Podcast: Learned Hand's Shlomo Klapper On Why Courts Are The Next Frontier For Legal AI"
+      ]
+    },
+    {
+      "name": "AI Regulation",
+      "category": "regulation",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Florida AG to probe OpenAI, alleging possible connection to FSU shooting",
+        "Trump-appointed judges refuse to block Trump blacklisting of Anthropic AI tech",
+        "First man convicted under Take It Down Act kept making AI nudes after arrest"
+      ]
+    },
+    {
+      "name": "Data Privacy",
+      "category": "data_privacy",
+      "mention_count": 3,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Alabama set to add variation to US state privacy patchwork",
+        "Global push for 'digital sovereignty' risks complicating global data flows, innovation",
+        "Dad stuck in support nightmare after teen lied about age on Discord"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "category": "security",
+      "mention_count": 4,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "Australian Signals Directorate publishes frontier AI model cybersecurity guidance",
+        "Is Anthropic limiting the release of Mythos to protect the internet \u2014 or Anthropic?",
+        "After data breach, $10B-valued startup Mercor is having a month"
+      ]
+    },
+    {
+      "name": "AI Safety & Ethics",
+      "category": "ai",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "OpenAI, Anthropic, and Google team up to fight model copying",
+        "Police corporal created AI porn from driver's license pics",
+        "AI on the couch: Anthropic gives Claude 20 hours of psychiatry"
+      ]
+    },
+    {
+      "name": "Enterprise AI",
+      "category": "enterprise",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "AI Transformation: Look Into an AI-Forward Future (Forvis Mazars webinar)",
+        "Anthropic secures massive compute expansion with Google and Broadcom",
+        "Clio Rolls Out Agents For Work and Vincent"
+      ]
+    },
+    {
+      "name": "Open Source AI",
+      "category": "open_source",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Meta plans open-source versions of its next frontier models",
+        "Open-source becomes the primary choice for agents"
+      ]
+    },
+    {
+      "name": "AI Infrastructure",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Anthropic secures massive compute expansion with Google and Broadcom",
+        "Google and Intel deepen AI infrastructure partnership",
+        "Maine is about to become the first state to ban major new data centers"
+      ]
+    },
+    {
+      "name": "Workforce & Jobs",
+      "category": "workforce",
+      "mention_count": 3,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Latham & Watkins is hiring: Manager of AI & Innovation \u2013 Legal Technology ($210K-$260K)",
+        "Haynes & Boone: Let's Talk Legal Ops and AI!",
+        "What founders can learn from Anjuna's layoffs and recovery"
+      ]
+    },
+    {
+      "name": "Compliance Technology",
+      "category": "legal_tech",
+      "mention_count": 1,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Haast Raises $12m For AI Marketing 'Slop' Compliance"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "funding",
+      "entity": "Haast",
+      "amount": "$12M",
+      "amount_usd": 12000000,
+      "headline": "Haast raises $12M Series A led by Peak XV Partners for AI marketing content compliance, bringing total funding to over $17M",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/04/09/haast-raises-12m-for-ai-marketing-slop-compliance/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Anthropic",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Anthropic launches Claude Managed Agents, a suite of APIs to simplify building production AI agents, adopted by Notion and Asana",
+      "source": "The Code / AI blew my mind",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Meta",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Meta launches Muse Spark, a multimodal AI model from its Superintelligence Labs, driving Meta AI app to No. 5 on App Store",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/04/09/meta-ai-app-climbs-to-no-5-on-the-app-store-after-muse-spark-launch/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI launches new $100/month ChatGPT Pro subscription tier with 5x more Codex usage",
+      "source": "The Verge",
+      "source_url": "https://www.theverge.com/ai-artificial-intelligence/909599/chatgpt-pro-subscription-new"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Clio",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Clio rolls out AI agents for Clio Work and Vincent platforms, including new mobile app features",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/04/08/clio-rolls-out-agents-for-work-and-vincent/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Sierra",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Sierra launches Ghostwriter, an agent designed to build other agents, replacing traditional click-based apps with natural language",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/04/09/sierras-bret-taylor-says-the-era-of-clicking-buttons-is-over/"
+    },
+    {
+      "type": "partnership",
+      "entity": "Anthropic",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Anthropic secures multi-gigawatt TPU compute deal with Google and Broadcom, run-rate revenue tripled to $30B since late 2025",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "partnership",
+      "entity": "Google",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Google and Intel deepen AI infrastructure partnership to co-develop custom chips amid global CPU shortage",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/04/09/google-and-intel-deepen-ai-infrastructure-partnership/"
+    },
+    {
+      "type": "partnership",
+      "entity": "Snap",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Snap enters multi-year strategic agreement with Qualcomm to power upcoming consumer AR glasses with Snapdragon XR chip",
+      "source": "The Verge",
+      "source_url": "https://www.theverge.com/tech/909608/snap-specs-qualcomm-snapdragon-ar-glasses"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Cursor",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Cursor upgrades Bugbot with self-learning capability; 110K repos using feature with 44K rules generated and ~80% resolution rate",
+      "source": "The Code",
+      "source_url": null
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "US",
+      "type": "legislative_proposal",
+      "title": "Alabama Comprehensive Privacy Bill HB 351",
+      "summary": "Alabama's House Bill 351 cleared the state legislature on April 7, 2026, adding Alabama to the U.S. state privacy law patchwork. The bill features notable differences in coverage thresholds and exemptions that could create new compliance complexities.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "Compliance Technology"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "enforcement_action",
+      "title": "Florida AG Investigates OpenAI",
+      "summary": "Florida Attorney General James Uthmeier launched an investigation into OpenAI citing public safety and national security risks, including concerns about data falling into the hands of the Chinese Communist Party and an alleged link to a Florida State University shooting.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "AI Safety & Ethics"
+      ],
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/04/09/florida-ag-to-probe-openai-alleging-possible-connection-to-fsu-shooting/"
+    },
+    {
+      "jurisdiction": "US",
+      "type": "court_ruling",
+      "title": "DC Circuit Denies Anthropic Stay on Trump Blacklisting",
+      "summary": "Trump-appointed judges on the DC Circuit refused to block the Trump administration's blacklisting designation of Anthropic's AI technology, though the court ordered expedited briefing, suggesting the panel has reservations about the administration's reasoning.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Enterprise AI"
+      ],
+      "source": "Ars Technica",
+      "source_url": "https://arstechnica.com/tech-policy/2026/04/trump-appointed-judges-refuse-to-block-trump-blacklisting-of-anthropic-ai-tech/"
+    },
+    {
+      "jurisdiction": "Global",
+      "type": "guidance",
+      "title": "Australian Signals Directorate Frontier AI Cybersecurity Guidance",
+      "summary": "The Australian Signals Directorate published guidance on frontier AI model cybersecurity impacts, recommending organizations establish a security baseline aligned with its Information Security Manual, implement daily vulnerability patching, and develop layered security strategies.",
+      "sentiment": "neutral",
+      "impact_area": [
+        "Cybersecurity",
+        "AI Regulation"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "court_ruling",
+      "title": "First Conviction Under Take It Down Act",
+      "summary": "The first man convicted under the Take It Down Act was found to have continued creating AI-generated nude images after his arrest, using over 100 AI tools to produce fake nudes of women and minors.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "AI Safety & Ethics"
+      ],
+      "source": "Ars Technica",
+      "source_url": "https://arstechnica.com/tech-policy/2026/04/first-man-convicted-under-take-it-down-act-kept-making-ai-nudes-after-arrest/"
+    },
+    {
+      "jurisdiction": "US",
+      "type": "legislative_proposal",
+      "title": "Maine Data Center Ban Legislation",
+      "summary": "Maine is on the verge of becoming the first US state to ban major new data centers, reflecting growing concerns about AI infrastructure's environmental and community impact.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Infrastructure",
+        "AI Regulation"
+      ],
+      "source": "Hacker News",
+      "source_url": "https://www.gadgetreview.com/maine-is-about-to-become-the-first-state-to-ban-major-new-data-centers"
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "product_launch",
+      "entity": "Clio",
+      "description": "Clio rolled out AI agents for Clio Work (enabling multi-step legal task execution) and Vincent, plus a mobile app and additional features, signaling the agentic wave hitting legal tech platforms.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/04/08/clio-rolls-out-agents-for-work-and-vincent/"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Harrison Drury",
+      "description": "UK law firm Harrison Drury has expanded its deployment of legal AI platform August across multiple business functions, not just legal matters.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/04/09/uk-firm-rolls-out-august-across-multiple-business-functions/"
+    },
+    {
+      "type": "milestone",
+      "entity": "Latham & Watkins",
+      "description": "Latham & Watkins is actively recruiting a Manager of AI & Innovation \u2013 Legal Technology at $210K-$260K salary in New York and Washington DC, signaling major BigLaw investment in AI leadership roles.",
+      "source": "LinkedIn Job Alerts",
+      "source_url": null
+    },
+    {
+      "type": "milestone",
+      "entity": "Haynes & Boone",
+      "description": "Haynes & Boone is recruiting a Manager of Practice Innovation Operations focused on generative AI and AI-enabled legal tools, pilot program coordination, and responsible AI adoption.",
+      "source": "LinkedIn",
+      "source_url": "https://haynesboone.wd503.myworkdayjobs.com/en-US/HaynesandBoone/job/Manager-of-Practice-Innovation_R1287"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Learned Hand",
+      "description": "Learned Hand's Shlomo Klapper is building a 'reasoning engine' for judges, positioning courts as the next frontier for legal AI deployment.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/04/lawnext-podcast-learned-hands-shlomo-klapper-on-why-courts-are-the-next-frontier-for-legal-ai.html"
+    },
+    {
+      "type": "milestone",
+      "entity": "Litera",
+      "description": "Litera promoted Priyanka Singh to EVP Operations & CFO, reflecting ongoing strong growth for the legal AI platform provider that unifies the practice and business of law.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/04/priyanka-singh-promoted-to-evp-operations-cfo-at-litera-taking-on-expanded-strategic-role-as-litera-sees-ongoing-strong-growth.html"
+    },
+    {
+      "type": "milestone",
+      "entity": "NewMod Norm Law",
+      "description": "NewMod Norm Law, the legal arm of Norm AI, hired Bill Mone (ex-Ropes & Gray partner) as Head of Private Equity, expanding its legal talent base.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/04/09/newmod-norm-law-hires-ex-ropes-gray-partner-bill-mone/"
+    },
+    {
+      "type": "integration",
+      "entity": "iManage / Legal KM",
+      "description": "Legal and professional services firms are developing a 'knowledge layer' strategy on top of iManage DMS to enable AI-ready knowledge delivery at scale, separating reusable knowledge from matter content.",
+      "source": "LinkedIn (Katya Linossi newsletter)",
+      "source_url": null
+    },
+    {
+      "type": "milestone",
+      "entity": "US Legal Market",
+      "description": "Artificial Lawyer's weekly wrap notes the US legal market is consistently adding more lawyer jobs alongside increasing AI adoption, countering fears of AI-driven job displacement.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/04/10/more-ai-more-jobs-eudia-webinar-felix-legal-innovators/"
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "rss",
+      "article_count": 6,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Tech Funding",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 18,
+      "top_topics": [
+        "AI Regulation",
+        "Large Language Models",
+        "AI Agents"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Verge",
+      "source_type": "rss",
+      "article_count": 10,
+      "top_topics": [
+        "AI Regulation",
+        "Large Language Models",
+        "Data Privacy"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Ars Technica",
+      "source_type": "rss",
+      "article_count": 12,
+      "top_topics": [
+        "AI Safety & Ethics",
+        "Cybersecurity",
+        "AI Regulation"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 14,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Law Firm Technology",
+        "Court Technology"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LawSites (Bob Ambrogi)",
+      "source_type": "rss",
+      "article_count": 2,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Court Technology",
+        "Legal Tech Funding"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Hacker News (Best)",
+      "source_type": "rss",
+      "article_count": 10,
+      "top_topics": [
+        "AI Infrastructure",
+        "AI Safety & Ethics",
+        "Data Privacy"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Data Privacy",
+        "Cybersecurity",
+        "AI Regulation"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Code (Superhuman)",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "AI Agents",
+        "Large Language Models",
+        "AI Infrastructure"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "AI blew my mind (Daria Cupareanu)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Agents"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Ruben Hassid (Substack)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Agents",
+        "Large Language Models"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LinkedIn (Katya Linossi)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Law Firm Technology",
+        "Legal Practice Innovation"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LinkedIn Job Alerts",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Workforce & Jobs",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "New York Business Journal",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Enterprise AI"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "The Economist via LinkedIn",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "LinkedIn (Joaquin Norman / Haynes & Boone)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Workforce & Jobs",
+        "Legal Practice Innovation"
+      ],
+      "signal_strength": "medium"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "Anthropic launches Claude Managed Agents, transforming how developers build AI products \u2014 while simultaneously fighting a Trump administration blacklisting in court",
+        "why_it_matters": "Anthropic is simultaneously becoming the infrastructure layer for enterprise AI products (with Notion and Asana as early adopters) and a focal point of US national security policy \u2014 a dual position that will define how frontier AI labs navigate government relations. The DC Circuit's expedited briefing signals even conservative judges are skeptical of the administration's logic.",
+        "sources": [
+          {
+            "name": "The Code (Superhuman)",
+            "url": null
+          },
+          {
+            "name": "Ars Technica",
+            "url": "https://arstechnica.com/tech-policy/2026/04/trump-appointed-judges-refuse-to-block-trump-blacklisting-of-anthropic-ai-tech/"
+          },
+          {
+            "name": "Above the Law",
+            "url": "https://abovethelaw.com/2026/04/morning-docket-04-09-26/"
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "Florida AG launches investigation into OpenAI over public safety, national security, and alleged link to FSU shooting",
+        "why_it_matters": "This marks a significant escalation in US state-level regulatory scrutiny of frontier AI companies, going beyond data privacy to encompass public safety liability \u2014 a legal theory that could expose AI developers to novel tort and regulatory risk. If the FSU shooting connection holds up, it could set precedent for AI companies' duty-of-care obligations.",
+        "sources": [
+          {
+            "name": "TechCrunch",
+            "url": "https://techcrunch.com/2026/04/09/florida-ag-to-probe-openai-alleging-possible-connection-to-fsu-shooting/"
+          },
+          {
+            "name": "The Verge",
+            "url": "https://www.theverge.com/policy/909557/openai-florida-investigation"
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Clio rolls out agentic capabilities across its platform as legal tech's 'agentic wave' accelerates",
+        "why_it_matters": "Clio's deployment of multi-step legal task agents signals that agentic AI is moving from experiment to production in legal practice management software, creating competitive pressure across the legal tech stack. Combined with Latham & Watkins and Haynes & Boone actively recruiting senior AI leadership at premium salaries, the industry is entering an execution phase.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/04/08/clio-rolls-out-agents-for-work-and-vincent/"
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "Maine poised to become first US state to ban major new data centers, raising AI infrastructure constraints",
+      "why_it_matters": "If enacted, Maine's data center ban would be the first direct state-level constraint on AI infrastructure build-out \u2014 potentially inspiring similar legislation elsewhere at precisely the moment when companies like Anthropic are securing multi-gigawatt compute commitments. This creates a new regulatory front for AI infrastructure that legal and policy teams at major labs are not yet positioned to address.",
+      "sources": [
+        {
+          "name": "Hacker News",
+          "url": "https://www.gadgetreview.com/maine-is-about-to-become-the-first-state-to-ban-major-new-data-centers"
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 75,
+      "funding_total_usd": 12000000,
+      "new_regulations_count": 6,
+      "product_launches_count": 6,
+      "dominant_topic": "AI Agents",
+      "sentiment_balance": {
+        "positive": 38,
+        "neutral": 22,
+        "negative": 15
+      }
+    }
+  },
+  "weekly_narrative": "This week's dominant theme is the collision between AI's rapid productization and intensifying regulatory pressure: Anthropic shipped Claude Managed Agents to accelerate enterprise adoption while simultaneously losing an emergency court motion against a Trump administration national security designation \u2014 a paradox that illustrates how frontier AI labs now operate simultaneously as critical infrastructure providers and geopolitical actors. In legal tech, the agentic wave moved decisively from pilot to production, with Clio deploying multi-step legal agents, BigLaw firms recruiting AI leadership at near-executive compensation, and the US legal market reportedly adding jobs alongside AI adoption \u2014 challenging the displacement narrative. Meanwhile, the regulatory environment fragmented further, with Florida launching a novel public-safety investigation into OpenAI, Alabama adding complexity to the state privacy patchwork, and Maine potentially becoming the first state to restrict AI infrastructure itself \u2014 signaling that legal and compliance teams at AI companies will need to manage a rapidly multiplying set of jurisdictional risks that no single federal framework currently coordinates."
+}
