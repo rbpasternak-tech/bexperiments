@@ -20,7 +20,7 @@ A progressive web app (PWA) for daily habit tracking, styled as a digital bullet
 ### Doc Find & Replace
 [`doc-find-replace/`](doc-find-replace/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/doc-find-replace/)
 
-A browser-based bulk document editor. Upload hundreds of `.docx` and `.pdf` files, then manage global find-and-replace across all of them from a spreadsheet-style table. Auto-extracts `[bracketed]` placeholders into the Find column. Downloads as clean files or native tracked-changes redlines, individually or as a zip. Documents persist across sessions via IndexedDB.
+A browser-based bulk document editor. Upload hundreds of `.docx` and `.pdf` files, then manage global find-and-replace across all of them from a spreadsheet-style table. Auto-extracts `[bracketed]` placeholders into the Find column. Downloads as clean files or native tracked-changes redlines, individually or as a zip. Documents persist across sessions via IndexedDB. Includes a `txt_to_docx.py` helper for batch-converting `.txt` test files to `.docx`.
 
 ---
 
