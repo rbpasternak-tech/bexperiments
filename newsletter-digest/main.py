@@ -46,6 +46,12 @@ def main():
         action="store_true",
         help="Only extract trend data, skip email digest",
     )
+    parser.add_argument(
+        "--backfill",
+        metavar="YYYY-MM-DD",
+        default=None,
+        help="Backfill a specific past week ending on this date (trends only, no email)",
+    )
     args = parser.parse_args()
 
     # Load config
@@ -53,14 +59,26 @@ def main():
     config = load_config(args.config)
 
     lookback_days = config["gmail"]["lookback_days"]
-    date_end = datetime.now()
-    date_start = date_end - timedelta(days=lookback_days)
+
+    if args.backfill:
+        date_end = datetime.strptime(args.backfill, "%Y-%m-%d")
+        date_start = date_end - timedelta(days=lookback_days)
+        args.trends_only = True
+        print(f"Backfill mode: {date_start.date()} → {date_end.date()}")
+    else:
+        date_end = datetime.now()
+        date_start = date_end - timedelta(days=lookback_days)
 
     # Step 1: Fetch emails from Gmail
-    print(f"Fetching emails from the last {lookback_days} days...")
+    if args.backfill:
+        print(f"Fetching emails between {date_start.date()} and {date_end.date()}...")
+    else:
+        print(f"Fetching emails from the last {lookback_days} days...")
     emails = fetch_emails(
         lookback_days=lookback_days,
         max_emails=config["gmail"]["max_emails"],
+        after_date=date_start if args.backfill else None,
+        before_date=date_end if args.backfill else None,
     )
     print(f"  Found {len(emails)} total emails")
 

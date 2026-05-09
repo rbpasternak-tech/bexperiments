@@ -3,6 +3,7 @@
 import base64
 import os
 import time
+from datetime import timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -47,19 +48,27 @@ def _get_service():
     return build("gmail", "v1", credentials=creds)
 
 
-def fetch_emails(lookback_days, max_emails=200):
-    """Fetch emails from the last N days.
+def fetch_emails(lookback_days, max_emails=200, after_date=None, before_date=None):
+    """Fetch emails from the last N days, or an explicit date range.
 
     Args:
-        lookback_days: Number of days back to search.
+        lookback_days: Number of days back to search (used when after_date is None).
         max_emails: Maximum number of emails to return.
+        after_date: datetime — if set, fetch emails on/after this date.
+        before_date: datetime — if set, fetch emails up to/before this date.
 
     Returns:
         List of dicts with keys: id, sender, subject, date, headers, body_html, body_text
     """
     service = _get_service()
 
-    query = f"newer_than:{lookback_days}d"
+    if after_date and before_date:
+        # Gmail date format: YYYY/MM/DD
+        after_str = after_date.strftime("%Y/%m/%d")
+        before_str = (before_date + timedelta(days=1)).strftime("%Y/%m/%d")
+        query = f"after:{after_str} before:{before_str}"
+    else:
+        query = f"newer_than:{lookback_days}d"
     results = []
     page_token = None
 

@@ -34,6 +34,7 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 - **Run newsletter digest:** `cd newsletter-digest && python main.py`
 - **Dry run (no email):** `cd newsletter-digest && python main.py --dry-run`
 - **Trends only:** `cd newsletter-digest && python main.py --trends-only`
+- **Backfill past week:** `cd newsletter-digest && python main.py --backfill YYYY-MM-DD`
 - **Serve locally:** `python -m http.server 8000` (from repo root)
 
 ## Credentials & Secrets

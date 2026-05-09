@@ -72,6 +72,9 @@ python main.py
 # Dry run — prints digest to terminal, no email sent
 python main.py --dry-run
 
+# Backfill a past week's trends (no email sent)
+python main.py --backfill 2025-04-15
+
 # Use a custom config file
 python main.py --config /path/to/config.yaml
 ```
