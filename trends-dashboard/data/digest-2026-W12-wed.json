@@ -33,7 +33,7 @@
   },
   "topics": [
     {
-      "name": "Legal AI Growth",
+      "name": "Legal AI Adoption",
       "category": "legal_tech",
       "mention_count": 8,
       "sentiment": "mixed",
@@ -44,7 +44,7 @@
       ]
     },
     {
-      "name": "AI Governance",
+      "name": "AI Regulation",
       "category": "ai",
       "mention_count": 5,
       "sentiment": "neutral",
@@ -55,7 +55,7 @@
       ]
     },
     {
-      "name": "Claude/Anthropic",
+      "name": "Large Language Models",
       "category": "ai",
       "mention_count": 7,
       "sentiment": "positive",
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "name": "Legal Tech Jobs",
+      "name": "Workforce & Jobs",
       "category": "legal_tech",
       "mention_count": 3,
       "sentiment": "neutral",
@@ -88,12 +88,12 @@
       ]
     },
     {
-      "name": "Legal Innovation Events",
+      "name": "Legal Practice Innovation",
       "category": "legal_tech",
       "mention_count": 2,
       "sentiment": "positive",
       "representative_headlines": [
-        "See You in Paris! Legal Innovators Breakfast \u2013 March 25",
+        "See You in Paris! Legal Innovators Breakfast – March 25",
         "Legalweek 2026: The AI Bubble Literally Pops"
       ]
     },

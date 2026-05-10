@@ -35,39 +35,34 @@
   },
   "topics": [
     {
-      "name": "EU AI Act",
+      "name": "AI Regulation",
       "category": "regulation",
-      "mention_count": 2,
+      "mention_count": 5,
       "sentiment": "mixed",
       "representative_headlines": [
         "MEPs reach preliminary political agreement on AI omnibus",
-        "EDPB-EDPS joint opinion on sensitive data provisions under proposed Biotech Act"
+        "EDPB-EDPS joint opinion on sensitive data provisions under proposed Biotech Act",
+        "US House committee probes surveillance pricing schemes",
+        "Op-ed: How the proposed US KIDS Act will advance children's online privacy",
+        "Nigeria's government announces public consultation on improving children's online safety"
       ]
     },
     {
       "name": "AI Agents",
       "category": "ai",
-      "mention_count": 4,
+      "mention_count": 7,
       "sentiment": "positive",
       "representative_headlines": [
         "The Shape of the Thing",
         "Perplexity ships your digital proxy",
-        "Rolling Disruption"
-      ]
-    },
-    {
-      "name": "Claude Code",
-      "category": "ai",
-      "mention_count": 3,
-      "sentiment": "positive",
-      "representative_headlines": [
+        "Rolling Disruption",
         "How to use btw in Claude Code",
-        "ChatGPT \u2192 to Claude",
+        "ChatGPT → to Claude",
         "How to share Claude Code sessions as replays"
       ]
     },
     {
-      "name": "Privacy Regulation",
+      "name": "Data Privacy",
       "category": "data_privacy",
       "mention_count": 5,
       "sentiment": "mixed",
@@ -78,29 +73,18 @@
       ]
     },
     {
-      "name": "Children's Online Safety",
-      "category": "regulation",
-      "mention_count": 3,
-      "sentiment": "restrictive",
-      "representative_headlines": [
-        "US House committee probes surveillance pricing schemes",
-        "Op-ed: How the proposed US KIDS Act will advance children's online privacy",
-        "Nigeria's government announces public consultation on improving children's online safety"
-      ]
-    },
-    {
-      "name": "Legal AI Tools",
+      "name": "Legal AI Adoption",
       "category": "legal_tech",
       "mention_count": 4,
       "sentiment": "positive",
       "representative_headlines": [
         "AI Legal Research Startup Descrybe Launches 'Legal Reasoning' Tool",
-        "What lawyers actually sell \u2013 and why AI changes the answer",
+        "What lawyers actually sell – and why AI changes the answer",
         "AI hallucinations are down 96%. Legal is the exception."
       ]
     },
     {
-      "name": "Software Factory",
+      "name": "Enterprise AI",
       "category": "enterprise",
       "mention_count": 1,
       "sentiment": "positive",
@@ -109,7 +93,7 @@
       ]
     },
     {
-      "name": "AI Computing Hardware",
+      "name": "AI Infrastructure",
       "category": "ai",
       "mention_count": 2,
       "sentiment": "positive",
@@ -119,21 +103,13 @@
       ]
     },
     {
-      "name": "Perplexity Personal Computer",
+      "name": "Large Language Models",
       "category": "ai",
-      "mention_count": 2,
+      "mention_count": 3,
       "sentiment": "positive",
       "representative_headlines": [
         "Perplexity turns a Mac mini into a 24/7 AI agent",
-        "Perplexity's Personal Computer brings its AI agents to the, uh, Personal Computer"
-      ]
-    },
-    {
-      "name": "Machine Learning",
-      "category": "ai",
-      "mention_count": 1,
-      "sentiment": "neutral",
-      "representative_headlines": [
+        "Perplexity's Personal Computer brings its AI agents to the, uh, Personal Computer",
         "On privacy and machine unlearning: A discussion with Jevan Hutson"
       ]
     }

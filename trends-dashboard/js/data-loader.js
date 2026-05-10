@@ -119,7 +119,7 @@ export function buildTopicTimeSeries(digests) {
     const date = digestDate(d);
     const topics = d.topics || [];
     for (const t of topics) {
-      const name = t.name || t.topic || 'Unknown';
+      const name = normalizeTopic(t.name || t.topic || 'Unknown');
       if (!topicMap.has(name)) topicMap.set(name, new Map());
       const prev = topicMap.get(name).get(date) || 0;
       topicMap.get(name).set(date, prev + (t.mention_count ?? t.count ?? 1));
@@ -221,6 +221,58 @@ export function mergeArrays(digests, key) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Topic Name Normalization                                           */
+/* ------------------------------------------------------------------ */
+
+const TOPIC_ALIASES = {
+  'AI Coding Agents': 'AI Agents',
+  'AI Coding Tools': 'AI Agents',
+  'Claude Code': 'AI Agents',
+  'Claude Code AI': 'AI Agents',
+  'Claude Computer Use': 'AI Agents',
+  'Claude Computer Control': 'AI Agents',
+  'Computer Use': 'AI Agents',
+  'Expert Digital Twins': 'AI Agents',
+  'GPT-5.4 Release': 'Large Language Models',
+  'OpenAI GPT Models': 'Large Language Models',
+  'OpenAI Product Changes': 'Large Language Models',
+  'Perplexity Personal Computer': 'Large Language Models',
+  'Machine Learning': 'Large Language Models',
+  'AI Search Evolution': 'Large Language Models',
+  'Claude/Anthropic': 'Large Language Models',
+  'Thomson Reuters LLM': 'Legal AI Adoption',
+  'Legal Tech Adoption': 'Legal AI Adoption',
+  'Legal AI Growth': 'Legal AI Adoption',
+  'Legal AI Tools': 'Legal AI Adoption',
+  'Claude Cowork Legal Plugin': 'Legal AI Adoption',
+  'AI Governance': 'AI Regulation',
+  'EU AI Act': 'AI Regulation',
+  'Government AI Regulation': 'AI Regulation',
+  "Children's Online Safety": 'AI Regulation',
+  'AI Safety Ethics': 'AI Safety & Ethics',
+  'AI Sanctions & Ethics': 'AI Safety & Ethics',
+  'Privacy Regulation': 'Data Privacy',
+  'Legal Tech Partnerships': 'Law Firm Technology',
+  'Women in Law Tech': 'Legal Practice Innovation',
+  'Legal Innovation Events': 'Legal Practice Innovation',
+  'Legal Innovation Hiring': 'Workforce & Jobs',
+  'Legal Tech Jobs': 'Workforce & Jobs',
+  'Block Layoffs': 'Workforce & Jobs',
+  'Legal Tech IPOs': 'Legal Tech Funding',
+  'Document Analysis AI': 'Contract Analysis AI',
+  'Anthropic Pentagon Dispute': 'Enterprise AI',
+  'OpenAI Pentagon Deal': 'Enterprise AI',
+  'Pentagon AI Contract': 'Enterprise AI',
+  'Enterprise AI Solutions': 'Enterprise AI',
+  'Software Factory': 'Enterprise AI',
+  'AI Computing Hardware': 'AI Infrastructure',
+};
+
+function normalizeTopic(name) {
+  return TOPIC_ALIASES[name] || name;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Internal Helpers                                                   */
 /* ------------------------------------------------------------------ */
 
@@ -239,7 +291,7 @@ function aggregateTopicCounts(digests) {
   const counts = {};
   for (const d of digests) {
     for (const t of d.topics || []) {
-      const name = t.name || t.topic || 'Unknown';
+      const name = normalizeTopic(t.name || t.topic || 'Unknown');
       counts[name] = (counts[name] || 0) + (t.mention_count ?? t.count ?? 1);
     }
   }

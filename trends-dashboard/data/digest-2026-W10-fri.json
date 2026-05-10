@@ -27,7 +27,7 @@
   },
   "topics": [
     {
-      "name": "GPT-5.4 Release",
+      "name": "Large Language Models",
       "category": "ai",
       "mention_count": 5,
       "sentiment": "positive",
@@ -40,16 +40,22 @@
     {
       "name": "AI Agents",
       "category": "ai",
-      "mention_count": 8,
+      "mention_count": 15,
       "sentiment": "positive",
       "representative_headlines": [
         "Claude Cowork Might Be the Most Consequential Piece of Software You're Not Using",
         "How to orchestrate coding agents",
-        "30 for 30: A dev swapped his 30-person engineering team for 30 AI agents"
+        "30 for 30: A dev swapped his 30-person engineering team for 30 AI agents",
+        "Watch AI Use Your Computer",
+        "GPT-5.4 features native computer use",
+        "AI that can physically operate your device",
+        "100 Pro-Hacks for using Claude Code in 2026",
+        "How to cut Claude Code's token usage by 70%",
+        "How to auto-format Claude Code's output"
       ]
     },
     {
-      "name": "Pentagon AI Contract",
+      "name": "Enterprise AI",
       "category": "regulation",
       "mention_count": 4,
       "sentiment": "mixed",
@@ -60,7 +66,7 @@
       ]
     },
     {
-      "name": "Legal Tech Adoption",
+      "name": "Legal AI Adoption",
       "category": "legal_tech",
       "mention_count": 6,
       "sentiment": "positive",
@@ -71,34 +77,12 @@
       ]
     },
     {
-      "name": "Block Layoffs",
+      "name": "Workforce & Jobs",
       "category": "workforce",
       "mention_count": 1,
       "sentiment": "mixed",
       "representative_headlines": [
-        "Block just fired 4,000 people due to an AI agent \u2014 and its stock soared"
-      ]
-    },
-    {
-      "name": "Computer Use",
-      "category": "ai",
-      "mention_count": 3,
-      "sentiment": "positive",
-      "representative_headlines": [
-        "Watch AI Use Your Computer",
-        "GPT-5.4 features native computer use",
-        "AI that can physically operate your device"
-      ]
-    },
-    {
-      "name": "Claude Code",
-      "category": "ai",
-      "mention_count": 4,
-      "sentiment": "positive",
-      "representative_headlines": [
-        "100 Pro-Hacks for using Claude Code in 2026",
-        "How to cut Claude Code's token usage by 70%",
-        "How to auto-format Claude Code's output"
+        "Block just fired 4,000 people due to an AI agent — and its stock soared"
       ]
     }
   ],

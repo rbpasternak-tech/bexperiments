@@ -34,29 +34,31 @@
   },
   "topics": [
     {
-      "name": "Claude Computer Control",
+      "name": "AI Agents",
       "category": "ai",
-      "mention_count": 3,
+      "mention_count": 4,
       "sentiment": "positive",
       "representative_headlines": [
         "Claude is now YOUR computer",
-        "\ud83d\udda5\ufe0f Claude now controls your computer",
-        "Anthropic's Claude Code gets 'safer' auto mode"
+        "🖥️ Claude now controls your computer",
+        "Anthropic's Claude Code gets 'safer' auto mode",
+        "Eudia Launches Expert Digital Twins, Partners With ServiceNow"
       ]
     },
     {
       "name": "Legal AI Adoption",
       "category": "legal_tech",
-      "mention_count": 4,
+      "mention_count": 5,
       "sentiment": "mixed",
       "representative_headlines": [
         "AI Adoption is Surging With In-House Teams",
         "Legal AI Access at 83%, But Trust Issues Remain",
-        "AI Won't Replace Lawyers But Can Create Critical Shortage Of Good Ones"
+        "AI Won't Replace Lawyers But Can Create Critical Shortage Of Good Ones",
+        "Thomson Is Coming, TR's Own Legally-Trained LLM"
       ]
     },
     {
-      "name": "Legal Tech IPOs",
+      "name": "Legal Tech Funding",
       "category": "legal_tech",
       "mention_count": 2,
       "sentiment": "neutral",
@@ -66,7 +68,7 @@
       ]
     },
     {
-      "name": "AI Search Evolution",
+      "name": "Large Language Models",
       "category": "ai",
       "mention_count": 2,
       "sentiment": "positive",
@@ -76,30 +78,12 @@
       ]
     },
     {
-      "name": "Legal Innovation Hiring",
+      "name": "Workforce & Jobs",
       "category": "legal_tech",
       "mention_count": 1,
       "sentiment": "positive",
       "representative_headlines": [
         "\"legal innovation\": K&L Gates - Director, Practice Innovation and more"
-      ]
-    },
-    {
-      "name": "Expert Digital Twins",
-      "category": "ai",
-      "mention_count": 1,
-      "sentiment": "positive",
-      "representative_headlines": [
-        "Eudia Launches Expert Digital Twins, Partners With ServiceNow"
-      ]
-    },
-    {
-      "name": "Thomson Reuters LLM",
-      "category": "legal_tech",
-      "mention_count": 1,
-      "sentiment": "positive",
-      "representative_headlines": [
-        "Thomson Is Coming, TR's Own Legally-Trained LLM"
       ]
     }
   ],

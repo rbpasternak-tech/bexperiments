@@ -35,18 +35,18 @@
   },
   "topics": [
     {
-      "name": "Claude Code AI",
+      "name": "AI Agents",
       "category": "ai",
       "mention_count": 8,
       "sentiment": "positive",
       "representative_headlines": [
         "Claude Code. A guide for people who don't code, and never will",
-        "\ud83e\udd16 OpenAI drops subagents",
+        "🤖 OpenAI drops subagents",
         "How to setup Claude Code (without coding)"
       ]
     },
     {
-      "name": "OpenAI GPT Models",
+      "name": "Large Language Models",
       "category": "ai",
       "mention_count": 6,
       "sentiment": "positive",
@@ -68,7 +68,7 @@
       ]
     },
     {
-      "name": "AI Governance",
+      "name": "AI Regulation",
       "category": "regulation",
       "mention_count": 5,
       "sentiment": "neutral",
@@ -90,7 +90,7 @@
       ]
     },
     {
-      "name": "AI Sanctions & Ethics",
+      "name": "AI Safety & Ethics",
       "category": "regulation",
       "mention_count": 4,
       "sentiment": "negative",
@@ -101,7 +101,7 @@
       ]
     },
     {
-      "name": "Enterprise AI Solutions",
+      "name": "Enterprise AI",
       "category": "enterprise",
       "mention_count": 4,
       "sentiment": "positive",

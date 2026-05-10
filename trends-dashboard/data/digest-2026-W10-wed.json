@@ -29,7 +29,7 @@
   },
   "topics": [
     {
-      "name": "AI Safety Ethics",
+      "name": "AI Safety & Ethics",
       "category": "ai",
       "mention_count": 8,
       "sentiment": "mixed",
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "name": "AI Coding Tools",
+      "name": "AI Agents",
       "category": "ai",
       "mention_count": 7,
       "sentiment": "positive",
@@ -62,7 +62,7 @@
       ]
     },
     {
-      "name": "Legal Tech Partnerships",
+      "name": "Law Firm Technology",
       "category": "legal_tech",
       "mention_count": 5,
       "sentiment": "positive",
@@ -73,7 +73,7 @@
       ]
     },
     {
-      "name": "AI Governance",
+      "name": "AI Regulation",
       "category": "regulation",
       "mention_count": 4,
       "sentiment": "neutral",
@@ -83,12 +83,12 @@
       ]
     },
     {
-      "name": "Women in Law Tech",
+      "name": "Legal Practice Innovation",
       "category": "workforce",
       "mention_count": 2,
       "sentiment": "positive",
       "representative_headlines": [
-        "7 years of breaking the law \u2013 finally, the wait is over",
+        "7 years of breaking the law – finally, the wait is over",
         "Aderant Makes History, Of A Sort, Naming Its First Female CRO"
       ]
     }

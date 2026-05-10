@@ -29,29 +29,34 @@
   },
   "topics": [
     {
-      "name": "Anthropic Pentagon Dispute",
+      "name": "Enterprise AI",
       "category": "regulation",
-      "mention_count": 8,
+      "mention_count": 11,
       "sentiment": "mixed",
       "representative_headlines": [
         "Anthropic vs. the Pentagon: What's actually at stake?",
         "Pentagon moves to designate Anthropic as a supply-chain risk",
-        "Defense secretary Pete Hegseth designates Anthropic a supply chain risk"
+        "Defense secretary Pete Hegseth designates Anthropic a supply chain risk",
+        "OpenAI's Sam Altman announces Pentagon deal with 'technical safeguards'",
+        "OpenAI agrees with Dept. of War to deploy models in their classified network"
       ]
     },
     {
-      "name": "Claude Cowork Legal Plugin",
+      "name": "Legal AI Adoption",
       "category": "legal_tech",
-      "mention_count": 4,
+      "mention_count": 7,
       "sentiment": "positive",
       "representative_headlines": [
         "LexisNexis Embraces Anthropic Claude Cowork Legal Plugin",
         "Thomson Reuters, Anthropic + A Surprise Video",
-        "Harvey Forum + Shared Spaces, Clio, Spellbook, Legal Innovators"
+        "Harvey Forum + Shared Spaces, Clio, Spellbook, Legal Innovators",
+        "Why Legal AI Adoption Slows After Pilots",
+        "Three Years After Launching As First AI Legal Assistant, CoCounsel Reaches 1 Million Users",
+        "Legal AI: What Government Agencies Need To Consider"
       ]
     },
     {
-      "name": "AI Coding Agents",
+      "name": "AI Agents",
       "category": "ai",
       "mention_count": 6,
       "sentiment": "positive",
@@ -62,23 +67,13 @@
       ]
     },
     {
-      "name": "OpenAI Pentagon Deal",
-      "category": "ai",
-      "mention_count": 3,
-      "sentiment": "mixed",
-      "representative_headlines": [
-        "OpenAI's Sam Altman announces Pentagon deal with 'technical safeguards'",
-        "OpenAI agrees with Dept. of War to deploy models in their classified network"
-      ]
-    },
-    {
-      "name": "AI Governance",
+      "name": "AI Regulation",
       "category": "ai",
       "mention_count": 5,
       "sentiment": "mixed",
       "representative_headlines": [
         "ICO's Edwards reflects on tenure as commissioner amid rapid change",
-        "Join the AI Governance Leadership Forum \u2014 virtual event",
+        "Join the AI Governance Leadership Forum — virtual event",
         "The EU AI copyright playbook: The TDM exception and AI Act's transparency requirements"
       ]
     },
@@ -101,17 +96,6 @@
         "FTC policy statement signals COPPA enforcement flexibility around age verification practices",
         "White House reportedly orders pushback against global data sovereignty efforts",
         "A new California law says all operating systems need to have age verification"
-      ]
-    },
-    {
-      "name": "Legal AI Adoption",
-      "category": "legal_tech",
-      "mention_count": 3,
-      "sentiment": "mixed",
-      "representative_headlines": [
-        "Why Legal AI Adoption Slows After Pilots",
-        "Three Years After Launching As First AI Legal Assistant, CoCounsel Reaches 1 Million Users",
-        "Legal AI: What Government Agencies Need To Consider"
       ]
     }
   ],
@@ -239,7 +223,7 @@
     {
       "type": "product_launch",
       "entity": "LexisNexis",
-      "description": "Integrated Anthropic's legal plugin into its Prot\u00e9g\u00e9 genAI suite to enhance hundreds of existing AI and agentic AI legal workflow capabilities",
+      "description": "Integrated Anthropic's legal plugin into its Protégé genAI suite to enhance hundreds of existing AI and agentic AI legal workflow capabilities",
       "source": "Artificial Lawyer",
       "source_url": "https://www.artificiallawyer.com/2026/02/25/lexisnexis-embraces-anthropic-claude-cowork-legal-plugin/"
     },
