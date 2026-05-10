@@ -14,6 +14,7 @@ import { renderAIEconomy }        from './ai-economy.js';
 import { renderRegulatoryPulse }  from './regulatory-pulse.js';
 import { renderLegalTechSignals } from './legal-tech-signals.js';
 import { renderKeyVoices }        from './key-voices.js';
+import { renderWeeklyDiff }       from './weekly-diff.js';
 
 /* ------------------------------------------------------------------ */
 /*  Global Filter State                                                */
@@ -47,29 +48,120 @@ window.filterByTopic = filterByTopic;
 /* ------------------------------------------------------------------ */
 
 document.addEventListener('DOMContentLoaded', async () => {
+  /* ---- 0. Theme ---- */
+  initTheme();
+
   /* ---- 1. Chart.js global defaults ---- */
-  chartDefaults();
+  applyChartDefaults();
 
   /* ---- 2. Show loading state ---- */
   showLoading(true);
 
-  /* ---- 3. Load data ---- */
+  /* ---- 3. Section nav ---- */
+  initSectionNav();
+
+  /* ---- 4. Load data ---- */
   const dataBasePath = detectDataPath();
   const data = await loadAllData(dataBasePath);
   state.data = data;
 
-  /* ---- 4. Populate week selector ---- */
+  /* ---- 5. Populate week selector ---- */
   populateWeekSelector(data);
 
-  /* ---- 5. Render everything ---- */
+  /* ---- 6. Render everything ---- */
   renderAllSections(data);
 
-  /* ---- 6. Populate meta bar ---- */
+  /* ---- 7. Populate meta bar ---- */
   updateMetaBar(data);
 
-  /* ---- 7. Done ---- */
+  /* ---- 8. Done ---- */
   showLoading(false);
 });
+
+/* ------------------------------------------------------------------ */
+/*  Theme Toggle                                                       */
+/* ------------------------------------------------------------------ */
+
+function initTheme() {
+  const saved = localStorage.getItem('dashboard-theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  updateThemeIcon();
+
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('dashboard-theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('dashboard-theme', 'dark');
+      }
+      updateThemeIcon();
+      applyChartDefaults();
+      // Re-render charts with new theme colors
+      if (state.data) renderAllSections(state.data);
+    });
+  }
+}
+
+function updateThemeIcon() {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  btn.textContent = isDark ? '\u2600' : '\u263E';
+}
+
+function applyChartDefaults() {
+  chartDefaults();
+  if (typeof Chart !== 'undefined') {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    Chart.defaults.color = isDark ? '#cbd5e1' : '#334155';
+    Chart.defaults.scale.grid = {
+      color: isDark ? 'rgba(148, 163, 184, 0.12)' : 'rgba(100, 116, 139, 0.12)',
+    };
+    Chart.defaults.plugins.tooltip.backgroundColor = isDark ? '#0f172a' : '#1e1b4b';
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section Navigation                                                 */
+/* ------------------------------------------------------------------ */
+
+function initSectionNav() {
+  const navLinks = document.querySelectorAll('.nav-pill');
+  if (navLinks.length === 0) return;
+
+  // Smooth scroll on click
+  navLinks.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Highlight active section on scroll
+  const sections = [...navLinks].map((l) => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          navLinks.forEach((l) => l.classList.remove('active'));
+          const activeLink = document.querySelector(`.nav-pill[href="#${entry.target.id}"]`);
+          if (activeLink) activeLink.classList.add('active');
+        }
+      }
+    },
+    { rootMargin: '-20% 0px -70% 0px' }
+  );
+  sections.forEach((s) => observer.observe(s));
+}
 
 /* ------------------------------------------------------------------ */
 /*  Render All Sections                                                */
@@ -80,6 +172,7 @@ function renderAllSections(data) {
 
   const snapshotEl   = section('section-weekly-snapshot');
   const heatmapEl    = section('section-topic-heatmap');
+  const diffEl       = section('section-weekly-diff');
   const trendEl      = section('section-trend-lines');
   const economyEl    = section('section-ai-economy');
   const regulatoryEl = section('section-regulatory-pulse');
@@ -88,6 +181,7 @@ function renderAllSections(data) {
 
   if (snapshotEl)   renderWeeklySnapshot(snapshotEl, data);
   if (heatmapEl)    renderTopicHeatmap(heatmapEl, data);
+  if (diffEl)       renderWeeklyDiff(diffEl, data);
   if (trendEl)      renderTrendLines(trendEl, 'trend-lines-chart', data);
   if (economyEl)    renderAIEconomy(economyEl, data);
   if (regulatoryEl) renderRegulatoryPulse(regulatoryEl, data);
@@ -111,7 +205,6 @@ function populateWeekSelector(data) {
 
   selector.innerHTML = '';
 
-  // "All weeks" option
   const allOpt = document.createElement('option');
   allOpt.value = '__all__';
   allOpt.textContent = 'All Weeks';
@@ -126,13 +219,11 @@ function populateWeekSelector(data) {
     selector.appendChild(opt);
   }
 
-  // Event listener
   selector.addEventListener('change', () => {
     const val = selector.value;
     if (val === '__all__') {
       renderAllSections(state.data);
     } else {
-      // Find the specific digest and create a single-digest data view
       const digest = digests.find((d) => {
         const dd = d?.meta?.run_date || d?.meta?.date || d?.meta?.week_ending || d?.date || '';
         return dd === val;
@@ -145,15 +236,7 @@ function populateWeekSelector(data) {
   });
 }
 
-/**
- * Build a data object scoped to a single digest, reusing the same shape
- * that loadAllData() returns.
- */
 function buildSingleDigestView(digest, fullData) {
-  // Re-use data-loader helpers inline
-  const { buildTopicTimeSeries, computeTrends, mergeArrays } = fullData._helpers || {};
-
-  // Simplified single-digest view
   return {
     index: fullData.index,
     digests: [digest],
@@ -189,10 +272,6 @@ function buildTopicTimeSeriesInline(digests) {
 /*  Topic Filtering                                                    */
 /* ------------------------------------------------------------------ */
 
-/**
- * Create a filtered copy of data where only events/signals matching
- * the given topic name are included.
- */
 function filterData(data, topicName) {
   const lower = topicName.toLowerCase();
 
@@ -206,7 +285,6 @@ function filterData(data, topicName) {
 
   return {
     ...data,
-    // Keep full time series (chart still shows all, but highlight is visual)
     topicTimeSeries: data.topicTimeSeries,
     aggregatedEconomy:    data.aggregatedEconomy.filter(matchesTopic),
     aggregatedRegulatory: data.aggregatedRegulatory.filter(matchesTopic),
@@ -230,13 +308,9 @@ function updateFilterUI() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Loading State                                                      */
+/*  Meta Bar & Loading                                                 */
 /* ------------------------------------------------------------------ */
 
-/**
- * Populate the data meta bar with last-updated info from the latest digest.
- * @param {Object} data
- */
 function updateMetaBar(data) {
   const bar = document.getElementById('data-meta-bar');
   if (!bar || !data.latest) return;
@@ -246,30 +320,22 @@ function updateMetaBar(data) {
   const runDate = meta.run_date
     ? new Date(meta.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : null;
-
   const rangeStart = meta.date_range_start
     ? new Date(meta.date_range_start + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : null;
   const rangeEnd = meta.date_range_end
     ? new Date(meta.date_range_end + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : null;
-
   const sourceCount = Array.isArray(meta.sources_analyzed) ? meta.sources_analyzed.length : null;
   const articleCount = (meta.newsletter_count || 0) + (meta.rss_article_count || 0);
   const digestCount = (data.digests || []).length;
 
-  if (runDate) {
-    document.getElementById('meta-last-updated').textContent = `Updated ${runDate}`;
-  }
-  if (rangeStart && rangeEnd) {
-    document.getElementById('meta-digest-range').textContent = `${rangeStart} – ${rangeEnd}`;
-  }
-  if (sourceCount) {
-    document.getElementById('meta-sources').textContent = `${sourceCount} sources`;
-  }
+  if (runDate) document.getElementById('meta-last-updated').textContent = `Updated ${runDate}`;
+  if (rangeStart && rangeEnd) document.getElementById('meta-digest-range').textContent = `${rangeStart} \u2013 ${rangeEnd}`;
+  if (sourceCount) document.getElementById('meta-sources').textContent = `${sourceCount} sources`;
   if (articleCount) {
     document.getElementById('meta-articles').textContent =
-      `${articleCount} items · ${digestCount} digest${digestCount !== 1 ? 's' : ''}`;
+      `${articleCount} items \u00B7 ${digestCount} digest${digestCount !== 1 ? 's' : ''}`;
   }
 
   bar.style.display = 'flex';
@@ -277,9 +343,7 @@ function updateMetaBar(data) {
 
 function showLoading(show) {
   const loader = document.getElementById('loading-overlay');
-  if (loader) {
-    loader.style.display = show ? 'flex' : 'none';
-  }
+  if (loader) loader.style.display = show ? 'flex' : 'none';
 }
 
 /* ------------------------------------------------------------------ */
@@ -287,11 +351,6 @@ function showLoading(show) {
 /* ------------------------------------------------------------------ */
 
 function detectDataPath() {
-  // Support running from subdirectory (e.g., GitHub Pages)
-  const base = document.querySelector('base')?.href || '';
-  if (base && base.includes('/trends-dashboard/')) {
-    return 'data';
-  }
   return 'data';
 }
 

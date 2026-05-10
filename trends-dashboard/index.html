@@ -26,10 +26,20 @@
         <h1 class="dashboard-title">Trends Dashboard</h1>
         <span class="dashboard-subtitle">Tech &amp; Legal Tech Intelligence</span>
       </div>
+      <nav class="header-nav" id="section-nav">
+        <a href="#section-weekly-snapshot" class="nav-pill">Snapshot</a>
+        <a href="#section-topic-heatmap" class="nav-pill">Heatmap</a>
+        <a href="#section-trend-lines" class="nav-pill">Trends</a>
+        <a href="#section-ai-economy" class="nav-pill">Economy</a>
+        <a href="#section-regulatory-pulse" class="nav-pill">Regulatory</a>
+        <a href="#section-legal-tech-signals" class="nav-pill">Legal Tech</a>
+        <a href="#section-key-voices" class="nav-pill">Voices</a>
+      </nav>
       <div class="header-right">
         <label for="week-selector" class="week-label">Period:</label>
         <select id="week-selector" class="week-selector"></select>
         <span id="active-filter" class="active-filter" style="display:none"></span>
+        <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
       </div>
     </div>
   </header>
@@ -53,6 +63,9 @@
 
     <!-- Section 1: Topic Heatmap -->
     <section id="section-topic-heatmap" class="dashboard-section section-full"></section>
+
+    <!-- Section: Weekly Diff -->
+    <section id="section-weekly-diff" class="dashboard-section section-full"></section>
 
     <!-- Section 6: Trend Lines -->
     <section id="section-trend-lines" class="dashboard-section section-full"></section>

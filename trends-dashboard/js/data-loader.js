@@ -38,6 +38,18 @@ export async function loadAllData(dataBasePath = 'data') {
     return emptyResult();
   }
 
+  /* ---- 1b. Check cache ---- */
+  const CACHE_KEY = 'dashboard-data-cache';
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed._cacheVersion === index.last_updated) {
+        return parsed;
+      }
+    }
+  } catch { /* cache miss */ }
+
   /* ---- 2. Determine digest files to fetch ---- */
   const digestFiles = (index.digests || index.files || []).slice(0, 24);
   if (digestFiles.length === 0) {
@@ -82,7 +94,7 @@ export async function loadAllData(dataBasePath = 'data') {
   const aggregatedSources    = mergeArrays(digests, 'source_contributions');
   const trendAnalysis        = computeTrends(digests);
 
-  return {
+  const result = {
     index,
     digests,
     latest,
@@ -92,7 +104,15 @@ export async function loadAllData(dataBasePath = 'data') {
     aggregatedLegalTech,
     aggregatedSources,
     trendAnalysis,
+    _cacheVersion: index.last_updated,
   };
+
+  /* ---- 6. Cache result ---- */
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(result));
+  } catch { /* storage full — ignore */ }
+
+  return result;
 }
 
 /* ------------------------------------------------------------------ */

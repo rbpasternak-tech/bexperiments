@@ -1,18 +1,16 @@
 /**
  * topic-heatmap.js
  * Renders an HTML heatmap table: rows = topics, columns = digest dates.
- * Cell intensity reflects mention count. Includes trend arrows and click filtering.
+ * Cell intensity reflects mention count. Collapsible rows and sparkline trends.
  */
 
 import { heatmapColor, esc, formatShortDate, emptyState } from './chart-utils.js';
 
-/* ------------------------------------------------------------------ */
-/*  Public API                                                         */
-/* ------------------------------------------------------------------ */
+const DEFAULT_ROWS = 10;
 
 /**
  * @param {HTMLElement} container
- * @param {Object}      data — full dashboard data (uses data.digests, data.topicTimeSeries)
+ * @param {Object}      data
  */
 export function renderTopicHeatmap(container, data) {
   const timeSeries = data.topicTimeSeries || [];
@@ -21,24 +19,21 @@ export function renderTopicHeatmap(container, data) {
     return;
   }
 
-  /* ---- Collect all dates (chronological) ---- */
   const dateSet = new Set();
   for (const ts of timeSeries) {
     for (const pt of ts.series) dateSet.add(pt.date);
   }
   const dates = [...dateSet].sort();
 
-  /* ---- Build per-topic row data ---- */
   const rows = timeSeries.map((ts) => {
     const countByDate = new Map(ts.series.map((p) => [p.date, p.count]));
     const total = ts.series.reduce((s, p) => s + p.count, 0);
-    return { topic: ts.topic, countByDate, total };
+    const counts = dates.map((d) => countByDate.get(d) || 0);
+    return { topic: ts.topic, countByDate, total, counts };
   });
 
-  // Sort by total mentions descending
   rows.sort((a, b) => b.total - a.total);
 
-  /* ---- Global max for color scaling ---- */
   let globalMax = 0;
   for (const r of rows) {
     for (const [, c] of r.countByDate) {
@@ -46,60 +41,91 @@ export function renderTopicHeatmap(container, data) {
     }
   }
 
-  /* ---- Render ---- */
-  let html = '<h2 class="section-title">Topic Heatmap</h2>';
-  html += '<div class="heatmap-wrapper">';
-  html += '<table class="heatmap-table">';
+  let expanded = false;
 
-  // Header
-  html += '<thead><tr><th class="heatmap-topic-header">Topic</th>';
-  for (const d of dates) {
-    html += `<th class="heatmap-date-header">${formatShortDate(d)}</th>`;
-  }
-  html += '<th class="heatmap-trend-header">Trend</th>';
-  html += '</tr></thead>';
+  function render() {
+    const visible = expanded ? rows : rows.slice(0, DEFAULT_ROWS);
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const lightText = isDark ? '#e0e7ff' : '#1E1B4B';
 
-  // Body
-  html += '<tbody>';
-  for (const row of rows) {
-    html += '<tr>';
-    html += `<td class="heatmap-topic-name" data-topic="${esc(row.topic)}">${esc(row.topic)}</td>`;
+    let html = '<h2 class="section-title">Topic Heatmap</h2>';
+    html += '<div class="heatmap-wrapper">';
+    html += '<table class="heatmap-table">';
 
+    html += '<thead><tr><th class="heatmap-topic-header">Topic</th>';
     for (const d of dates) {
-      const count = row.countByDate.get(d) || 0;
-      const bg = heatmapColor(count, globalMax);
-      const textColor = count / globalMax > 0.5 ? '#fff' : '#1E1B4B';
-      html += `<td class="heatmap-cell" style="background:${bg};color:${textColor}" title="${esc(row.topic)} &mdash; ${d}: ${count}">${count || ''}</td>`;
+      html += `<th class="heatmap-date-header">${formatShortDate(d)}</th>`;
+    }
+    html += '<th class="heatmap-trend-header">Trend</th>';
+    html += '</tr></thead>';
+
+    html += '<tbody>';
+    for (const row of visible) {
+      html += '<tr>';
+      html += `<td class="heatmap-topic-name" data-topic="${esc(row.topic)}">${esc(row.topic)}</td>`;
+
+      for (const d of dates) {
+        const count = row.countByDate.get(d) || 0;
+        const bg = heatmapColor(count, globalMax);
+        const textColor = count / globalMax > 0.5 ? '#fff' : lightText;
+        html += `<td class="heatmap-cell" style="background:${bg};color:${textColor}" title="${esc(row.topic)} \u2014 ${d}: ${count}">${count || ''}</td>`;
+      }
+
+      html += `<td class="heatmap-trend">${sparkline(row.counts)}</td>`;
+      html += '</tr>';
+    }
+    html += '</tbody></table></div>';
+
+    if (rows.length > DEFAULT_ROWS) {
+      html += `<button class="heatmap-expand-btn" id="heatmap-expand">
+        ${expanded ? `Show Top ${DEFAULT_ROWS}` : `Show All ${rows.length} Topics`}
+      </button>`;
     }
 
-    // Trend arrow: compare last two dates
-    html += `<td class="heatmap-trend">${trendArrow(row.countByDate, dates)}</td>`;
-    html += '</tr>';
-  }
-  html += '</tbody></table></div>';
+    container.innerHTML = html;
 
-  container.innerHTML = html;
+    // Wire expand button
+    const expandBtn = document.getElementById('heatmap-expand');
+    if (expandBtn) {
+      expandBtn.addEventListener('click', () => {
+        expanded = !expanded;
+        render();
+      });
+    }
 
-  /* ---- Click handler: topic names trigger filter ---- */
-  container.querySelectorAll('.heatmap-topic-name').forEach((el) => {
-    el.style.cursor = 'pointer';
-    el.addEventListener('click', () => {
-      const topicName = el.dataset.topic;
-      // filterByTopic is exposed globally by app.js
-      if (typeof window.filterByTopic === 'function') {
-        window.filterByTopic(topicName);
-      }
+    // Wire topic click filter
+    container.querySelectorAll('.heatmap-topic-name').forEach((el) => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        if (typeof window.filterByTopic === 'function') {
+          window.filterByTopic(el.dataset.topic);
+        }
+      });
     });
+  }
+
+  render();
+}
+
+function sparkline(counts) {
+  if (counts.length < 2) return '<span class="trend-dash">&mdash;</span>';
+
+  const max = Math.max(...counts, 1);
+  const w = 60;
+  const h = 20;
+  const step = w / (counts.length - 1);
+
+  const points = counts.map((c, i) => {
+    const x = i * step;
+    const y = h - (c / max) * (h - 2) - 1;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
   });
+
+  const last = counts[counts.length - 1];
+  const prev = counts[counts.length - 2];
+  const color = last > prev ? '#22c55e' : last < prev ? '#ef4444' : '#94a3b8';
+
+  return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
 }
-
-function trendArrow(countByDate, dates) {
-  if (dates.length < 2) return '<span class="trend-dash">&mdash;</span>';
-  const last = countByDate.get(dates[dates.length - 1]) || 0;
-  const prev = countByDate.get(dates[dates.length - 2]) || 0;
-
-  if (last > prev) return '<span class="trend-up" title="Rising">&#9650;</span>';
-  if (last < prev) return '<span class="trend-down" title="Declining">&#9660;</span>';
-  return '<span class="trend-dash" title="Stable">&mdash;</span>';
-}
-
