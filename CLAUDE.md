@@ -12,6 +12,7 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 - **newsletter-digest/** — Python pipeline: fetches Gmail newsletters + RSS feeds, summarizes with Claude API, emails HTML digest. Entry: `newsletter-digest/main.py`
 - **trends-dashboard/** — Static JS dashboard visualizing digest data with Chart.js. Entry: `trends-dashboard/index.html`
 - **doc-find-replace/** — Browser-based document find-and-replace tool for .docx and .pdf files. Vanilla JS, IndexedDB persistence. Includes `txt_to_docx.py` helper for batch-converting test files. Entry: `doc-find-replace/index.html`
+- **legal-doc-catalog/** — Vanilla JS app backed by Supabase for cataloging legal documents with full-text search. Python seed script for importing .docx files. Entry: `legal-doc-catalog/index.html`
 - **telegram_bot.py** — Standalone Telegram bot script
 
 ## Adding a New Project
@@ -36,12 +37,14 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 - **Trends only:** `cd newsletter-digest && python main.py --trends-only`
 - **Backfill past week:** `cd newsletter-digest && python main.py --backfill YYYY-MM-DD`
 - **Serve locally:** `python -m http.server 8000` (from repo root)
+- **Seed legal docs:** `cd legal-doc-catalog/seed && pip install -r requirements.txt && python seed_documents.py`
 
 ## Credentials & Secrets
 
 - Gmail OAuth: `newsletter-digest/credentials.json` + `newsletter-digest/token.json` (never commit)
 - Anthropic API key: `ANTHROPIC_API_KEY` env var
 - Telegram bot token: stored in `.claude/settings.local.json` (never commit)
+- Supabase credentials: `legal-doc-catalog/config.js` (never commit, use `config.example.js` as template)
 
 ## Deployment
 

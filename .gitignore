@@ -27,6 +27,9 @@ telegram-bot-env/
 # GSD plugin artifacts
 .planning/
 
+# Legal doc catalog credentials
+legal-doc-catalog/config.js
+
 # Editor
 .vscode/
 .idea/
