@@ -136,3 +136,50 @@ export function colorForCategory(key) {
   const palette = Object.values(COLORS);
   return palette[Math.abs(hash) % palette.length];
 }
+
+/* ------------------------------------------------------------------ */
+/*  Shared Helpers                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * HTML-escape a string for safe DOM insertion.
+ */
+export function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
+/**
+ * Format a date string as "Mon D" (e.g., "May 6").
+ */
+export function formatShortDate(dateStr) {
+  try {
+    const dateOnly = String(dateStr).slice(0, 10);
+    const d = new Date(dateOnly + 'T00:00:00');
+    if (isNaN(d)) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
+ * Capitalize first letter and replace underscores with spaces.
+ */
+export function capitalize(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' ');
+}
+
+/**
+ * Render a standard empty-state placeholder for a section.
+ */
+export function emptyState(title) {
+  return `
+    <h2 class="section-title">${title}</h2>
+    <div class="empty-state">
+      <p>No data yet</p>
+    </div>`;
+}

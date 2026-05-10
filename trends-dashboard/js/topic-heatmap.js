@@ -4,7 +4,7 @@
  * Cell intensity reflects mention count. Includes trend arrows and click filtering.
  */
 
-import { heatmapColor } from './chart-utils.js';
+import { heatmapColor, esc, formatShortDate, emptyState } from './chart-utils.js';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                         */
@@ -93,10 +93,6 @@ export function renderTopicHeatmap(container, data) {
   });
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
 function trendArrow(countByDate, dates) {
   if (dates.length < 2) return '<span class="trend-dash">&mdash;</span>';
   const last = countByDate.get(dates[dates.length - 1]) || 0;
@@ -107,28 +103,3 @@ function trendArrow(countByDate, dates) {
   return '<span class="trend-dash" title="Stable">&mdash;</span>';
 }
 
-function formatShortDate(dateStr) {
-  try {
-    const dateOnly = String(dateStr).slice(0, 10);
-    const d = new Date(dateOnly + 'T00:00:00');
-    if (isNaN(d)) return dateStr;
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  } catch {
-    return dateStr;
-  }
-}
-
-function esc(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = String(str);
-  return div.innerHTML;
-}
-
-function emptyState(title) {
-  return `
-    <h2 class="section-title">${title}</h2>
-    <div class="empty-state">
-      <p>No data yet</p>
-    </div>`;
-}

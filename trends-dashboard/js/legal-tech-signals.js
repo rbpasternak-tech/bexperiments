@@ -6,7 +6,7 @@
  *   - Chronological signal feed with type badges and source links
  */
 
-import { formatNumber } from './chart-utils.js';
+import { formatNumber, esc, capitalize, formatShortDate, emptyState } from './chart-utils.js';
 
 /* ---- Signal type styling ---- */
 const SIGNAL_TYPE_COLORS = {
@@ -130,10 +130,6 @@ function signalItem(sig) {
     </div>`;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
 function renderSourceLink(sig) {
   const url = sig.source_url || sig.url || sig.link || '';
   const name = sig.source || sig.source_name || '';
@@ -148,33 +144,4 @@ function renderSourceLink(sig) {
 function domainFromUrl(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); }
   catch { return url; }
-}
-
-function capitalize(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' ');
-}
-
-function formatShortDate(dateStr) {
-  try {
-    const dateOnly = String(dateStr).slice(0, 10);
-    const d = new Date(dateOnly + 'T00:00:00');
-    if (isNaN(d)) return dateStr;
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  } catch { return dateStr; }
-}
-
-function esc(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = String(str);
-  return div.innerHTML;
-}
-
-function emptyState(title) {
-  return `
-    <h2 class="section-title">${title}</h2>
-    <div class="empty-state">
-      <p>No data yet</p>
-    </div>`;
 }

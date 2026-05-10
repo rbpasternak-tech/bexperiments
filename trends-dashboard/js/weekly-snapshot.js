@@ -3,7 +3,7 @@
  * Renders the Weekly Snapshot section: top stories, one-to-watch, and quick stats.
  */
 
-import { SENTIMENT_COLORS, formatCurrency, formatNumber } from './chart-utils.js';
+import { SENTIMENT_COLORS, formatCurrency, formatNumber, esc, emptyState } from './chart-utils.js';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                         */
@@ -187,10 +187,6 @@ function sentimentBar(dist) {
     </div>`;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
 function renderSourceLinks(sources) {
   if (!sources || sources.length === 0) return '';
   return sources
@@ -220,19 +216,4 @@ function domainFromUrl(url) {
   } catch {
     return url;
   }
-}
-
-function esc(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = String(str);
-  return div.innerHTML;
-}
-
-function emptyState(title) {
-  return `
-    <h2 class="section-title">${title}</h2>
-    <div class="empty-state">
-      <p>No data yet</p>
-    </div>`;
 }

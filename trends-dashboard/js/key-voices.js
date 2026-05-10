@@ -5,7 +5,7 @@
  *   - Sortable HTML table: source name, article count, signal strength badge, top topics
  */
 
-import { COLORS, colorForCategory, formatNumber } from './chart-utils.js';
+import { COLORS, colorForCategory, formatNumber, esc, capitalize, emptyState } from './chart-utils.js';
 
 /* ---- Module-level chart reference ---- */
 let radarChartInstance = null;
@@ -285,26 +285,3 @@ function wireTableSort(container) {
   });
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
-function capitalize(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' ');
-}
-
-function esc(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = String(str);
-  return div.innerHTML;
-}
-
-function emptyState(title) {
-  return `
-    <h2 class="section-title">${title}</h2>
-    <div class="empty-state">
-      <p>No data yet</p>
-    </div>`;
-}
