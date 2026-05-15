@@ -1,0 +1,694 @@
+{
+  "meta": {
+    "id": "2026-W20-fri",
+    "run_date": "2026-05-15T09:05:25.702503",
+    "date_range_start": "2026-05-12",
+    "date_range_end": "2026-05-15",
+    "newsletter_count": 17,
+    "rss_article_count": 129,
+    "sources_analyzed": [
+      "Daria from AI blew my mind",
+      "Danny Katz via LinkedIn",
+      "Hacker News (Best)",
+      "The Code",
+      "Ars Technica",
+      "Inside Practice via LinkedIn",
+      "IAPP Daily Dashboard",
+      "TechCrunch",
+      "Zach Abramowitz from Zach Abramowitz is Legally Disrupted",
+      "\"Alexander Witt, Sanctions and Export Controls\"",
+      "GenAI Works via LinkedIn",
+      "Above the Law",
+      "Jerry Jalaba",
+      "How to AI (Ruben Hassid)",
+      "LawSites (Bob Ambrogi)",
+      "Artificial Lawyer",
+      "The Verge"
+    ]
+  },
+  "topics": [
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 9,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Claude For Legal Launches, May Reshape the Legal Tech World",
+        "AL Interview: Greg Lambert \u2013 The Realities of Legal AI Adoption",
+        "Are AI First Firms a Threat To Biglaw?"
+      ]
+    },
+    {
+      "name": "Large Language Models",
+      "category": "ai",
+      "mention_count": 8,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Anthropic Goes All-In On Legal, Releasing More Than 20 Connectors And 12 Practice-Area Plugins For Claude",
+        "Thinking Machines previews its first interaction model",
+        "Claude Code's product lead talks usage limits, transparency, and the 'lean harness'"
+      ]
+    },
+    {
+      "name": "AI Agents",
+      "category": "ai",
+      "mention_count": 7,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "The enterprise agent portability problem is coming",
+        "Cursor sets agents loose across the entire codebase",
+        "Notion opens its workspace to third-party AI agents"
+      ]
+    },
+    {
+      "name": "Legal Tech Funding",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Claude For Legal, Clio $500m, Legal Innovators California +",
+        "EvenUp Extends Beyond Software with Launch of 'Pre-Litigation-as-a-Service' Offering For PI Law Firms",
+        "Cerebras raises $5.5B, then stock pops 108%, in the first huge tech IPO of 2026"
+      ]
+    },
+    {
+      "name": "Contract Analysis AI",
+      "category": "legal_tech",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Are Legal Tech AI Acquisitions Masking an Architectural Problem?",
+        "LawVu picked up ClauseBase in December for drafting and extraction",
+        "NetDocuments Unveils Legal Context Graph to Map Legal Knowledge, Alongside A 'Reimagined' Platform"
+      ]
+    },
+    {
+      "name": "E-Discovery & Litigation AI",
+      "category": "legal_tech",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "eDig365 Aims To Give Legal Teams Reporting and Visibility within Microsoft Purview E-Discovery",
+        "Exterro's Subpoena Manager: Start With A Pain Point, Find A Solution, Rinse And Repeat",
+        "Meet LOIS: The AI That Will Change How You Practice Law"
+      ]
+    },
+    {
+      "name": "AI Regulation",
+      "category": "regulation",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Amendments move Colorado AI Act's focus from risk to transparency",
+        "King's Speech signals diffuse UK digital policy agenda, but no AI bill",
+        "The Law After Tomorrow: A Fictional Look At AI, Legal Work, And The World Between 2026 And 2050"
+      ]
+    },
+    {
+      "name": "Data Privacy",
+      "category": "data_privacy",
+      "mention_count": 5,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Maryland enacts a first-of-its-kind surveillance pricing law, but there are loopholes",
+        "US congressman presses major companies on surveillance pricing practices",
+        "From privacy policies to machine-readable governance: Rethinking data control in the age of AI"
+      ]
+    },
+    {
+      "name": "Law Firm Technology",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "NetDocuments Unveils Legal Context Graph to Map Legal Knowledge, Alongside A 'Reimagined' Platform",
+        "Litera Webinar: Education + Training in the Age of Legal AI",
+        "Microsoft starts canceling Claude Code licenses"
+      ]
+    },
+    {
+      "name": "Legal Practice Innovation",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Are AI First Firms a Threat To Biglaw?",
+        "EvenUp Extends Beyond Software with Launch of 'Pre-Litigation-as-a-Service' Offering For PI Law Firms",
+        "Meet LOIS: The AI That Will Change How You Practice Law"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "category": "security",
+      "mention_count": 6,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "Supply chain attacks keep hitting AI",
+        "Zero-day exploit completely defeats default Windows 11 BitLocker protections",
+        "OpenAI says hackers stole some data after latest code security issue"
+      ]
+    },
+    {
+      "name": "Workforce & Jobs",
+      "category": "workforce",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Cisco cuts nearly 4,000 jobs to spend more on AI, reports 'record quarterly revenue'",
+        "Elon Musk's SpaceXAI has been bleeding staff since its merger",
+        "Are AI First Firms a Threat To Biglaw?"
+      ]
+    },
+    {
+      "name": "AI Infrastructure",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Cerebras raises $5.5B, then stock pops 108%, in the first huge tech IPO of 2026",
+        "Energy supplier abandons Lake Tahoe residents to serve data centers",
+        "Anthropic billing overhaul triggers developer backlash"
+      ]
+    },
+    {
+      "name": "Enterprise AI",
+      "category": "enterprise",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Notion opens its workspace to third-party AI agents",
+        "OpenAI unveils a frontier AI platform for cyber defenders",
+        "What happens when AI starts building itself?"
+      ]
+    },
+    {
+      "name": "Startup Ecosystem",
+      "category": "startup",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Cerebras IPO makes billions for Benchmark but VC Eric Vishria almost didn't take the meeting",
+        "Khosla Ventures is betting $10M on Ian Crosby, whose first startup, Bench, imploded",
+        "Lovable just backed a company that's looking to bring vibe coding to hardware"
+      ]
+    },
+    {
+      "name": "AI Safety & Ethics",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "AI research papers are getting better, and it's a big problem for scientists",
+        "New arXiv policy: 1-year ban for hallucinated references",
+        "Ontario auditors find doctors' AI note takers routinely blow basic facts"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "product_launch",
+      "entity": "Anthropic",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Anthropic formally launches Claude For Legal with 20+ connectors and 12 practice-area plugins",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/05/15/claude-for-legal-clio-500m-legal-innovators-california/"
+    },
+    {
+      "type": "funding",
+      "entity": "Clio",
+      "amount": "$500M",
+      "amount_usd": 500000000,
+      "headline": "Clio raises $500M in new funding round",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/05/15/claude-for-legal-clio-500m-legal-innovators-california/"
+    },
+    {
+      "type": "ipo",
+      "entity": "Cerebras",
+      "amount": "$5.5B",
+      "amount_usd": 5500000000,
+      "headline": "Cerebras raises $5.5B in IPO, stock pops 108% in first major tech IPO of 2026",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/05/14/cerebras-raises-5-5b-kicking-off-2026s-ipo-season-with-a-bang/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI's Codex is now available in the ChatGPT mobile app",
+      "source": "The Verge",
+      "source_url": "https://www.theverge.com/ai-artificial-intelligence/930763/openai-codex-chatgpt-ios-android-app-preview"
+    },
+    {
+      "type": "product_launch",
+      "entity": "OpenAI",
+      "amount": "$4B",
+      "amount_usd": 4000000000,
+      "headline": "OpenAI launches Daybreak cybersecurity platform and a $4B Deployment Company after acquiring consulting firm Tomoro",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "NetDocuments",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "NetDocuments unveils Legal Context Graph to map legal knowledge alongside a reimagined platform",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/05/netdocuments-unveils-legal-context-graph-to-map-legal-knowledge-alongside-a-reimagined-platform.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "EvenUp",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "EvenUp launches Pre-Litigation-as-a-Service offering for PI law firms, expanding beyond software",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/05/evenup-extends-beyond-software-with-launch-of-pre-litigation-as-a-service-offering-for-pi-law-firms.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "eDig365",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "eDig365 debuts at CLOC Global Institute, offering reporting and observability layer on Microsoft Purview eDiscovery",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/05/edig365-aims-to-gives-legal-teams-reporting-and-visibility-within-microsoft-purview-e-discovery.html"
+    },
+    {
+      "type": "funding",
+      "entity": "Wirestock",
+      "amount": "$23M",
+      "amount_usd": 23000000,
+      "headline": "Wirestock raises $23M to supply creative multimodal data to AI labs",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/05/14/wirestock-raises-23m-to-supply-multi-modal-data-to-ai-labs/"
+    },
+    {
+      "type": "funding",
+      "entity": "Synthetic (Ian Crosby)",
+      "amount": "$10M",
+      "amount_usd": 10000000,
+      "headline": "Khosla Ventures bets $10M on Synthetic, an autonomous AI bookkeeping startup",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/05/14/khosla-ventures-is-betting-10m-on-ian-crosby-whose-last-startup-bench-imploded/"
+    },
+    {
+      "type": "funding",
+      "entity": "Atech",
+      "amount": "$800K",
+      "amount_usd": 800000,
+      "headline": "Hardware startup Atech raises $800K pre-seed backed by Lovable, a16z scout, and Sequoia Scout",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/05/14/lovable-just-backed-a-company-thats-looking-to-bring-vibe-coding-to-hardware/"
+    },
+    {
+      "type": "funding",
+      "entity": "Rapido",
+      "amount": "$240M",
+      "amount_usd": 240000000,
+      "headline": "Indian Uber rival Rapido raises $240M at $3B valuation",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/05/15/indian-uber-rival-rapido-raises-240m-at-3b-valuation/"
+    },
+    {
+      "type": "layoff",
+      "entity": "Cisco",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Cisco cuts nearly 4,000 jobs to redirect spending toward AI despite record quarterly revenue",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/05/14/cisco-cuts-nearly-4000-jobs-to-spend-more-on-ai-reports-record-quarterly-revenue/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Thinking Machines (Mira Murati)",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Thinking Machines previews TML-Interaction-Small, a 276B-parameter real-time multimodal model",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Cursor",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Cursor launches cloud development environments letting agents work across multiple repositories simultaneously",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Notion",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Notion opens its workspace to third-party AI agents including Claude Code, Cursor, and Codex via new Developer Platform",
+      "source": "The Code",
+      "source_url": null
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "US",
+      "type": "legislative_proposal",
+      "title": "Colorado AI Act Overhaul: Risk to Transparency Shift",
+      "summary": "Colorado lawmakers sent amendments to the governor replacing the original 2024 AI Act with a framework focused on disclosure and transparency requirements rather than risk management. Senate Bill 189 represents a significant pivot after two years of debate.",
+      "sentiment": "mixed",
+      "impact_area": [
+        "AI Regulation",
+        "Enterprise AI"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "UK",
+      "type": "legislative_proposal",
+      "title": "King's Speech: Broad Digital Policy Agenda, No AI Bill",
+      "summary": "The UK's King's Speech outlined a broad digital policy agenda covering EU alignment, cybersecurity, health data, digital IDs, and facial recognition, but conspicuously omitted any AI-specific legislation. IAPP analysts describe a 'voluminous and dynamic period ahead for UK digital policy.'",
+      "sentiment": "neutral",
+      "impact_area": [
+        "AI Regulation",
+        "Data Privacy",
+        "Cybersecurity"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "new_regulation",
+      "title": "Maryland Surveillance Pricing Protection Act",
+      "summary": "Maryland enacted the first U.S. state law banning surveillance pricing in grocery stores, though analysts note loopholes including insufficient baseline pricing definitions and carve-outs for loyalty programs.",
+      "sentiment": "mixed",
+      "impact_area": [
+        "Data Privacy",
+        "Compliance Technology"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "enforcement_action",
+      "title": "DOJ Sues D.C. Bar Over Lawyer Discipline",
+      "summary": "The Department of Justice sued the D.C. Bar for seeking professional discipline against Trump-allied lawyers, raising concerns about the independence of bar licensing authorities.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Legal Practice Innovation"
+      ],
+      "source": "Above the Law",
+      "source_url": "https://abovethelaw.com/2026/05/doj-sues-d-c-bar-for-holding-trump-lawyers-to-ethical-rules/"
+    },
+    {
+      "jurisdiction": "US",
+      "type": "guidance",
+      "title": "Congressional Inquiry into Surveillance Pricing by Major Companies",
+      "summary": "U.S. Rep. Frank Pallone sent letters to 25 major companies seeking information on their use of personal data to set individualized prices, signaling potential federal legislative action on surveillance pricing.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "Compliance Technology"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "new_regulation",
+      "title": "arXiv Implements 1-Year Ban for AI Hallucinated References",
+      "summary": "arXiv announced a new policy imposing a one-year submission ban on authors who include hallucinated (AI-fabricated) references in their papers, responding to growing concerns about AI-generated academic slop.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Safety & Ethics",
+        "Large Language Models"
+      ],
+      "source": "Hacker News (Best)",
+      "source_url": "https://twitter.com/tdietterich/status/2055000956144935055"
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "product_launch",
+      "entity": "Anthropic",
+      "description": "Anthropic formally launched Claude For Legal, a comprehensive legal tech offering featuring 20+ connectors to law firm software and 12 practice-area plugins, placing the LLM maker directly at the center of the legal tech market.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/05/15/claude-for-legal-clio-500m-legal-innovators-california/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "EvenUp",
+      "description": "EvenUp, valued at $2B, launched Pre-Litigation-as-a-Service for personal injury law firms, pivoting beyond pure software to become an outsourced operations partner handling pre-litigation workflows.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/05/evenup-extends-beyond-software-with-launch-of-pre-litigation-as-a-service-offering-for-pi-law-firms.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "NetDocuments",
+      "description": "NetDocuments unveiled the Legal Context Graph, a proprietary knowledge infrastructure that maps relationships among matters, documents, communications, and people across a firm's entire document repository, alongside a reimagined platform.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/05/netdocuments-unveils-legal-context-graph-to-map-legal-knowledge-alongside-a-reimagined-platform.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "eDig365",
+      "description": "eDig365 made its public debut at CLOC Global Institute in Chicago, offering a reporting and observability layer built on top of Microsoft Purview eDiscovery for corporate legal departments.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/05/edig365-aims-to-gives-legal-teams-reporting-and-visibility-within-microsoft-purview-e-discovery.html"
+    },
+    {
+      "type": "milestone",
+      "entity": "Exterro",
+      "description": "Exterro's Subpoena Manager highlighted as an AI legal tool that automates administrative subpoena functions, representing a pattern of AI solving targeted legal pain points.",
+      "source": "Above the Law",
+      "source_url": "https://abovethelaw.com/2026/05/exterros-subpoena-manager-start-with-a-pain-point-find-a-solution-rinse-and-repeat/"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Jackson Walker",
+      "description": "Greg Lambert, Chief Innovation Officer at Jackson Walker, discussed the realities of legal AI adoption in an interview, offering on-the-ground perspective from a firm actively deploying AI tools.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/05/13/"
+    },
+    {
+      "type": "milestone",
+      "entity": "SpotDraft",
+      "description": "SpotDraft published analysis arguing that major legal tech AI acquisitions (DocuSign/Lexion, Workday/Evisort, LawVu/ClauseBase) may be masking an underlying architectural problem in CLM platforms.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/05/13/"
+    },
+    {
+      "type": "integration",
+      "entity": "Microsoft",
+      "description": "Microsoft began canceling Claude Code licenses it had been providing to thousands of its own developers since December, signaling a shift in internal AI tooling strategy.",
+      "source": "The Verge",
+      "source_url": "https://www.theverge.com/tech/930447/microsoft-claude-code-discontinued-notepad"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Litera",
+      "description": "Litera partnered with Artificial Lawyer to host a webinar on education and training in the age of legal AI, scheduled for May 26, 2026.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/05/14/litera-webinar-education-training-in-the-age-of-legal-ai/"
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "rss",
+      "article_count": 7,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Contract Analysis AI",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "LawSites (Bob Ambrogi)",
+      "source_type": "rss",
+      "article_count": 4,
+      "top_topics": [
+        "E-Discovery & Litigation AI",
+        "Legal Practice Innovation",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "Data Privacy",
+        "AI Regulation",
+        "AI Agents"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Code (Superhuman)",
+      "source_type": "newsletter",
+      "article_count": 3,
+      "top_topics": [
+        "AI Agents",
+        "Large Language Models",
+        "Cybersecurity"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 14,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Practice Innovation",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 18,
+      "top_topics": [
+        "Startup Ecosystem",
+        "Large Language Models",
+        "Workforce & Jobs"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "The Verge",
+      "source_type": "rss",
+      "article_count": 12,
+      "top_topics": [
+        "Large Language Models",
+        "AI Agents",
+        "Cybersecurity"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Ars Technica",
+      "source_type": "rss",
+      "article_count": 12,
+      "top_topics": [
+        "Cybersecurity",
+        "AI Infrastructure",
+        "Workforce & Jobs"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Hacker News (Best)",
+      "source_type": "rss",
+      "article_count": 14,
+      "top_topics": [
+        "Large Language Models",
+        "Cybersecurity",
+        "AI Safety & Ethics"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Zach Abramowitz (Legally Disrupted)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Legal Practice Innovation",
+        "Legal AI Adoption",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "AI Blew My Mind",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Large Language Models",
+        "AI Agents"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "GenAI Works (LinkedIn)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Large Language Models",
+        "Enterprise AI"
+      ],
+      "signal_strength": "low"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "Anthropic Launches Claude For Legal With 20+ Connectors and 12 Practice-Area Plugins",
+        "why_it_matters": "Anthropic's direct entry into the legal vertical with a comprehensive suite of integrations represents a fundamental shift \u2014 a foundational AI model provider is now competing with and enabling the entire legal tech ecosystem simultaneously. This could compress margins for standalone legal AI vendors and accelerate enterprise adoption timelines.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/05/15/claude-for-legal-clio-500m-legal-innovators-california/"
+          },
+          {
+            "name": "Above the Law / LawNext",
+            "url": "https://www.lawnext.com/2026/05/anthropic-goes-all-in-on-legal-releasing-more-than-20-connectors-and-12-practice-area-plugins-for-claude.html"
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "Clio Raises $500M as Legal Tech Funding Continues at Record Pace",
+        "why_it_matters": "Clio's $500M raise signals that institutional capital sees the legal AI market as a durable, not speculative, opportunity \u2014 particularly as AI tools demonstrate measurable productivity gains. Combined with EvenUp's $2B valuation milestone, the legal tech sector is undergoing a genuine capital deepening.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/05/15/claude-for-legal-clio-500m-legal-innovators-california/"
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Colorado AI Act Overhauled to Shift from Risk Management to Transparency Requirements",
+        "why_it_matters": "Colorado's pivot from a risk-based AI governance framework to a disclosure-and-transparency model after two years of debate signals the difficulty of enacting prescriptive AI regulation at the state level, and may influence how other U.S. states approach AI law. The simultaneous absence of an AI bill in the UK's King's Speech reinforces a global trend toward softer regulatory postures.",
+        "sources": [
+          {
+            "name": "IAPP Daily Dashboard",
+            "url": null
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "AI-First Law Firm Founder Argues BigLaw Will Become the 'Yellow Pages'",
+      "why_it_matters": "The emergence of AI-first law firms challenging BigLaw's structural model \u2014 not just its efficiency \u2014 represents the next inflection point for legal practice. As AI tools mature, the question is no longer whether firms should adopt AI but whether the traditional law firm structure itself is obsolete.",
+      "sources": [
+        {
+          "name": "Legally Disrupted (Zach Abramowitz)",
+          "url": null
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 88,
+      "funding_total_usd": 6273800000,
+      "new_regulations_count": 3,
+      "product_launches_count": 9,
+      "dominant_topic": "Legal AI Adoption",
+      "sentiment_balance": {
+        "positive": 42,
+        "neutral": 28,
+        "negative": 18
+      }
+    }
+  },
+  "weekly_narrative": "This week marked a potential inflection point for the legal AI market: Anthropic's formal launch of Claude For Legal \u2014 with 20+ connectors and 12 practice-area plugins \u2014 places a frontier model provider directly inside the legal tech stack, simultaneously empowering existing vendors and threatening to disintermediate them. Coming alongside Clio's $500M raise, the week signals that the legal AI investment thesis has moved from experimentation to infrastructure build-out, with capital and product development converging at scale. Against this backdrop, regulatory uncertainty persists \u2014 Colorado's AI Act pivot toward transparency over risk and the UK's conspicuous silence on AI legislation suggest that governance frameworks are struggling to keep pace with commercial deployment, creating both opportunity and compliance ambiguity for legal tech leaders planning multi-year AI strategies."
+}
