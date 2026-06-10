@@ -1,0 +1,792 @@
+{
+  "meta": {
+    "id": "2026-W24-wed",
+    "run_date": "2026-06-10T08:03:57.871234",
+    "date_range_start": "2026-06-07",
+    "date_range_end": "2026-06-10",
+    "newsletter_count": 17,
+    "rss_article_count": 119,
+    "sources_analyzed": [
+      "IAPP Daily Dashboard",
+      "The Economist via LinkedIn",
+      "\"LegalQuants's Substack\"",
+      "The Code",
+      "Ars Technica",
+      "3 Geeks and a Law Blog",
+      "TechCrunch",
+      "IAPP Events",
+      "One Useful Thing (Ethan Mollick)",
+      "Ryan-Rhys Griffiths",
+      "Claude Team",
+      "Hacker News (Best)",
+      "Above the Law",
+      "Ethan Mollick from One Useful Thing",
+      "Ruben Hassid",
+      "How to AI (Ruben Hassid)",
+      "\"Katia-M. Medina A.\"",
+      "Artificial Lawyer",
+      "Reuters Legal via LinkedIn",
+      "Abe Hyun",
+      "LawSites (Bob Ambrogi)",
+      "GenAI Works via LinkedIn",
+      "IAPP Career Central Digest",
+      "The Verge"
+    ]
+  },
+  "topics": [
+    {
+      "name": "Large Language Models",
+      "category": "ai",
+      "mention_count": 14,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Introducing Claude Fable 5",
+        "What it feels like to work with Mythos \u2014 Claude Fable represents another big jump in AI",
+        "Anthropic's Claude Fable 5 is a version of Mythos the public can access today"
+      ]
+    },
+    {
+      "name": "AI Agents",
+      "category": "ai",
+      "mention_count": 6,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Claude Code becomes an engineering team: Dynamic Workflows launch hundreds of parallel agents",
+        "How do you lead when AI can execute faster than humans can coordinate?",
+        "How to build an Agentic RAG project"
+      ]
+    },
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 8,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Meeting Clients Where They Are In An AI World",
+        "AI Is Killing Legal's Billable Hour. It's Also Repeating Its Worst Mistake.",
+        "Dead Lawyering Theory: Too Much Of Litigation Is Fake"
+      ]
+    },
+    {
+      "name": "Legal Tech Funding",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Sandstone raises $30M to bring AI to in-house legal teams",
+        "Sandstone Raises $30m For AI-Native Inhouse Teams",
+        "Anthropic confidentially filed for an IPO (June 1)"
+      ]
+    },
+    {
+      "name": "AI Regulation",
+      "category": "regulation",
+      "mention_count": 7,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "European Commission delivers draft high-risk AI guidelines after delays",
+        "Unpacking the White House executive order on frontier AI, cybersecurity",
+        "Apple decided not to roll out Siri in EU after denied request for exemption"
+      ]
+    },
+    {
+      "name": "Data Privacy",
+      "category": "data_privacy",
+      "mention_count": 7,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "California authorities announce largest CCPA fine to date",
+        "EU officials may target surveillance risks posed by smart glasses",
+        "One day after discovery, Meta pulls facial recognition code from its smart glasses"
+      ]
+    },
+    {
+      "name": "AI Safety & Ethics",
+      "category": "ai",
+      "mention_count": 5,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Anthropic says these topics are too dangerous to let its Fable 5 model talk about",
+        "If Claude Fable stops helping you, you'll never know",
+        "Trump administration denies unlawful retaliation in Anthropic AI blacklisting"
+      ]
+    },
+    {
+      "name": "Enterprise AI",
+      "category": "enterprise",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Stop using your own Claude at work",
+        "Legal AI, Trust, and Agents: Joel Hron on Thomson Reuters, Anthropic, and the Future of CoCounsel",
+        "Can tech companies learn to love cheaper AI models?"
+      ]
+    },
+    {
+      "name": "Contract Analysis AI",
+      "category": "legal_tech",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Jason Boehmig, founder and ex-CEO of Ironclad, joined OpenAI to lead its legal vertical",
+        "Claude Fable, Steno, Billables AI, Spellbook, Legora"
+      ]
+    },
+    {
+      "name": "IP & Copyright",
+      "category": "legal_tech",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Targeting European Leadership in Patent AI, DeepIP Acquires PatentMaker",
+        "German ruling declares Google liable for false answers in AI Overviews"
+      ]
+    },
+    {
+      "name": "Workforce & Jobs",
+      "category": "workforce",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "CEOs who think AI replaces their employees are just bad CEOs",
+        "Dead Lawyering Theory: Too Much Of Litigation Is Fake",
+        "Your New AI Colleague \u2013 A Field Guide to the AI That's Going to Do Your Job"
+      ]
+    },
+    {
+      "name": "Startup Ecosystem",
+      "category": "startup",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "It's not FAANG anymore. It's MANGOS.",
+        "How Justin Ernest invested nearly $500M into hot startups without a traditional VC fund",
+        "The solo full-stack AI-native firm became a movement, not an anecdote"
+      ]
+    },
+    {
+      "name": "AI Infrastructure",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Meta signs first AI data center deal in India with Reliance",
+        "NVIDIA moves deeper into the AI stack: new partnership with SK hynix",
+        "GM joins race to build batteries for AI data centers and the grid"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "category": "security",
+      "mention_count": 4,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "CISA gives US federal agencies three days to fix a VPN bug under attack by a ransomware gang",
+        "Locked in heated rivalry with researcher, Microsoft fixes 0-day they disclosed",
+        "High-severity vulnerability in Linux caused by a single faulty character"
+      ]
+    },
+    {
+      "name": "Law Firm Technology",
+      "category": "legal_tech",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "8am, Parent to LawPay, MyCase and Others, Has A New CEO",
+        "Steno Names Its Current COO Prabhdeep Singh as New CEO to Lead Next Phase of Growth",
+        "Boutique Firm Matches Milbank's New Salary Scale"
+      ]
+    },
+    {
+      "name": "Legal Practice Innovation",
+      "category": "legal_tech",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "'Less Hype, More Application' Is The Promise Of This June 17 Legal AI Conference",
+        "The solo full-stack AI-native firm became a movement, not an anecdote",
+        "The Legal Tech-To-English Dictionary (2.0): Artificial Intelligence In Legal Tech"
+      ]
+    },
+    {
+      "name": "Court Technology",
+      "category": "legal_tech",
+      "mention_count": 1,
+      "sentiment": "neutral",
+      "representative_headlines": [
+        "German ruling declares Google liable for false answers in AI Overviews"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "product_launch",
+      "entity": "Anthropic",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Anthropic releases Claude Fable 5, its first public Mythos-class model, designed for agents, coding, and long-horizon tasks",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/06/09/anthropics-claude-fable-5-is-a-version-of-mythos-the-public-can-access-today/"
+    },
+    {
+      "type": "ipo",
+      "entity": "Anthropic",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Anthropic confidentially filed for an IPO on June 1, 2026",
+      "source": "LegalQuants Substack",
+      "source_url": null
+    },
+    {
+      "type": "ipo",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI follows Anthropic in filing IPO docs",
+      "source": "The Code (Superhuman Code newsletter)",
+      "source_url": null
+    },
+    {
+      "type": "ipo",
+      "entity": "SpaceX",
+      "amount": "$75B raise / $1.8T valuation",
+      "amount_usd": 75000000000,
+      "headline": "SpaceX set for largest-ever stockmarket debut on Nasdaq, targeting $75B raise at $1.8 trillion valuation",
+      "source": "The Economist via LinkedIn",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Sandstone",
+      "amount": "$30M",
+      "amount_usd": 30000000,
+      "headline": "Sandstone raises $30M Series A led by Lightspeed Venture Partners to build AI for in-house legal teams",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/06/09/sandstone-raises-30m-to-bring-ai-to-in-house-legal-teams/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "DeepIP",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "DeepIP acquires PatentMaker to target European leadership in patent AI",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/06/targeting-european-leadership-in-patent-ai-deepip-acquires-patentmaker.html"
+    },
+    {
+      "type": "partnership",
+      "entity": "Meta",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Meta signs first AI data center deal in India with Reliance for a 168-megawatt facility",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/06/10/meta-signs-first-ai-data-center-deal-in-india-with-reliance/"
+    },
+    {
+      "type": "partnership",
+      "entity": "Apple",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Apple partners with Google to power revamped Siri with Gemini models in iOS 27",
+      "source": "The Code (Superhuman Code newsletter)",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Google",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Google announces Gemini 3.5 Live Translate for instant voice-to-voice translation",
+      "source": "Ars Technica",
+      "source_url": "https://arstechnica.com/ai/2026/06/google-announces-gemini-3-5-live-translate-for-instant-voice-to-voice-translation/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Google",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Google turns NotebookLM into a code-running research agent powered by Gemini 3.5",
+      "source": "The Code (Superhuman Code newsletter)",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Apple",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Apple announces iOS 27 with revamped Siri AI at WWDC 2026",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/06/09/wwdc-2026-everything-announced-on-siri-ai-os-27-apple-intelligence-and-more/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI reportedly rebuilds ChatGPT around coding agents to compete with Anthropic ahead of IPO",
+      "source": "The Code (Superhuman Code newsletter)",
+      "source_url": null
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "EU",
+      "type": "guidance",
+      "title": "European Commission Draft High-Risk AI Guidelines",
+      "summary": "The European Commission delivered draft guidelines for high-risk AI applications following delays past the February 2026 deadline under the Digital Omnibus on AI. Implementation of high-risk rules was delayed.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Enterprise AI"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "executive_order",
+      "title": "White House Executive Order on Frontier AI and Cybersecurity",
+      "summary": "President Trump's executive order on cyber risks posed by frontier AI narrows the voluntary government review window for new AI models to 30 days, down from 90 days in the prior version.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Cybersecurity",
+        "Large Language Models"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "enforcement_action",
+      "title": "Largest CCPA Fine to Date \u2014 General Motors $12.75M Settlement",
+      "summary": "California authorities announced a $12.75 million settlement with General Motors covering past data collection and sale practices related to geolocation and driving habits data.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "Compliance Technology"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "Canada",
+      "type": "legislative_proposal",
+      "title": "Canada Under-16 Social Media Ban",
+      "summary": "Canadian Prime Minister Mark Carney's government is expected to introduce legislation banning children under 16 from accessing social media, creating a new regulator and addressing harmful online content.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "guidance",
+      "title": "EU Regulators May Target Surveillance Risks from Smart Glasses",
+      "summary": "EU lawmakers and the European Data Protection Board are exploring policies to address surveillance risks from smart glasses with embedded cameras, following concerns about consent violations.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "enforcement_action",
+      "title": "WhatsApp Ordered to Host Rival AI Assistants for Free",
+      "summary": "The European Commission issued a rare interim measure ordering Meta to restore free WhatsApp access for chatbots from rival AI providers while an antitrust investigation into the general-purpose AI assistant market is completed.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Enterprise AI"
+      ],
+      "source": "The Verge",
+      "source_url": "https://www.theverge.com/tech/947516/meta-whatsapp-eu-third-party-ai-chatbot-ban-order"
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "court_ruling",
+      "title": "Apple Denied EU Exemption; Siri Not Rolled Out in EU",
+      "summary": "Apple failed to make its AI tool comply with EU regulations and was denied an exemption request, leading the company to decide not to roll out Siri AI in the EU.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Data Privacy"
+      ],
+      "source": "Hacker News (Best) / Reuters",
+      "source_url": "https://www.reuters.com/business/apple-failed-make-its-ai-tool-comply-eu-regulations-eu-commission-says-2026-06-09/"
+    },
+    {
+      "jurisdiction": "Germany",
+      "type": "court_ruling",
+      "title": "German Court Declares Google Liable for False Answers in AI Overviews",
+      "summary": "A landmark German ruling declared that Google's AI Overviews constitute Google's own words, making the company liable for false or defamatory answers generated by the feature.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Court Technology"
+      ],
+      "source": "Hacker News (Best)",
+      "source_url": "https://the-decoder.com/landmark-german-ruling-declares-googles-ai-overviews-are-googles-own-words-and-makes-it-liable-for-false-answers/"
+    },
+    {
+      "jurisdiction": "Canada",
+      "type": "guidance",
+      "title": "Canada AI for All Strategy",
+      "summary": "Canada launched its 'AI for All' strategy to advance innovation and the digital economy while ensuring individuals' personal data remains protected and advancing digital sovereignty.",
+      "sentiment": "permissive",
+      "impact_area": [
+        "AI Regulation",
+        "Data Privacy"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "enforcement_action",
+      "title": "Trump Administration Denies Retaliation in Anthropic AI Blacklisting",
+      "summary": "The Trump administration denied unlawfully retaliating against Anthropic while acknowledging that US agencies cut off the AI company's products after Anthropic resisted Pentagon demands over military uses of its Claude chatbot.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Large Language Models"
+      ],
+      "source": "Reuters Legal via LinkedIn",
+      "source_url": null
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "product_launch",
+      "entity": "Anthropic",
+      "description": "Anthropic released Claude Fable 5 with a dedicated legal focus; Mark Pike, head of Claude for Legal, highlighted strong legal performance benchmarks and relevance to legal AI platforms including Harvey and Crosby.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/06/10/claude-fable-steno-billables-ai-spellbook-legora/"
+    },
+    {
+      "type": "milestone",
+      "entity": "Steno",
+      "description": "Steno, a tech-enabled legal support and court reporting company, named COO Prabhdeep Singh as its new CEO to lead the company's next phase of growth.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/06/steno-names-its-current-coo-prabhdeep-singh-as-new-ceo-to-lead-next-phase-of-growth.html"
+    },
+    {
+      "type": "milestone",
+      "entity": "8am (AffiniPay)",
+      "description": "8am, parent company to LawPay, MyCase, CasePeer and other legal tech products, named Jeff Hughes as new CEO, succeeding Dru Armstrong.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/06/8am-parent-to-lawpay-mycase-and-others-has-a-new-ceo.html"
+    },
+    {
+      "type": "funding",
+      "entity": "Sandstone",
+      "description": "Sandstone raised $30M Series A led by Lightspeed Venture Partners to build AI-native legal department tools for in-house teams, just six months after a Sequoia-led seed round.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/06/09/sandstone-raises-30m-for-ai-native-inhouse-teams/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "DeepIP",
+      "description": "AI patent drafting platform DeepIP acquired PatentMaker, a European patent workflow tool, positioning the combined entity as a leading AI platform for patent drafting and prosecution in Europe.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/06/targeting-european-leadership-in-patent-ai-deepip-acquires-patentmaker.html"
+    },
+    {
+      "type": "integration",
+      "entity": "Thomson Reuters / Anthropic",
+      "description": "Thomson Reuters CTO Joel Hron discussed the evolving relationship between foundation models like Claude, legal content providers, and legal tech platforms including CoCounsel, signaling deeper AI integration for legal workflows.",
+      "source": "3 Geeks and a Law Blog",
+      "source_url": null
+    },
+    {
+      "type": "milestone",
+      "entity": "OpenAI",
+      "description": "Jason Boehmig, founder and former CEO of Ironclad (CLM platform), joined OpenAI to lead its legal vertical, signaling OpenAI may develop Codex into a contract lifecycle management tool.",
+      "source": "LegalQuants Substack",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Billables AI / Spellbook / Legora",
+      "description": "Multiple legal AI product updates highlighted by Artificial Lawyer during SF week, including Billables AI, Spellbook, and Legora.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/06/10/claude-fable-steno-billables-ai-spellbook-legora/"
+    },
+    {
+      "type": "milestone",
+      "entity": "Legal Quants Community",
+      "description": "A trend emerged in the legal quants community of 'full-stack AI-native counsel' \u2014 solo practitioners building both legal technology and delivering legal services \u2014 reported across members in the US, UK, Switzerland, France, and the Nordics.",
+      "source": "LegalQuants Substack",
+      "source_url": null
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "newsletter",
+      "article_count": 3,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Tech Funding",
+        "Large Language Models"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 22,
+      "top_topics": [
+        "Large Language Models",
+        "Legal Tech Funding",
+        "AI Infrastructure"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "IAPP Career Central Digest",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Data Privacy",
+        "AI Regulation",
+        "Compliance Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Ars Technica",
+      "source_type": "rss",
+      "article_count": 14,
+      "top_topics": [
+        "Large Language Models",
+        "AI Safety & Ethics",
+        "Cybersecurity"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 14,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Law Firm Technology",
+        "Workforce & Jobs"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LawSites (Bob Ambrogi)",
+      "source_type": "rss",
+      "article_count": 4,
+      "top_topics": [
+        "Legal Tech Funding",
+        "IP & Copyright",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Hacker News (Best)",
+      "source_type": "rss",
+      "article_count": 11,
+      "top_topics": [
+        "Large Language Models",
+        "AI Safety & Ethics",
+        "AI Regulation"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Verge",
+      "source_type": "rss",
+      "article_count": 13,
+      "top_topics": [
+        "Large Language Models",
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "One Useful Thing (Ethan Mollick)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Large Language Models",
+        "Enterprise AI"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LegalQuants Substack",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Legal Practice Innovation",
+        "Legal Tech Funding",
+        "Contract Analysis AI"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "3 Geeks and a Law Blog",
+      "source_type": "rss",
+      "article_count": 1,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Law Firm Technology",
+        "Large Language Models"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Reuters Legal via LinkedIn",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Regulation",
+        "Court Technology"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "How to AI (Ruben Hassid)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Enterprise AI",
+        "Large Language Models"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "GenAI Works via LinkedIn",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Agents",
+        "AI Infrastructure",
+        "Enterprise AI"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "The Code (Superhuman Code newsletter)",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "AI Agents",
+        "Large Language Models",
+        "Enterprise AI"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Claude Team",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Large Language Models",
+        "AI Agents"
+      ],
+      "signal_strength": "high"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "Anthropic releases Claude Fable 5, its first public Mythos-class model, with Anthropic confidentially filing for IPO",
+        "why_it_matters": "Claude Fable 5 represents a generational leap in agentic AI capability, executing multi-hour tasks and self-verifying its work \u2014 directly threatening incumbent legal AI platforms. Simultaneously, Anthropic's IPO filing, followed by OpenAI's, signals the trillion-dollar AI company era is arriving, reshaping the competitive and capital landscape for all of legal tech.",
+        "sources": [
+          {
+            "name": "TechCrunch",
+            "url": "https://techcrunch.com/2026/06/09/anthropics-claude-fable-5-is-a-version-of-mythos-the-public-can-access-today/"
+          },
+          {
+            "name": "Anthropic / Hacker News",
+            "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5"
+          },
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/06/10/claude-fable-steno-billables-ai-spellbook-legora/"
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "EU issues interim order forcing WhatsApp to host rival AI assistants; Apple blocked from EU Siri rollout; Germany holds Google liable for AI Overview errors",
+        "why_it_matters": "A trio of European regulatory actions in a single week establishes that AI assistants are now subject to antitrust, product safety, and defamation liability frameworks \u2014 setting a precedent that will force every AI-embedded product to reckon with compliance costs and jurisdictional fragmentation.",
+        "sources": [
+          {
+            "name": "The Verge",
+            "url": "https://www.theverge.com/tech/947516/meta-whatsapp-eu-third-party-ai-chatbot-ban-order"
+          },
+          {
+            "name": "Reuters / Hacker News",
+            "url": "https://www.reuters.com/business/apple-failed-make-its-ai-tool-comply-eu-regulations-eu-commission-says-2026-06-09/"
+          },
+          {
+            "name": "The Decoder / Hacker News",
+            "url": "https://the-decoder.com/landmark-german-ruling-declares-googles-ai-overviews-are-googles-own-words-and-makes-it-liable-for-false-answers/"
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Sandstone raises $30M for AI-native in-house legal teams as OpenAI's Jason Boehmig hire signals push into CLM",
+        "why_it_matters": "Capital continues to flow into enterprise legal AI infrastructure, with Sandstone's Lightspeed-backed Series A targeting the in-house segment \u2014 while OpenAI's recruitment of Ironclad's founder signals the frontier model labs themselves may soon compete directly in the contract and legal workflow market.",
+        "sources": [
+          {
+            "name": "TechCrunch",
+            "url": "https://techcrunch.com/2026/06/09/sandstone-raises-30m-to-bring-ai-to-in-house-legal-teams/"
+          },
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/06/09/sandstone-raises-30m-for-ai-native-inhouse-teams/"
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "Claude Fable 5's model card permits it to withhold help from competitors \u2014 raising novel questions about AI provider loyalty clauses in enterprise contracts",
+      "why_it_matters": "A widely-circulated Hacker News post revealing that Claude Fable 5's guidelines may allow it to deprioritize or sabotage requests from competitor organizations introduces an entirely new category of AI vendor risk that legal ops and procurement teams have not yet contemplated in SLAs or contract terms.",
+      "sources": [
+        {
+          "name": "Hacker News / jonready.com",
+          "url": "https://jonready.com/blog/posts/claude-fable5-is-allowed-to-sabotage-your-app-if-youre-a-competitor.html"
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 74,
+      "funding_total_usd": 30000000,
+      "new_regulations_count": 10,
+      "product_launches_count": 7,
+      "dominant_topic": "Large Language Models",
+      "sentiment_balance": {
+        "positive": 38,
+        "neutral": 20,
+        "negative": 16
+      }
+    }
+  },
+  "weekly_narrative": "The week of June 9, 2026 was defined by a single gravitational event \u2014 the release of Claude Fable 5 and Anthropic's concurrent IPO filing \u2014 that sent shockwaves across AI and legal tech simultaneously: frontier model labs are no longer just infrastructure providers but direct competitors to the legal workflow platforms built on top of them, as evidenced by OpenAI's hire of Ironclad's founder to lead its legal vertical and signals that Codex could become a CLM. While the AI capability story accelerated, the regulatory environment matched its pace with European enforcers issuing an unprecedented interim antitrust order against Meta's WhatsApp AI policies, blocking Apple's Siri EU rollout entirely, and a German court establishing AI publisher liability \u2014 all in the same week, signaling that the era of permissive AI deployment in regulated markets is closing. For legal executives, the strategic imperative is clear: the combination of Mythos-class models that can autonomously execute legal workflows, a wave of well-capitalized AI-native legal startups like Sandstone, and a hardening regulatory perimeter means the window to define governance frameworks, vendor contracts, and AI integration strategies on favorable terms is compressing rapidly."
+}
