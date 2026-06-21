@@ -33,3 +33,11 @@ A two-part pipeline for tracking tech and legal tech trends:
 
 - **Newsletter Digest** — Python tool that fetches Gmail newsletters and RSS feeds (TechCrunch, Ars Technica, Hacker News, Artificial Lawyer, etc.), summarizes with the Claude API, and sends a formatted HTML digest email. Runs automatically via macOS launchd.
 - **Trends Dashboard** — Interactive web dashboard built from the digest data. Displays a weekly snapshot, topic heatmap, trend lines, AI economy tracker, regulatory pulse, legal tech signals, and key voices. Uses Chart.js and vanilla JS with ES modules. Data is auto-committed to this repo after each digest run.
+
+---
+
+## Dev Tools
+
+### tmux workspace
+
+[`tmux-bexperiments.sh`](tmux-bexperiments.sh) launches a [tmux](https://github.com/tmux/tmux) session with one window per project, each opened in its own folder. Run `./tmux-bexperiments.sh` from anywhere; detach with `Ctrl-b d` and reattach with `tmux attach -t bexperiments`. Requires tmux (`brew install tmux`).
