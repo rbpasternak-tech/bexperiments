@@ -37,6 +37,7 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 - **Trends only:** `cd newsletter-digest && python main.py --trends-only`
 - **Backfill past week:** `cd newsletter-digest && python main.py --backfill YYYY-MM-DD`
 - **Serve locally:** `python -m http.server 8000` (from repo root)
+- **tmux workspace:** `./tmux-bexperiments.sh` — opens a tmux session with one window per project (requires tmux; reattach with `tmux attach -t bexperiments`)
 - **Seed legal docs:** `cd legal-doc-catalog/seed && pip install -r requirements.txt && python seed_documents.py`
 
 ## Credentials & Secrets
