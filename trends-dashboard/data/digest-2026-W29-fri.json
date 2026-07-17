@@ -1,0 +1,748 @@
+{
+  "meta": {
+    "id": "2026-W29-fri",
+    "run_date": "2026-07-17T10:07:20.094624",
+    "date_range_start": "2026-07-14",
+    "date_range_end": "2026-07-17",
+    "newsletter_count": 26,
+    "rss_article_count": 96,
+    "sources_analyzed": [
+      "Faith Luster",
+      "Ruben Hassid",
+      "AI with ALLIE",
+      "Ars Technica",
+      "\"Pause3\u2122 by Ssanyu\"",
+      "The Substack Post",
+      "Kathleen Killin via LinkedIn",
+      "The Code",
+      "Dan Stansbury",
+      "The Verge",
+      "Above the Law",
+      "Artificial Lawyer",
+      "IAPP Daily Dashboard",
+      "IAPP Buzz Weekly",
+      "How to AI (Ruben Hassid)",
+      "Daria from AI blew my mind",
+      "Patricia Gannon",
+      "IAPP Events",
+      "LinkedIn Job Alerts",
+      "GenAI Works via LinkedIn",
+      "IAPP Career Central Digest",
+      "John Hewitt",
+      "LawSites (Bob Ambrogi)",
+      "Journey Claycamp",
+      "TechCrunch",
+      "Andy Teichholz",
+      "Avi Gesser",
+      "Substack",
+      "Michael Blacharski"
+    ]
+  },
+  "topics": [
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 8,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Law Firms Don't Have an AI Problem, They Have a Data Problem",
+        "In-House Lawyers Are The Biggest AI Users",
+        "The One About Passing AI Costs Through To Clients"
+      ]
+    },
+    {
+      "name": "Law Firm Technology",
+      "category": "legal_tech",
+      "mention_count": 6,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Intapp Makes Celeste Generally Available, Calling It An 'AI Coworker' To Run the Business Side of Law Firms",
+        "Litera Relaunches Its Brand Around A Unified Vision: One AI Agent Spanning The Practice and Business Of Law",
+        "Relativity President Chris Brown on the Gavel Acquisition, Opening Up to Claude, and the 'Gangbusters' Growth of aiR"
+      ]
+    },
+    {
+      "name": "Legal Practice Innovation",
+      "category": "legal_tech",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Practice Innovation Product Specialist | Full Time Role",
+        "AI & Innovation - Knowledge Transformation | Elite Global Law Firm",
+        "Vanilla, Meatballs + Cooley's Flat Fees \u2013 with David Wang"
+      ]
+    },
+    {
+      "name": "AI Regulation",
+      "category": "regulation",
+      "mention_count": 6,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "China's regulation on AI companions takes force",
+        "EU debuts new digital sovereignty assessment tools",
+        "Regulatory Crossroads: Responsible AI Governance in the Agentic Age"
+      ]
+    },
+    {
+      "name": "Data Privacy",
+      "category": "data_privacy",
+      "mention_count": 7,
+      "sentiment": "neutral",
+      "representative_headlines": [
+        "Latest EDPB guidelines: anonymization and web scraping",
+        "Netherlands' DPA issues GDPR compliance guide for generative AI",
+        "Vermont becomes 23rd state to enact consumer privacy law"
+      ]
+    },
+    {
+      "name": "Large Language Models",
+      "category": "ai",
+      "mention_count": 5,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "GPT-5.6 is raising concerns",
+        "ChatGPT shamelessly copied Claude.",
+        "Thinking Machines unveils its first open-weights model: Inkling"
+      ]
+    },
+    {
+      "name": "AI Agents",
+      "category": "ai",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Intapp Makes Celeste Generally Available, Calling It An 'AI Coworker' To Run the Business Side of Law Firms",
+        "Litera Relaunches Its Brand Around A Unified Vision: One AI Agent Spanning The Practice and Business Of Law",
+        "Regulatory Crossroads: Responsible AI Governance in the Agentic Age"
+      ]
+    },
+    {
+      "name": "Open Source AI",
+      "category": "open_source",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Thinking Machines unveils its first open-weights model: Inkling",
+        "SpaceXAI open-sources its coding agent after a security scare",
+        "16 gitHub repos better than a $1,000 AI course"
+      ]
+    },
+    {
+      "name": "AI Safety & Ethics",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "OpenAI's new coding model reportedly deletes files without permission",
+        "xAI can't deny Grok makes CSAM anymore. So it's suing users.",
+        "OpenAI's new model to train against cyber attacks"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "category": "security",
+      "mention_count": 4,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "Coca-Cola suspended production at its Fairlife dairy after a ransomware attack",
+        "Now, even Russia's most elite hackers are using Clickfix to infect devices",
+        "UK cops say arrest of two young hackers disrupted the operations of an infamous hacking group"
+      ]
+    },
+    {
+      "name": "Workforce & Jobs",
+      "category": "workforce",
+      "mention_count": 5,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Layoff Alert: K&L Gates Announces Significant Cuts",
+        "The 3 massive org chart changes AI is causing",
+        "Fear of humanoid robots spurs human workers to strike at Hyundai auto factory"
+      ]
+    },
+    {
+      "name": "Legal Tech Funding",
+      "category": "startup",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Harvey Buys Benchmark Asset Management Startup",
+        "AI-powered travel agency Fora hits unicorn status, raises $60M",
+        "How a former DeepMind researcher raised at a $300M pre-seed valuation before launching a product"
+      ]
+    },
+    {
+      "name": "AI Infrastructure",
+      "category": "ai",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Why the first GPU financiers are turning to inference chips in a $400 million deal",
+        "Energy IPOs surge as investors hunt for ways to play AI boom",
+        "PrismML ships the first 27B-class model that runs on a phone"
+      ]
+    },
+    {
+      "name": "E-Discovery & Litigation AI",
+      "category": "legal_tech",
+      "mention_count": 2,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Relativity President Chris Brown on the Gavel Acquisition, Opening Up to Claude, and the 'Gangbusters' Growth of aiR"
+      ]
+    },
+    {
+      "name": "Enterprise AI",
+      "category": "enterprise",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "New York governor says she's using AI to analyze 'every single rule' in the state",
+        "What Does Your Legal Team Actually Need From AI?",
+        "The Deloitte Legal Report: Trouble For Ostriches"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "acquisition",
+      "entity": "Harvey",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Harvey acquires Benchmark, a New York-based decision infrastructure platform for asset management",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/07/16/harvey-buys-benchmark-asset-management-startup/"
+    },
+    {
+      "type": "funding",
+      "entity": "Fora",
+      "amount": "$60M",
+      "amount_usd": 60000000,
+      "headline": "AI-powered travel agency Fora raises $60M Series D, reaches unicorn status at $1B valuation",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/07/16/ai-powered-travel-agency-fora-hits-unicorn-status-raises-60m/"
+    },
+    {
+      "type": "funding",
+      "entity": "Inference chip startup",
+      "amount": "$400M",
+      "amount_usd": 400000000,
+      "headline": "First GPU financiers pivot to inference chips in a $400 million chip-backed loan deal",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/07/17/why-the-first-gpu-financiers-are-turning-to-inference-chips-in-a-400-million-deal/"
+    },
+    {
+      "type": "funding",
+      "entity": "Andrew Dai / Visual AI startup (former DeepMind)",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Former DeepMind researcher raises at a $300M pre-seed valuation before launching a product",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/07/16/how-a-former-deepmind-researcher-raised-at-a-300m-pre-seed-valuation-before-launching-a-product/"
+    },
+    {
+      "type": "funding",
+      "entity": "AI vehicle inspection startup",
+      "amount": "$10M",
+      "amount_usd": 10000000,
+      "headline": "Sheryl Sandberg leads $10 million investment in AI-powered vehicle inspection service",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/07/16/sheryl-sandberg-leads-10-million-investment-in-ai-powered-vehicle-inspection-service/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Uber",
+      "amount": "$14.8B",
+      "amount_usd": 14800000000,
+      "headline": "Uber agrees to acquire Delivery Hero in a $14.8 billion all-stock deal",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/07/16/ubers-14-8b-delivery-hero-deal-would-nearly-double-its-global-footprint/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Thinking Machines (Mira Murati)",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Thinking Machines releases Inkling, a 975B-parameter open-weights model beating competitors on coding and agentic tasks",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "OpenAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "OpenAI unveils GPT-Red, a model designed to craft and defend against prompt injection attacks",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Intapp",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Intapp makes Celeste generally available as an agentic AI coworker for law firm business operations",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/07/intapp-makes-celeste-generally-available-calling-it-an-ai-coworker-to-run-the-business-side-of-law-firms.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Litera",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Litera relaunches brand around a unified AI agent spanning the practice and business of law",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/07/litera-relaunches-its-brand-around-a-unified-vision-one-ai-agent-spanning-the-practice-and-business-of-law.html"
+    },
+    {
+      "type": "layoff",
+      "entity": "K&L Gates",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "K&L Gates lays off roughly 10 percent of staff",
+      "source": "Above the Law",
+      "source_url": "https://abovethelaw.com/2026/07/layoff-alert-kl-gates-announces-significant-cuts/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Relativity",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Relativity names Chris Brown as president, reports 'gangbusters' growth of aiR and opens up to Claude integration",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/07/relativity-president-chris-brown-on-the-gavel-acquisition-opening-up-to-claude-and-the-gangbusters-growth-of-air.html"
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "China",
+      "type": "new_regulation",
+      "title": "China's AI Companion Regulation Takes Effect",
+      "summary": "Rules governing providers of AI companions became effective in China on July 15, marking one of the first national regulatory frameworks addressing user harms from prolonged chatbot and companion AI use.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "AI Safety & Ethics"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "guidance",
+      "title": "EU Cloud Sovereignty Framework and Cloud and AI Development Act",
+      "summary": "The European Commission's Cloud Sovereignty Framework provides standardized methods to assess cloud and AI providers on sovereignty metrics, complementing the proposed Cloud and AI Development Act.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "AI Infrastructure",
+        "Data Privacy"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "guidance",
+      "title": "EDPB Draft Guidelines on Anonymization and Web Scraping for AI",
+      "summary": "The European Data Protection Board adopted new draft guidelines on anonymization and web scraping in the context of AI, open for public consultation through October 30.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "EU",
+      "type": "new_regulation",
+      "title": "EU Orders Google to Share Search Data and Open Android AI",
+      "summary": "The EU officially ordered Google to give AI rivals greater access to Android and share search data under the Digital Markets Act, which Google says could endanger user privacy and security.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Enterprise AI"
+      ],
+      "source": "Ars Technica",
+      "source_url": "https://arstechnica.com/gadgets/2026/07/its-official-eu-will-force-google-to-share-search-data-and-open-up-ai-on-android/"
+    },
+    {
+      "jurisdiction": "Netherlands",
+      "type": "guidance",
+      "title": "Netherlands DPA Issues GDPR Compliance Guide for Generative AI",
+      "summary": "The Dutch data protection authority issued new guidelines and a checklist tool for generative AI developers and organizations to comply with GDPR when deploying generative AI solutions.",
+      "sentiment": "neutral",
+      "impact_area": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "Canada",
+      "type": "legislative_proposal",
+      "title": "Canada's Bill C-36: Protecting Privacy and Consumer Data Act",
+      "summary": "Canada introduced Bill C-36, aiming to amend PIPEDA and restructure the Privacy Commissioner's enforcement role by establishing a new Digital Safety and Data Protection Commission.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "court_ruling",
+      "title": "US Supreme Court Limits Geofence Warrants, Upholds FTC Commissioner Firing",
+      "summary": "Two Supreme Court rulings impact how law enforcement can obtain geofence warrants and affirm presidential power to dismiss heads of independent executive agencies.",
+      "sentiment": "mixed",
+      "impact_area": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "legislative_proposal",
+      "title": "US House Passes KIDS Act",
+      "summary": "The US House of Representatives passed the Kids Internet and Digital Safety Act on June 29, advancing efforts toward a comprehensive federal online safety bill for underage users.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "new_regulation",
+      "title": "New Jersey Enacts Costly New Data Broker Law",
+      "summary": "New Jersey's new law, signed with little warning, mandates unprecedented registration fees for data brokers and data collectors.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "new_regulation",
+      "title": "Vermont Becomes 23rd State to Enact Consumer Privacy Law",
+      "summary": "Vermont Governor Phil Scott signed three privacy-related bills including Senate Bill 71, the Vermont Data Privacy and Online Surveillance Act, aligning with Connecticut's consumer privacy framework.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy"
+      ],
+      "source": "IAPP Career Central Digest",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "guidance",
+      "title": "New York Governor Uses AI to Audit State Rules and Regulations",
+      "summary": "New York Governor Kathy Hochul announced her team is using AI to analyze every rule, regulation, and policy in the state to identify outdated mandates.",
+      "sentiment": "permissive",
+      "impact_area": [
+        "Enterprise AI",
+        "AI Regulation"
+      ],
+      "source": "The Verge",
+      "source_url": "https://www.theverge.com/ai-artificial-intelligence/966647/new-york-governor-kathy-hochul-ai-policies"
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "product_launch",
+      "entity": "Intapp",
+      "description": "Intapp launched Celeste as generally available, an agentic AI product designed to run business operations for law firms including deal screening, conflicts clearance, and intake workflows.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/07/intapp-makes-celeste-generally-available-calling-it-an-ai-coworker-to-run-the-business-side-of-law-firms.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Litera",
+      "description": "Litera relaunched its brand around a unified AI agent strategy with the tagline 'Raise The Bar,' positioning a single AI agent to span both practice and business of law.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/07/litera-relaunches-its-brand-around-a-unified-vision-one-ai-agent-spanning-the-practice-and-business-of-law.html"
+    },
+    {
+      "type": "milestone",
+      "entity": "Relativity",
+      "description": "Relativity named Chris Brown as president and reported 'gangbusters' growth of its aiR AI product, while also announcing integration with Anthropic's Claude LLM and the acquisition of Gavel.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/07/relativity-president-chris-brown-on-the-gavel-acquisition-opening-up-to-claude-and-the-gangbusters-growth-of-air.html"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Harvey",
+      "description": "Harvey acquired Benchmark, a New York-based decision infrastructure platform for asset management, expanding its capabilities beyond core legal AI into investment decision workflows.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/07/16/harvey-buys-benchmark-asset-management-startup/"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Cooley",
+      "description": "Cooley's Vanilla fund formation platform now offers transfers for a $495 flat fee, signaling new AI-enabled pricing models for transactional legal services.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/07/16/vanilla-meatballs-cooleys-flat-fees-with-david-wang/"
+    },
+    {
+      "type": "milestone",
+      "entity": "Centari",
+      "description": "Centari CEO Kevin Walker argued that law firms' real challenge is a data problem, not an AI problem, as leading firms announce large-scale legal technology investments.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/07/17/law-firms-dont-have-an-ai-problem-they-have-a-data-problem/"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "In-house legal teams (general)",
+      "description": "New data suggests in-house lawyers are the biggest AI users in the legal profession, contradicting conventional assumptions about attorney technophobia.",
+      "source": "Above the Law",
+      "source_url": "https://abovethelaw.com/2026/07/in-house-lawyers-are-the-biggest-ai-users/"
+    },
+    {
+      "type": "milestone",
+      "entity": "WilmerHale",
+      "description": "WilmerHale faces a class action lawsuit over a data breach, highlighting growing cybersecurity exposure at major law firms.",
+      "source": "Above the Law",
+      "source_url": "https://abovethelaw.com/2026/07/morning-docket-07-16-26/"
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "newsletter",
+      "article_count": 5,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Tech Funding",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "LawSites (Bob Ambrogi)",
+      "source_type": "rss",
+      "article_count": 3,
+      "top_topics": [
+        "Law Firm Technology",
+        "AI Agents",
+        "E-Discovery & Litigation AI"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 18,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Workforce & Jobs",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "Data Privacy",
+        "AI Regulation",
+        "Compliance Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "IAPP Career Central Digest",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "IAPP Buzz Weekly",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "IAPP Events",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Regulation",
+        "Data Privacy",
+        "Cybersecurity"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 19,
+      "top_topics": [
+        "AI Infrastructure",
+        "Legal Tech Funding",
+        "AI Agents"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Ars Technica",
+      "source_type": "rss",
+      "article_count": 15,
+      "top_topics": [
+        "Cybersecurity",
+        "AI Safety & Ethics",
+        "Workforce & Jobs"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Verge",
+      "source_type": "rss",
+      "article_count": 11,
+      "top_topics": [
+        "AI Regulation",
+        "Large Language Models",
+        "Enterprise AI"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "The Code",
+      "source_type": "newsletter",
+      "article_count": 2,
+      "top_topics": [
+        "Large Language Models",
+        "AI Safety & Ethics",
+        "Open Source AI"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LinkedIn Job Alerts",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Workforce & Jobs",
+        "Legal Practice Innovation"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "Onward Search (LinkedIn InMail)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Workforce & Jobs",
+        "Legal Practice Innovation"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "AI with ALLIE",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Workforce & Jobs",
+        "Enterprise AI"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Ruben Hassid (Substack)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Large Language Models"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "GenAI Works (LinkedIn)",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Open Source AI",
+        "Large Language Models"
+      ],
+      "signal_strength": "low"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "Harvey Acquires Benchmark Asset Management Startup, Expanding Beyond Legal AI",
+        "why_it_matters": "Harvey's move into asset management decision infrastructure signals that legal AI platforms are positioning as broader professional intelligence tools \u2014 not just law firm software. This acquisition accelerates Harvey's push to become an enterprise-wide AI layer across finance and law.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/07/16/harvey-buys-benchmark-asset-management-startup/"
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "Law Firms Don't Have an AI Problem, They Have a Data Problem",
+        "why_it_matters": "Centari's CEO reframes the legal AI narrative: the real bottleneck for law firm AI adoption is unstructured, inaccessible data \u2014 not AI capability itself. This insight has major implications for how firms should be investing their legal tech budgets.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/07/17/law-firms-dont-have-an-ai-problem-they-have-a-data-problem/"
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "Intapp Launches Celeste as Generally Available Agentic AI Coworker for Law Firms",
+        "why_it_matters": "Intapp's GA launch of Celeste marks a pivotal step in agentic AI entering law firm business operations \u2014 automating conflicts, intake, and deal workflows. It reflects a broader industry shift from AI as a research tool to AI as an operational layer.",
+        "sources": [
+          {
+            "name": "LawSites (Bob Ambrogi)",
+            "url": "https://www.lawnext.com/2026/07/intapp-makes-celeste-generally-available-calling-it-an-ai-coworker-to-run-the-business-side-of-law-firms.html"
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "China's AI Companion Regulation Takes Force \u2014 First National Framework of Its Kind",
+      "why_it_matters": "China's new AI companion rules are the first nationally comprehensive framework specifically targeting chatbot harms and transparency obligations, setting a regulatory template that other jurisdictions \u2014 including the EU and US \u2014 may follow as agentic AI becomes more consumer-facing.",
+      "sources": [
+        {
+          "name": "IAPP Daily Dashboard",
+          "url": null
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 87,
+      "funding_total_usd": 470000000,
+      "new_regulations_count": 5,
+      "product_launches_count": 5,
+      "dominant_topic": "Legal AI Adoption",
+      "sentiment_balance": {
+        "positive": 32,
+        "neutral": 28,
+        "negative": 27
+      }
+    }
+  },
+  "weekly_narrative": "This week's signals point to legal AI entering a new operational maturity phase: Intapp's Celeste launch and Litera's brand overhaul both reflect a market pivot from AI-assisted research tools toward agentic systems designed to run law firm business processes end-to-end. Harvey's acquisition of Benchmark further blurs the line between legal AI and enterprise intelligence platforms, suggesting top legal AI vendors are competing for the broader professional services wallet \u2014 not just the law firm market. Meanwhile, the data problem framing from Centari resonates as a critical structural barrier, and the simultaneous wave of regulatory activity \u2014 from China's AI companion rules to Vermont's privacy law and the EU's Android AI mandate \u2014 underscores that AI governance complexity is increasing faster than most legal teams are prepared to manage."
+}
