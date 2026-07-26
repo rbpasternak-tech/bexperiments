@@ -14,6 +14,18 @@ chat transcript, so they know what the others said. They can set, list, and
 cancel timed reminders, and pull the latest topics from the
 [newsletter digest](../newsletter-digest/) trends data.
 
+When an Obsidian vault is configured (`vault_path` in config.yaml) the team
+also works your second brain: reading notes, capturing links to the reading
+queue, checking off tasks in `Tasks/Master.md`, and filling the monthly
+habit grid — with steps/calories/weight pulled from a Health Auto Export
+folder (`health_export_dir`). Scheduled duties run on the polling loop:
+Jeeves' 7am task triage, Bartleby's 9pm habit check-in, Gatsby's Sunday
+recap (times configurable under `schedules`).
+
+Division of labor with other vault automations: the bot only writes the
+habit grid, queue captures, and task checkboxes. Daily notes, inbox sweeps,
+and weekly reviews belong to their own scheduled tasks — one writer per note.
+
 ## Setup
 
 1. Create a bot with [@BotFather](https://t.me/BotFather) and grab the token.
@@ -40,10 +52,13 @@ in the voice of whichever persona set them.
 
 ## Files
 
-- `main.py` — entry point: long-polling loop, commands, reminder delivery
+- `main.py` — entry point: long-polling loop, commands, reminders, schedules
 - `router.py` — direct-address matching + Haiku-based persona routing
 - `persona_agent.py` — Claude call with tool-use loop per persona turn
-- `agent_tools.py` — reminder + digest tools the personas can call
+- `agent_tools.py` — reminder, digest, vault, and health tools
+- `vault.py` — Obsidian vault read/write (queue, tasks, habit grid)
+- `health_export.py` — parses Health Auto Export JSON (steps/calories/weight)
+- `schedules.py` — recurring duties (7am triage, 9pm check-in, Sunday recap)
 - `personas.yaml` — the cast: voices, roles, aliases (edit to recast the show)
 - `state.py` — JSON persistence in `.claude/telegram-state/` (gitignored)
 - `telegram_api.py` — minimal Telegram Bot API wrapper (no SDK)

@@ -18,7 +18,11 @@ Ground rules for every teammate:
 - Recent chat transcript (speakers labeled) is below; continue it naturally.
 - Replies go to Telegram: plain text only, no markdown headers or tables.
   Keep it short — a few sentences unless the user asks for detail.
-- Use your tools for reminders and the news digest instead of pretending.
+- Use your tools for reminders, the news digest, the Obsidian vault (notes,
+  tasks, reading queue, habit grid), and health data instead of pretending.
+- Vault etiquette: you may read any note, but only write through your
+  tools (capture_reading, complete_task, record_habits). Daily notes and
+  review sections belong to other automations — never rewrite those.
 - The current local date/time is {now}. Resolve all relative times from it.
 
 Recent transcript (oldest first):
@@ -44,10 +48,15 @@ def build_system_prompt(persona_key, personas_cfg, history, now=None):
 
 
 def run_persona_turn(anthropic_client, model, persona_key, personas_cfg, user_text,
-                     chat_id, state):
-    """Get a persona's reply to user_text, executing any tool calls it makes."""
+                     ctx):
+    """Get a persona's reply to user_text, executing any tool calls it makes.
+
+    ctx carries {chat_id, state, vault, health_export_dir}; persona_key is
+    added here so tool handlers know who is acting.
+    """
+    ctx = dict(ctx, persona_key=persona_key)
     system_prompt = build_system_prompt(
-        persona_key, personas_cfg, state.get_history(chat_id)
+        persona_key, personas_cfg, ctx["state"].get_history(ctx["chat_id"])
     )
     messages = [{"role": "user", "content": user_text}]
     for _ in range(MAX_TOOL_ROUNDS):
@@ -65,9 +74,7 @@ def run_persona_turn(anthropic_client, model, persona_key, personas_cfg, user_te
         for block in response.content:
             if block.type != "tool_use":
                 continue
-            result = handle_tool_call(
-                block.name, block.input, chat_id, persona_key, state
-            )
+            result = handle_tool_call(block.name, block.input, ctx)
             tool_results.append(
                 {"type": "tool_result", "tool_use_id": block.id, "content": result}
             )

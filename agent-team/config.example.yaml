@@ -7,9 +7,24 @@ model: claude-sonnet-5
 router_model: claude-haiku-4-5-20251001
 
 # Telegram chat ids allowed to talk to the team. Message the bot and send
-# /whoami to get yours, then add it here.
+# /whoami to get yours, then add it here. Scheduled duties go to the first id.
 allowed_chat_ids: []
 #  - 123456789
+
+# Obsidian vault root (a plain folder on this Mac). Example:
+# "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/<VaultName>"
+vault_path: ""
+
+# Folder where the Health Auto Export iPhone app drops JSON files. Example:
+# "~/Library/Mobile Documents/iCloud~com~HealthExport~HealthAutoExport/Documents"
+health_export_dir: ""
+
+# Recurring duties, local time. "HH:MM" daily, "ddd HH:MM" weekly.
+# Delete a line to disable that duty.
+schedules:
+  morning_triage: "07:00"   # Jeeves: tasks + reminders agenda
+  habit_checkin: "21:00"    # Bartleby: fill today's habit-grid row
+  weekly_recap: "sun 19:00" # Gatsby: wins recap (after the weekly review runs)
 
 # How many transcript entries each persona sees.
 history_limit: 40

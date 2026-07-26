@@ -19,10 +19,40 @@ import yaml
 
 from persona_agent import run_persona_turn
 from router import build_alias_map, pick_persona
+from schedules import Scheduler
 from state import StateStore
 from telegram_api import TelegramClient, load_token
+from vault import Vault
 
 PROJECT_DIR = Path(__file__).resolve().parent
+
+SCHEDULED_DUTIES = {
+    "morning_triage": (
+        "jeeves",
+        "It is the scheduled morning triage. Call get_open_tasks and "
+        "list_reminders. Present a brief numbered agenda for the day: open "
+        "tasks first (note anything that looks long-stale), then today's "
+        "reminders. If both are empty, say so in one line. The user can "
+        "reply 'done <n>' or ask you to snooze/cancel items.",
+    ),
+    "habit_checkin": (
+        "bartleby",
+        "It is the scheduled nightly habit check-in. First call "
+        "read_health_export for today. Then ask the user, in one dry line, "
+        "for today's manual habits: rings, floss, vibe plate, red light, "
+        "leg roller, read (audio), read (physical), and weight if measured. "
+        "Mention any numbers the export already gave you. When they answer, "
+        "you will record everything with record_habits.",
+    ),
+    "weekly_recap": (
+        "gatsby",
+        "It is the scheduled Sunday recap. Read this month's habit file "
+        "(Tracking/Habits/<current YYYY-MM>.md) and today's daily note "
+        "(Daily/<today>.md) via read_vault_note. Toast the week's genuine "
+        "wins — streaks, finished tasks, anything from the weekly review "
+        "section — in a few charming sentences. No fabricated wins.",
+    ),
+}
 
 HELP_TEXT = """Your team:
 {roster}
@@ -86,10 +116,11 @@ def handle_command(text, chat_id, personas_cfg, state, telegram):
     return True
 
 
-def handle_message(message, config, personas_cfg, alias_map, claude, state, telegram):
+def handle_message(message, config, personas_cfg, alias_map, claude, ctx, telegram):
     """Route one incoming Telegram message to a persona and send the reply."""
     chat_id = message["chat"]["id"]
     text = (message.get("text") or "").strip()
+    state = ctx["state"]
     if not text:
         return
     allowed = config.get("allowed_chat_ids") or []
@@ -111,13 +142,38 @@ def handle_message(message, config, personas_cfg, alias_map, claude, state, tele
     try:
         reply = run_persona_turn(
             claude, config["model"], persona_key, personas_cfg, persona_text,
-            chat_id, state,
+            dict(ctx, chat_id=chat_id),
         )
     except anthropic.APIError as exc:
         telegram.send_message(chat_id, f"({persona['name']} is unavailable: {exc})")
         return
     state.append_history(chat_id, persona["name"], reply)
     telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
+
+
+def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram):
+    """Fire any due scheduled duties into the first allowed chat."""
+    allowed = config.get("allowed_chat_ids") or []
+    if not allowed:
+        return
+    chat_id = allowed[0]
+    state = ctx["state"]
+    for key in scheduler.due_schedules():
+        persona_key, instruction = SCHEDULED_DUTIES.get(key, (None, None))
+        if not persona_key or persona_key not in personas_cfg["personas"]:
+            print(f"Warning: schedule {key!r} has no matching duty/persona.")
+            continue
+        persona = personas_cfg["personas"][persona_key]
+        try:
+            reply = run_persona_turn(
+                claude, config["model"], persona_key, personas_cfg, instruction,
+                dict(ctx, chat_id=chat_id),
+            )
+        except anthropic.APIError as exc:
+            print(f"Scheduled duty {key} failed: {exc}", file=sys.stderr)
+            continue
+        state.append_history(chat_id, persona["name"], reply)
+        telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
 
 
 def deliver_due_reminders(personas_cfg, state, telegram):
@@ -149,8 +205,16 @@ def main():
     telegram = TelegramClient(load_token())
     claude = anthropic.Anthropic()
     state = StateStore(history_limit=config.get("history_limit", 40))
+    vault = Vault(config.get("vault_path"))
+    scheduler = Scheduler(state, config.get("schedules"))
+    ctx = {
+        "state": state,
+        "vault": vault,
+        "health_export_dir": config.get("health_export_dir"),
+    }
 
-    print(f"Agent team online ({', '.join(personas_cfg['personas'])}). Ctrl-C to stop.")
+    vault_note = "vault OK" if vault.available() else "vault NOT found (tools degrade)"
+    print(f"Agent team online ({', '.join(personas_cfg['personas'])}); {vault_note}.")
     offset = 0
     while True:
         try:
@@ -160,9 +224,10 @@ def main():
                 if "message" in update:
                     handle_message(
                         update["message"], config, personas_cfg, alias_map,
-                        claude, state, telegram,
+                        claude, ctx, telegram,
                     )
             deliver_due_reminders(personas_cfg, state, telegram)
+            run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
         except KeyboardInterrupt:
             print("\nBye.")
             sys.exit(0)

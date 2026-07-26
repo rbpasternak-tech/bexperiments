@@ -1,82 +1,60 @@
 # Agent Team — Next Steps
 
-Pickup plan. Tell Claude "work through agent-team/NEXT-STEPS.md" to resume.
-Interview done 2026-07-26 — decisions below are settled; build order at the end.
+Status 2026-07-27: **the build is done.** What remains is setup on Rebecca's
+Mac + iPhone. Tell Claude "work through agent-team/NEXT-STEPS.md" to resume.
 
-## Where things stand
+## Architecture (settled)
 
-Built and pushed on `claude/plan-mode-w2mq4s`:
+**Cowork scheduled tasks are the scribes; the Telegram team is the voice.**
+The three Cowork tasks (daily note create, inbox sweep, weekly review) keep
+running and keep writing daily notes / queue sweeps / review sections. The
+bot reads the vault directly (it's a plain folder on the Mac — no connector)
+and only writes three things: habit-grid rows, Telegram reading captures,
+and task checkboxes. One writer per note; no Gmail OAuth needed in the bot
+because the inbox sweep already covers Gmail.
 
-- One Telegram bot, four classic-literature personas (Jeeves 🎩 chief of
-  staff, Elizabeth Bennet 📖 accountability, Gatsby 🥂 celebration,
-  Bartleby 🖋️ deadpan nudges) — voices in `personas.yaml`
-- Haiku router or direct address ("Jeeves, ..."); shared per-chat memory;
-  timed reminders via tool use; reads the trends-dashboard digest
-- Offline-tested; not yet run live (bot token lives only on your Mac —
-  `telegram_bot.py` was always gitignored, never committed, nothing lost)
+## Built and tested (offline, against a replica of the real vault)
 
-## Interview results — duties per persona
+- `vault.py` — read notes, capture to `Reading/queue.md` Inbox (URL-deduped,
+  same conventions as the sweep), list/check tasks in `Tasks/Master.md`,
+  fill `Tracking/Habits/YYYY-MM.md` grid rows in the exact table format
+  (✅ / X / — cells, comma-formatted numbers, partial updates never clobber)
+- `health_export.py` — parses Health Auto Export JSON: steps, calories
+  (MyFitnessPal via Apple Health sync), weight
+- `schedules.py` + duties in `main.py`: Jeeves 7:00 triage, Bartleby 21:00
+  habit check-in, Gatsby Sunday 19:00 recap (after the weekly review runs)
+- Persona prompts updated with duties; vault etiquette in shared rules
 
-| Persona | Duty |
-|---|---|
-| Jeeves | **7:00 am morning triage**: reads new self-sent emails, presents numbered task list + today's reminders in Telegram; tracks "done 2" / "snooze 3" state. General planning + routing. |
-| Elizabeth Bennet | Task accountability: calls out perpetually-snoozed items, cuts scope. Owns **reading capture** — forward a link/title/thought and she files it in the vault. |
-| Gatsby | Weekly wins recap from tracker data; rewards and breaks. |
-| Bartleby | **Nightly habit check-in** (one-line answer: rings, book/audiobook, vibration plate, red light) and writes the weekly tracker note in the vault. |
+## Remaining setup (needs Rebecca, ~20 min)
 
-Explicitly NOT in scope: the two briefs (Littler competitor intel codex
-agent + legal tech project) — they work, leave them alone.
+1. **Run the bot** (README Setup): pull branch, install deps, copy
+   `config.example.yaml` → `config.yaml`, token via
+   `.claude/settings.local.json` or `TELEGRAM_BOT_TOKEN`, `python main.py`,
+   `/whoami`, add chat id to `allowed_chat_ids`, restart.
+2. **Point config at the vault**: set `vault_path` in `config.yaml` to the
+   Second Brain folder under iCloud Obsidian documents.
+3. **Health Auto Export** (iPhone):
+   a. App Store → "Health Auto Export — JSON+CSV". Automations need Premium
+      (small subscription or lifetime) — check price in-app first.
+   b. Open app, grant Apple Health read access (Allow All).
+   c. MyFitnessPal app → settings → enable Apple Health sync (writes
+      calories into Health so one export covers nutrition).
+   d. In the app: Automations → new automation → format JSON, aggregation
+      Daily, metrics: Steps + Dietary Energy + Weight/Body Mass →
+      destination iCloud Drive (its own folder) → schedule daily ~8:45pm
+      (just before Bartleby's 9pm check-in).
+   e. Set `health_export_dir` in `config.yaml` to that folder (visible in
+      Finder under iCloud Drive → Health Auto Export).
+   f. No Premium / not sure? Skip — Bartleby still asks nightly and fills
+      the grid from your one-line answer; numbers just stay manual.
+4. **Optional Cowork prompt tweak** (Claude drafted it in chat 2026-07-27):
+   make the inbox sweep route non-URL self-sends into `Tasks/Master.md` as
+   task candidates, so emailed to-dos reach Jeeves' morning triage.
+5. **First live test**: message the bot; ask Bennet to capture a link; say
+   "done 1" to Jeeves after triage; wait for the 9pm check-in.
 
-## Guardrails (user-set)
+## Later
 
-- Allowed without asking: **read Gmail**, **write to the Obsidian vault**
-- Ask first: archiving/labeling emails
-- Never: send email as the user
-
-## Data flows decided
-
-1. **Health tracker** (was: typed manually — biggest win)
-   - Install **Health Auto Export** (iPhone) → scheduled JSON/CSV to an
-     iCloud folder. Covers steps/activity, weight, sleep, rings, AND
-     MyFitnessPal nutrition (MFP → Apple Health sync; MFP has no public API).
-   - Manual habits (physical book vs audiobook, vibration plate, red light)
-     via Bartleby's nightly Telegram check-in.
-   - Bot merges both → writes the weekly tracker note in the vault.
-2. **Tasks**: keep email-to-self as capture. Jeeves triages at 7am;
-   task state lives in bot state; Gmail read-only.
-3. **Reading capture** (pain: capture friction): forward anything to the
-   bot → Bennet appends to the vault's read/unread/need-to-read notes.
-   Retrieval/Q&A over the vault is a later phase.
-
-## Connectors checklist
-
-| Need | How | Status |
-|---|---|---|
-| Telegram | existing bot token on Mac | ready, just wire config |
-| Claude API | ANTHROPIC_API_KEY | ready |
-| Gmail read-only | reuse `newsletter-digest/gmail_client.py` OAuth pattern + existing `credentials.json`; new token with readonly scope at `agent-team/token.json` (gitignore it) | build tomorrow |
-| Apple Health / MFP | Health Auto Export app → iCloud folder; bot reads files (no API exists) | install app tomorrow |
-| Obsidian vault | plain filesystem on Mac — locate the vault folder first (user unsure where it lives) | locate tomorrow |
-| 7am brief + nightly check-in | recurring entries in the bot's polling loop (like reminders — no new infra) | build tomorrow |
-
-## Tomorrow, in order
-
-1. **On your Mac (15 min, needs you):**
-   a. Run the bot once (README Setup) so Jeeves answers in Telegram.
-   b. Find the vault: in Obsidian, right-click a note → "Reveal in Finder";
-      tell Claude the path. Note the tracker note's format (or share it).
-   c. Install Health Auto Export; schedule a daily export (JSON) to an
-      iCloud Drive folder; tell Claude that path too.
-2. **Then Claude builds (roughly in this order):**
-   a. `vault.py` — locate/read/write vault notes; reading-capture tool
-      for Bennet; tracker-note writer.
-   b. `gmail_reader.py` — readonly OAuth (reuse gmail_client pattern),
-      "self-sent since yesterday" query; task state in StateStore.
-   c. Recurring schedules: 7am Jeeves triage, ~9pm Bartleby check-in
-      (extend the reminder loop with repeating entries).
-   d. `health_import.py` — parse Health Auto Export output, merge with
-      check-in answers, render the weekly tracker note.
-   e. Update persona prompts with their new duties + tools; test each
-      flow live in Telegram; commit (never commit token.json/credentials).
-3. **Later / day after:** vault Q&A ("what did I say about X?"),
-   need-to-read triage, always-on via launchd, weekly Gatsby wins recap.
+- Always-on: launchd job or a `tmux-bexperiments.sh` window for `main.py`
+- Vault Q&A ("what did I say about X?") — needs a search tool over the vault
+- Need-to-read triage flow for the queue's organic sections
