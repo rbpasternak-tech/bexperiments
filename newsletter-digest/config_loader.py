@@ -40,7 +40,7 @@ def load_config(config_path=None):
     config["gmail"].setdefault("max_emails", 200)
     config["newsletters"].setdefault("sender_whitelist", [])
     config["newsletters"].setdefault("keywords", [])
-    config["summarizer"].setdefault("model", "claude-sonnet-4-20250514")
+    config["summarizer"].setdefault("model", "claude-sonnet-4-6")
     config["summarizer"].setdefault("max_tokens", 4096)
     config["digest"].setdefault("subject_prefix", "Your Tech & Legal Tech Digest")
 

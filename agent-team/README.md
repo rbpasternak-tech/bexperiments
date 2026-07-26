@@ -1,15 +1,15 @@
 # Agent Team
 
-A team of AI agents in your Telegram, cast as Parks and Recreation characters,
+A team of AI agents in your Telegram, cast as classic literature characters,
 who help run your life. One bot token, four personas:
 
-- 📋 **Leslie Knope** — chief of staff: planning, scheduling, pep talks
-- 🥩 **Ron Swanson** — blunt accountability and scope-cutting
-- 🕶️ **Tom Haverford** — fun, breaks, and Treat Yo Self logistics
-- 🖤 **April Ludgate** — deadpan nudges and reminders
+- 🎩 **Jeeves** (Wodehouse) — chief of staff: planning, scheduling, discreet fixes
+- 📖 **Elizabeth Bennet** (Austen) — witty accountability and scope-cutting
+- 🥂 **Jay Gatsby** (Fitzgerald) — celebration, breaks, and rewards, old sport
+- 🖋️ **Bartleby** (Melville) — deadpan nudges he would prefer not to send
 
 Talk normally and a router (Claude Haiku) picks who answers, or address a
-teammate directly: `Ron, remind me to lift at 6pm`. All personas share one
+teammate directly: `Jeeves, remind me to lift at 6pm`. All personas share one
 chat transcript, so they know what the others said. They can set, list, and
 cancel timed reminders, and pull the latest topics from the
 [newsletter digest](../newsletter-digest/) trends data.
@@ -33,7 +33,7 @@ cancel timed reminders, and pull the latest topics from the
 - `/team` — roster
 - `/reminders` — pending reminders
 - `/help` — commands and examples
-- `Leslie, plan my morning` · `@april did I do my habits?` · `what's in the news?`
+- `Jeeves, plan my morning` · `@bartleby did I do my habits?` · `what's in the news?`
 
 Reminders fire on the bot's polling loop (roughly ±30s precision), delivered
 in the voice of whichever persona set them.

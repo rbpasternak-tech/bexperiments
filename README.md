@@ -25,7 +25,7 @@ A browser-based bulk document editor. Upload hundreds of `.docx` and `.pdf` file
 ### Agent Team
 [`agent-team/`](agent-team/)
 
-A Telegram bot hosting a team of Claude-powered personas — the Parks and Recreation cast — that help run your life. Leslie plans, Ron keeps you accountable, Tom handles fun, April delivers deadpan nudges. A router picks who answers (or address them by name), personas share one conversation, and they can set timed reminders and pull topics from the newsletter digest data. Python, long-polling, no framework.
+A Telegram bot hosting a team of Claude-powered personas — a classic literature cast — that help run your life. Jeeves plans, Elizabeth Bennet keeps you accountable, Gatsby handles celebration, Bartleby delivers deadpan nudges. A router picks who answers (or address them by name), personas share one conversation, and they can set timed reminders and pull topics from the newsletter digest data. Python, long-polling, no framework.
 
 ### Legal Doc Catalog
 [`legal-doc-catalog/`](legal-doc-catalog/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/legal-doc-catalog/)
