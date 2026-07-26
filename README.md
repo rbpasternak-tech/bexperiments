@@ -22,6 +22,11 @@ A progressive web app (PWA) for daily habit tracking, styled as a digital bullet
 
 A browser-based bulk document editor. Upload hundreds of `.docx` and `.pdf` files, then manage global find-and-replace across all of them from a spreadsheet-style table. Auto-extracts `[bracketed]` placeholders into the Find column. Downloads as clean files or native tracked-changes redlines, individually or as a zip. Documents persist across sessions via IndexedDB. Includes a `txt_to_docx.py` helper for batch-converting `.txt` test files to `.docx`.
 
+### Agent Team
+[`agent-team/`](agent-team/)
+
+A Telegram bot hosting a team of Claude-powered personas — the Parks and Recreation cast — that help run your life. Leslie plans, Ron keeps you accountable, Tom handles fun, April delivers deadpan nudges. A router picks who answers (or address them by name), personas share one conversation, and they can set timed reminders and pull topics from the newsletter digest data. Python, long-polling, no framework.
+
 ### Legal Doc Catalog
 [`legal-doc-catalog/`](legal-doc-catalog/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/legal-doc-catalog/)
 

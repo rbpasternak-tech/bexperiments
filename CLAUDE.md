@@ -14,6 +14,7 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 - **doc-find-replace/** — Browser-based document find-and-replace tool for .docx and .pdf files. Vanilla JS, IndexedDB persistence. Includes `txt_to_docx.py` helper for batch-converting test files. Entry: `doc-find-replace/index.html`
 - **legal-doc-catalog/** — Vanilla JS app backed by Supabase for cataloging legal documents with full-text search. Python seed script for importing .docx files. Entry: `legal-doc-catalog/index.html`
 - **telegram_bot.py** — Standalone Telegram bot script
+- **agent-team/** — Telegram bot hosting a team of Claude-powered personas (Parks and Rec cast) that plan, nudge, set reminders, and read the digest data. Entry: `agent-team/main.py`
 
 ## Adding a New Project
 
@@ -39,6 +40,7 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 - **Serve locally:** `python -m http.server 8000` (from repo root)
 - **tmux workspace:** `./tmux-bexperiments.sh` — opens a tmux session with one window per project (requires tmux; reattach with `tmux attach -t bexperiments`)
 - **Seed legal docs:** `cd legal-doc-catalog/seed && pip install -r requirements.txt && python seed_documents.py`
+- **Run agent team bot:** `cd agent-team && python main.py` (needs `TELEGRAM_BOT_TOKEN` + `ANTHROPIC_API_KEY`)
 
 ## Credentials & Secrets
 

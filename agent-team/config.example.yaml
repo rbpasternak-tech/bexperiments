@@ -1,0 +1,15 @@
+# Copy to config.yaml and fill in. config.yaml is gitignored.
+
+# Model powering the personas.
+model: claude-sonnet-5
+
+# Small/cheap model used only to pick which persona answers.
+router_model: claude-haiku-4-5-20251001
+
+# Telegram chat ids allowed to talk to the team. Message the bot and send
+# /whoami to get yours, then add it here.
+allowed_chat_ids: []
+#  - 123456789
+
+# How many transcript entries each persona sees.
+history_limit: 40
