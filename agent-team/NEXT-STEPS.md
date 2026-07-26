@@ -1,101 +1,82 @@
 # Agent Team — Next Steps
 
-Pickup plan. Read top to bottom tomorrow; tell Claude "work through
-agent-team/NEXT-STEPS.md" to resume where we left off.
+Pickup plan. Tell Claude "work through agent-team/NEXT-STEPS.md" to resume.
+Interview done 2026-07-26 — decisions below are settled; build order at the end.
 
-## Where things stand (2026-07-26)
+## Where things stand
 
-Built and pushed on branch `claude/plan-mode-w2mq4s`:
+Built and pushed on `claude/plan-mode-w2mq4s`:
 
 - One Telegram bot, four classic-literature personas (Jeeves 🎩 chief of
   staff, Elizabeth Bennet 📖 accountability, Gatsby 🥂 celebration,
-  Bartleby 🖋️ deadpan nudges) — voices live in `personas.yaml`
-- Haiku router picks who answers; or address by name ("Jeeves, ...")
-- Shared per-chat memory; timed reminders (set/list/cancel via tool use);
-  reads the latest trends-dashboard digest
-- Offline-tested (routing, reminders, history, digest reader). Not yet run
-  live against Telegram — that needs your token, which only exists on your Mac.
+  Bartleby 🖋️ deadpan nudges) — voices in `personas.yaml`
+- Haiku router or direct address ("Jeeves, ..."); shared per-chat memory;
+  timed reminders via tool use; reads the trends-dashboard digest
+- Offline-tested; not yet run live (bot token lives only on your Mac —
+  `telegram_bot.py` was always gitignored, never committed, nothing lost)
 
-Note on the old bot: `telegram_bot.py` was never committed — `.gitignore`
-line 22 excludes it by name, so it exists only on your Mac. Nothing was
-lost; it was always local-only. The new `agent-team/` Telegram layer was
-therefore written from scratch (and is committed, since it contains no
-secrets).
+## Interview results — duties per persona
 
-## Step 1 — Get it running on your Mac (~10 min)
+| Persona | Duty |
+|---|---|
+| Jeeves | **7:00 am morning triage**: reads new self-sent emails, presents numbered task list + today's reminders in Telegram; tracks "done 2" / "snooze 3" state. General planning + routing. |
+| Elizabeth Bennet | Task accountability: calls out perpetually-snoozed items, cuts scope. Owns **reading capture** — forward a link/title/thought and she files it in the vault. |
+| Gatsby | Weekly wins recap from tracker data; rewards and breaks. |
+| Bartleby | **Nightly habit check-in** (one-line answer: rings, book/audiobook, vibration plate, red light) and writes the weekly tracker note in the vault. |
 
-1. `git pull` and check out `claude/plan-mode-w2mq4s` (or merge it to main)
-2. `cd agent-team && pip install -r requirements.txt`
-3. `cp config.example.yaml config.yaml`
-4. Token: reuse the bot token from your existing local Telegram setup —
-   put it in `.claude/settings.local.json` as
-   `{"env": {"TELEGRAM_BOT_TOKEN": "..."}}` (the file is gitignored), or
-   export `TELEGRAM_BOT_TOKEN`. If you'd rather keep the old bot separate,
-   make a fresh bot with @BotFather. `ANTHROPIC_API_KEY` must also be set.
-5. `python main.py`, message the bot `/whoami`, put the chat id into
-   `allowed_chat_ids` in `config.yaml`, restart. Say hello to Jeeves.
+Explicitly NOT in scope: the two briefs (Littler competitor intel codex
+agent + legal tech project) — they work, leave them alone.
 
-## Step 2 — What to commit vs. keep local
+## Guardrails (user-set)
 
-- Commit: everything in `agent-team/` except `config.yaml` (gitignored —
-  it holds your chat id). Persona edits in `personas.yaml` are safe to commit.
-- Never commit: the bot token, `.claude/settings.local.json`,
-  `.claude/telegram-state/` (conversation history + reminders — gitignored).
-- Optional: if the old `telegram_bot.py` has logic worth keeping, rename a
-  cleaned copy (no token inside) into a project folder so it's in git;
-  otherwise retire it.
-- Reminder: this repo is public via GitHub Pages — assume anything
-  committed is public.
+- Allowed without asking: **read Gmail**, **write to the Obsidian vault**
+- Ask first: archiving/labeling emails
+- Never: send email as the user
 
-## Step 3 — Duties interview (Claude interviews you)
+## Data flows decided
 
-The personas currently have voices but generic duties. Tomorrow, have
-Claude interview you about real pain points, then encode the answers into
-`personas.yaml` roles/prompts and new tools. Questions to expect:
+1. **Health tracker** (was: typed manually — biggest win)
+   - Install **Health Auto Export** (iPhone) → scheduled JSON/CSV to an
+     iCloud folder. Covers steps/activity, weight, sleep, rings, AND
+     MyFitnessPal nutrition (MFP → Apple Health sync; MFP has no public API).
+   - Manual habits (physical book vs audiobook, vibration plate, red light)
+     via Bartleby's nightly Telegram check-in.
+   - Bot merges both → writes the weekly tracker note in the vault.
+2. **Tasks**: keep email-to-self as capture. Jeeves triages at 7am;
+   task state lives in bot state; Gmail read-only.
+3. **Reading capture** (pain: capture friction): forward anything to the
+   bot → Bennet appends to the vault's read/unread/need-to-read notes.
+   Retrieval/Q&A over the vault is a later phase.
 
-1. What falls through the cracks weekly? (bills, follow-ups, appointments,
-   job-search tasks, habits?)
-2. What does a good morning look like — should Jeeves send a daily brief
-   (calendar + reminders + digest) at a set time?
-3. What do you procrastinate on that Bartleby/Lizzy should pester you
-   about, and how aggressively?
-4. What's calendar-driven vs. habit-driven vs. inbox-driven?
-5. What should the bot never do without asking (send email, move events)?
-6. Which persona should own which duty?
+## Connectors checklist
 
-Output of the interview: a duties table per persona + a list of new tools
-to build.
+| Need | How | Status |
+|---|---|---|
+| Telegram | existing bot token on Mac | ready, just wire config |
+| Claude API | ANTHROPIC_API_KEY | ready |
+| Gmail read-only | reuse `newsletter-digest/gmail_client.py` OAuth pattern + existing `credentials.json`; new token with readonly scope at `agent-team/token.json` (gitignore it) | build tomorrow |
+| Apple Health / MFP | Health Auto Export app → iCloud folder; bot reads files (no API exists) | install app tomorrow |
+| Obsidian vault | plain filesystem on Mac — locate the vault folder first (user unsure where it lives) | locate tomorrow |
+| 7am brief + nightly check-in | recurring entries in the bot's polling loop (like reminders — no new infra) | build tomorrow |
 
-## Step 4 — Connectors the duties will need
+## Tomorrow, in order
 
-The bot is a standalone Python process, so it needs its own credentials —
-claude.ai connectors don't carry over to it. Likely wiring, in order of
-probable usefulness:
-
-- Google Calendar: reuse the OAuth pattern from
-  `newsletter-digest/gmail_client.py`; add the Calendar scope and a
-  `get_todays_events` tool. (Same Google Cloud project as Gmail can work.)
-- Gmail read-only: "any newsletters/important mail today?" — again reuse
-  `gmail_client.py`.
-- Habit tracker: habit data lives in browser localStorage, so the bot
-  can't read it directly. Options: export habits to a JSON file the bot
-  reads, or have habit-tracker sync to a file/endpoint. Decide tomorrow.
-- Scheduled proactive messages (morning brief): either a due-time entry the
-  polling loop checks (like reminders — no new infra), or launchd.
-- Note: in Claude sessions (not the bot), Gmail/Calendar/Drive connectors
-  are already available — useful for prototyping duties before wiring the
-  bot's own credentials.
-
-## Step 5 — Keeping it always-on (later)
-
-The bot only responds while `python main.py` runs. Options when ready:
-launchd job on the Mac (KeepAlive), or a tmux window added to
-`tmux-bexperiments.sh`. Decide after duties are settled.
-
-## Suggested order tomorrow
-
-1. Step 1 (run it, 10 min) → confirm personas answer in Telegram
-2. Step 3 interview → rewrite duties in `personas.yaml`
-3. Pick the one connector that unblocks the most duties (likely Calendar)
-   and build its tool
-4. Commit + push; leave Steps 4-remainder and 5 for the day after
+1. **On your Mac (15 min, needs you):**
+   a. Run the bot once (README Setup) so Jeeves answers in Telegram.
+   b. Find the vault: in Obsidian, right-click a note → "Reveal in Finder";
+      tell Claude the path. Note the tracker note's format (or share it).
+   c. Install Health Auto Export; schedule a daily export (JSON) to an
+      iCloud Drive folder; tell Claude that path too.
+2. **Then Claude builds (roughly in this order):**
+   a. `vault.py` — locate/read/write vault notes; reading-capture tool
+      for Bennet; tracker-note writer.
+   b. `gmail_reader.py` — readonly OAuth (reuse gmail_client pattern),
+      "self-sent since yesterday" query; task state in StateStore.
+   c. Recurring schedules: 7am Jeeves triage, ~9pm Bartleby check-in
+      (extend the reminder loop with repeating entries).
+   d. `health_import.py` — parse Health Auto Export output, merge with
+      check-in answers, render the weekly tracker note.
+   e. Update persona prompts with their new duties + tools; test each
+      flow live in Telegram; commit (never commit token.json/credentials).
+3. **Later / day after:** vault Q&A ("what did I say about X?"),
+   need-to-read triage, always-on via launchd, weekly Gatsby wins recap.

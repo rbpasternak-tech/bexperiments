@@ -30,8 +30,10 @@ telegram-bot-env/
 # Legal doc catalog credentials
 legal-doc-catalog/config.js
 
-# Agent team local config
+# Agent team local config & OAuth
 agent-team/config.yaml
+agent-team/token.json
+agent-team/credentials.json
 
 # Editor
 .vscode/
