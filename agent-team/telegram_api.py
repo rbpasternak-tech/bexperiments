@@ -15,6 +15,31 @@ MAX_MESSAGE_LEN = 4096
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
+def load_local_env(name, extra_keys=()):
+    """Look up a secret in .claude/settings.local.json.
+
+    Checks the "env" map for name, then any legacy top-level keys given in
+    extra_keys. Returns None if absent or unreadable.
+    """
+    settings_path = REPO_ROOT / ".claude" / "settings.local.json"
+    if not settings_path.exists():
+        return None
+    try:
+        data = json.loads(settings_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+    value = (data.get("env") or {}).get(name)
+    for key in extra_keys:
+        value = value or data.get(key)
+    return value
+
+
+def load_secret(name, config=None, config_key=None, extra_keys=()):
+    """Resolve a secret: config.yaml value, env var, settings.local.json."""
+    value = (config or {}).get(config_key) if config_key else None
+    return value or os.environ.get(name) or load_local_env(name, extra_keys)
+
+
 def load_token(config=None):
     """Load the Telegram bot token.
 
@@ -25,26 +50,15 @@ def load_token(config=None):
     "env" map or a top-level "telegramBotToken" key). Exits with
     instructions if none is set.
     """
-    token = (config or {}).get("telegram_token")
+    token = load_secret(
+        "TELEGRAM_BOT_TOKEN", config, "telegram_token", ("telegramBotToken",)
+    )
     if token:
         return token
-    token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    if token:
-        return token
-    settings_path = REPO_ROOT / ".claude" / "settings.local.json"
-    if settings_path.exists():
-        try:
-            data = json.loads(settings_path.read_text())
-        except (OSError, json.JSONDecodeError):
-            data = {}
-        token = (data.get("env") or {}).get("TELEGRAM_BOT_TOKEN") or data.get(
-            "telegramBotToken"
-        )
-        if token:
-            return token
     raise SystemExit(
-        "No Telegram bot token found. Set the TELEGRAM_BOT_TOKEN env var, or add\n"
-        'it to .claude/settings.local.json as {"env": {"TELEGRAM_BOT_TOKEN": "..."}}.'
+        "No Telegram bot token found. Set telegram_token in config.yaml, the\n"
+        "TELEGRAM_BOT_TOKEN env var, or .claude/settings.local.json as\n"
+        '{"env": {"TELEGRAM_BOT_TOKEN": "..."}}.'
     )
 
 

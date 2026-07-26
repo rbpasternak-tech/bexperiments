@@ -22,7 +22,7 @@ from persona_agent import run_persona_turn
 from router import build_alias_map, pick_persona
 from schedules import Scheduler
 from state import StateStore
-from telegram_api import TelegramClient, load_token
+from telegram_api import TelegramClient, load_secret, load_token
 from vault import Vault
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -236,7 +236,15 @@ def main():
     config, personas_cfg = load_config()
     alias_map = build_alias_map(personas_cfg)
     telegram = TelegramClient(load_token(config))
-    claude = anthropic.Anthropic()
+    api_key = load_secret("ANTHROPIC_API_KEY", config, "anthropic_api_key")
+    if not api_key:
+        raise SystemExit(
+            "No Anthropic API key found. Set anthropic_api_key in config.yaml,\n"
+            "the ANTHROPIC_API_KEY env var, or .claude/settings.local.json as\n"
+            '{"env": {"ANTHROPIC_API_KEY": "sk-ant-..."}}. (Background processes\n'
+            "don't read ~/.zshrc, so config.yaml is the reliable option.)"
+        )
+    claude = anthropic.Anthropic(api_key=api_key)
     state = StateStore(history_limit=config.get("history_limit", 40))
     vault = Vault(config.get("vault_path"))
     scheduler = Scheduler(state, config.get("schedules"))

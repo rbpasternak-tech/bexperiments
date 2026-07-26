@@ -7,6 +7,12 @@
 # or .claude/settings.local.json.
 telegram_token: ""
 
+# Anthropic API key (sk-ant-...). Background processes (launchd, CLI-spawned
+# tasks) don't read ~/.zshrc, so setting it here is the reliable option.
+# Leave empty to fall back to the ANTHROPIC_API_KEY env var or
+# .claude/settings.local.json.
+anthropic_api_key: ""
+
 # Model powering the personas.
 model: claude-sonnet-5
 
