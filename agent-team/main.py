@@ -229,7 +229,7 @@ def main():
 
     config, personas_cfg = load_config()
     alias_map = build_alias_map(personas_cfg)
-    telegram = TelegramClient(load_token())
+    telegram = TelegramClient(load_token(config))
     claude = anthropic.Anthropic()
     state = StateStore(history_limit=config.get("history_limit", 40))
     vault = Vault(config.get("vault_path"))

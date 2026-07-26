@@ -15,13 +15,19 @@ MAX_MESSAGE_LEN = 4096
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
-def load_token():
+def load_token(config=None):
     """Load the Telegram bot token.
 
-    Checks the TELEGRAM_BOT_TOKEN env var first, then the repo convention
-    of .claude/settings.local.json (either an "env" map or a top-level
-    "telegramBotToken" key). Exits with instructions if neither is set.
+    Precedence: config.yaml's telegram_token (the agent team's dedicated
+    bot — it cannot share a token with another poller, e.g. the Claude
+    Code Telegram plugin, or Telegram returns 409 Conflict), then the
+    TELEGRAM_BOT_TOKEN env var, then .claude/settings.local.json (an
+    "env" map or a top-level "telegramBotToken" key). Exits with
+    instructions if none is set.
     """
+    token = (config or {}).get("telegram_token")
+    if token:
+        return token
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if token:
         return token

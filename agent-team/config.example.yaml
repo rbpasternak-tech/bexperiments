@@ -1,5 +1,12 @@
 # Copy to config.yaml and fill in. config.yaml is gitignored.
 
+# Bot token from @BotFather for the agent team's OWN bot. Telegram allows
+# only one polling consumer per bot, so this must NOT be a token already
+# used elsewhere (e.g. by the Claude Code Telegram plugin) — that causes
+# 409 Conflict. Leave empty to fall back to the TELEGRAM_BOT_TOKEN env var
+# or .claude/settings.local.json.
+telegram_token: ""
+
 # Model powering the personas.
 model: claude-sonnet-5
 
