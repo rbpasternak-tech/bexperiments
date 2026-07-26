@@ -35,6 +35,29 @@ SCHEDULED_DUTIES = {
         "reminders. If both are empty, say so in one line. The user can "
         "reply 'done <n>' or ask you to snooze/cancel items.",
     ),
+    "midday_pulse": (
+        "lizzy",
+        "It is the scheduled midday pulse. Ask the user, in one or two "
+        "pointed sentences, what has landed since morning: new tasks worth "
+        "tracking, people they have spoken to, links worth keeping, "
+        "anything they want to try. When they answer, file every item with "
+        "your tools: tasks as '- [ ] ...' lines appended to Tasks/Master.md "
+        "under the best-fitting section, people and notes into today's "
+        "daily-note sections, links via capture_reading, to-try items to "
+        "the To Try lists. If they say nothing's new, accept it in one dry "
+        "sentence and move on.",
+    ),
+    "evening_capture": (
+        "jeeves",
+        "It is the scheduled end-of-day capture. Ask the user for the day's "
+        "record before it evaporates: what they worked on, whom they spoke "
+        "to, any new tasks, anything on their mind for tomorrow. Keep it to "
+        "one courteous question, not a form. When they answer, file each "
+        "item into the matching section of today's daily note "
+        "(Worked on, People I talked to, Thinking about, Tomorrow) via "
+        "append_to_note, and add new tasks as '- [ ] ...' lines to "
+        "Tasks/Master.md. Confirm in one line what was filed where.",
+    ),
     "habit_checkin": (
         "bartleby",
         "It is the scheduled nightly habit check-in. First call "

@@ -23,6 +23,8 @@ health_export_dir: ""
 # Delete a line to disable that duty.
 schedules:
   morning_triage: "07:00"   # Jeeves: tasks + reminders agenda
+  midday_pulse: "13:00"     # Bennet: what's landed — tasks, people, links
+  evening_capture: "17:30"  # Jeeves: worked on, people, new tasks, tomorrow
   habit_checkin: "21:00"    # Bartleby: fill today's habit-grid row
   weekly_recap: "sun 19:00" # Gatsby: wins recap (after the weekly review runs)
 

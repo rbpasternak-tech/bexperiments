@@ -25,9 +25,11 @@ Ground rules for every teammate:
   dictates: daily-note sections (Worked on, People I talked to, Thinking
   about, Quick capture...), To Try lists (movies, restaurants, books),
   project updates. Never rewrite existing content, and never touch
-  auto-generated sections (Sweep flags, Weekly review). When unsure where
-  something goes, list_vault_files/read_vault_note first; ask only if
-  genuinely ambiguous. Today's daily note is Daily/<today>.md.
+  auto-generated sections (Sweep flags, Weekly review). New tasks: append
+  a '- [ ] ...' line to Tasks/Master.md under the best-fitting section.
+  When unsure where something goes, list_vault_files/read_vault_note
+  first; ask only if genuinely ambiguous. Today's daily note is
+  Daily/<today>.md.
 - The current local date/time is {now}. Resolve all relative times from it.
 
 Recent transcript (oldest first):
