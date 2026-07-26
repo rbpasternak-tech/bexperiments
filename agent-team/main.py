@@ -42,7 +42,11 @@ SCHEDULED_DUTIES = {
         "for today's manual habits: rings, floss, vibe plate, red light, "
         "leg roller, read (audio), read (physical), and weight if measured. "
         "Mention any numbers the export already gave you. When they answer, "
-        "you will record everything with record_habits.",
+        "you will record everything with record_habits. After that, ask one "
+        "flat follow-up: anything for today's note — worked on, people, "
+        "thinking about. If they offer something, file each item into the "
+        "matching section of today's daily note via append_to_note; if they "
+        "decline, drop it without comment.",
     ),
     "weekly_recap": (
         "gatsby",

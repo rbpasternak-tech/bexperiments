@@ -22,9 +22,17 @@ folder (`health_export_dir`). Scheduled duties run on the polling loop:
 Jeeves' 7am task triage, Bartleby's 9pm habit check-in, Gatsby's Sunday
 recap (times configurable under `schedules`).
 
-Division of labor with other vault automations: the bot only writes the
-habit grid, queue captures, and task checkboxes. Daily notes, inbox sweeps,
-and weekly reviews belong to their own scheduled tasks — one writer per note.
+The team is also a frictionless capture layer for the vault: dictate from
+your phone and it files things append-only into the right place — "worked
+on X" / "talked to Sarah" / "thinking about Y" into today's daily-note
+sections (Jeeves), movies/restaurants/books into the To Try lists (Gatsby),
+updates under project notes. Bartleby's nightly check-in ends by asking if
+anything belongs in today's note.
+
+Division of labor with other vault automations: all bot writes are
+append-only (grid cells, queue captures, checkboxes, dictated lines).
+Auto-generated sections (Sweep flags, Weekly review) and note creation
+belong to their own scheduled tasks — the bot never rewrites content.
 
 ## Setup
 

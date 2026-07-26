@@ -46,6 +46,59 @@ class Vault:
             text = text[:max_chars] + "\n[... truncated ...]"
         return text
 
+    def list_files(self, subpath="", limit=200):
+        """List vault-relative .md paths under subpath (skips dot-folders)."""
+        if not self.available():
+            return []
+        base = self._resolve(subpath) if subpath else self.root
+        if not base.is_dir():
+            return []
+        found = []
+        for path in sorted(base.rglob("*.md")):
+            rel = path.relative_to(self.root)
+            if any(part.startswith(".") for part in rel.parts):
+                continue
+            found.append(str(rel))
+            if len(found) >= limit:
+                break
+        return found
+
+    def append_under_section(self, relative, section, line):
+        """Append one line under a heading in a note. Append-only: never
+        rewrites existing content. Creates the section (and the note) if
+        missing. Returns a status message."""
+        if not self.available():
+            return "Vault not available on this machine."
+        if not relative.endswith(".md"):
+            return "Can only append to .md notes."
+        path = self._resolve(relative)
+        if not path.is_file():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(f"## {section}\n{line}\n")
+            return f"Created {relative} with section '{section}'."
+        lines = path.read_text().splitlines(keepends=True)
+        target = section.strip().lower()
+        section_idx = None
+        for i, text_line in enumerate(lines):
+            match = re.match(r"^(#+)\s+(.*?)\s*$", text_line)
+            if not match:
+                continue
+            if section_idx is None and match.group(2).lower().rstrip(":") == target:
+                section_idx = i
+            elif section_idx is not None:
+                insert_at = i
+                while insert_at > section_idx + 1 and not lines[insert_at - 1].strip():
+                    insert_at -= 1
+                lines.insert(insert_at, line + "\n")
+                path.write_text("".join(lines))
+                return f"Appended to '{section}' in {relative}."
+        if section_idx is not None:
+            lines.append(line + "\n")
+        else:
+            lines.append(f"\n## {section}\n{line}\n")
+        path.write_text("".join(lines))
+        return f"Appended to '{section}' in {relative}."
+
     # --- Reading queue ---
 
     def append_reading_item(self, url, title, source="telegram"):

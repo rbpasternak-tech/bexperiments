@@ -24,6 +24,11 @@ because the inbox sweep already covers Gmail.
 - `schedules.py` + duties in `main.py`: Jeeves 7:00 triage, Bartleby 21:00
   habit check-in, Gatsby Sunday 19:00 recap (after the weekly review runs)
 - Persona prompts updated with duties; vault etiquette in shared rules
+- Capture layer (added 2026-07-27): `list_vault_files` + append-only
+  `append_to_note` — dictate daily-note sections (Worked on, People,
+  Thinking about...) to Jeeves, To Try items (movies/restaurants/books) to
+  Gatsby, project updates to any of them. Bartleby's nightly check-in now
+  ends by offering to file reflections into today's note.
 
 ## Remaining setup (needs Rebecca, ~20 min)
 

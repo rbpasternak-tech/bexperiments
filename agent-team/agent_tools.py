@@ -131,6 +131,53 @@ TOOL_DEFINITIONS = [
         },
     },
     {
+        "name": "list_vault_files",
+        "description": (
+            "List markdown note paths in the vault, optionally under a "
+            "subfolder. Use this to discover where something lives (e.g. the "
+            "To Try lists, Projects) before appending to it."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "subpath": {
+                    "type": "string",
+                    "description": "Vault-relative folder to list; '' for whole vault",
+                }
+            },
+        },
+    },
+    {
+        "name": "append_to_note",
+        "description": (
+            "Append ONE line (usually a '- ...' bullet) under a section "
+            "heading in a vault note — e.g. a movie to a To Try list, a "
+            "'Worked on' entry in today's daily note, an update under a "
+            "project. Append-only: it never rewrites existing content. "
+            "Creates the section if the note lacks it. If unsure which note "
+            "or section, use list_vault_files/read_vault_note first, and ask "
+            "the user when genuinely ambiguous."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "Vault-relative note path, e.g. 'Daily/2026-07-27.md'",
+                },
+                "section": {
+                    "type": "string",
+                    "description": "Heading text to file under, e.g. 'Worked on'",
+                },
+                "line": {
+                    "type": "string",
+                    "description": "The line to append, e.g. '- Sinners (rec. by Sam)'",
+                },
+            },
+            "required": ["path", "section", "line"],
+        },
+    },
+    {
         "name": "read_health_export",
         "description": (
             "Read the day's Apple Health numbers (steps, calories via "
@@ -266,6 +313,15 @@ def handle_tool_call(name, tool_input, ctx):
         if vault.complete_task(tool_input.get("task_text", "")):
             return "Task checked off in Tasks/Master.md."
         return "No matching open task found."
+    if name == "list_vault_files":
+        files = vault.list_files(tool_input.get("subpath", ""))
+        return "\n".join(files) if files else "No notes found (or vault unavailable)."
+    if name == "append_to_note":
+        return vault.append_under_section(
+            tool_input.get("path", ""),
+            tool_input.get("section", ""),
+            tool_input.get("line", ""),
+        )
     if name == "read_health_export":
         date_str = tool_input.get("date") or datetime.now().strftime("%Y-%m-%d")
         return json.dumps(
