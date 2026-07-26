@@ -1,7 +1,20 @@
 # Agent Team — Next Steps
 
-Status 2026-07-27: **the build is done.** What remains is setup on Rebecca's
-Mac + iPhone. Tell Claude "work through agent-team/NEXT-STEPS.md" to resume.
+Status 2026-07-27 (evening): **LIVE.** The Household Staff Bot
+(t.me/HouseholdStaffBot) is running on Rebecca's Mac with its own BotFather
+token; vault verified; Jeeves added a real task and Gatsby filed a To Try
+item. Secrets (telegram_token, anthropic_api_key) live in the gitignored
+agent-team/config.yaml — background processes don't read ~/.zshrc.
+
+Remaining polish:
+1. **Always-on**: launchd job so the bot survives Terminal closes/reboots
+   (instructions given in chat; stop the manual run first — one poller only)
+2. **health_export_dir**: set once the Health Auto Export automation is
+   configured (app installed; automation: JSON, daily, iCloud, ~8:45pm)
+3. **Cowork sweep tweak**: route non-URL self-sends to Tasks/Master.md
+   (text given in chat 2026-07-27) so emailed to-dos hit the 7am triage
+4. Watch the first scheduled runs land: 9pm check-in tonight, 7am triage,
+   1pm pulse, 5:30pm capture, Sunday 7pm recap
 
 ## Architecture (settled)
 
