@@ -11,6 +11,7 @@ Run: python main.py   (long-polls Telegram; Ctrl-C to stop)
 import argparse
 import sys
 import time
+import traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -171,8 +172,12 @@ def handle_message(message, config, personas_cfg, alias_map, claude, ctx, telegr
             claude, config["model"], persona_key, personas_cfg, persona_text,
             dict(ctx, chat_id=chat_id),
         )
-    except anthropic.APIError as exc:
-        telegram.send_message(chat_id, f"({persona['name']} is unavailable: {exc})")
+    except Exception as exc:
+        traceback.print_exc()
+        telegram.send_message(
+            chat_id,
+            f"({persona['name']} hit an error: {type(exc).__name__}: {exc})",
+        )
         return
     state.append_history(chat_id, persona["name"], reply)
     telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
@@ -196,7 +201,8 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
                 claude, config["model"], persona_key, personas_cfg, instruction,
                 dict(ctx, chat_id=chat_id),
             )
-        except anthropic.APIError as exc:
+        except Exception as exc:
+            traceback.print_exc()
             print(f"Scheduled duty {key} failed: {exc}", file=sys.stderr)
             continue
         state.append_history(chat_id, persona["name"], reply)
