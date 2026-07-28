@@ -37,7 +37,7 @@ def read_health_metrics(export_dir, date_str):
     if not directory or not directory.is_dir():
         return {"error": "Health export folder not configured or not found."}
     files = sorted(
-        directory.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True
+        directory.rglob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True
     )
     for path in files:
         result = _metrics_from_file(path, date_str)
