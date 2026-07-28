@@ -8,13 +8,22 @@ MyFitnessPal nutrition arrives via its Apple Health sync as dietary_energy.
 """
 
 import json
+import re
 from pathlib import Path
 
 METRIC_MAP = {
     "step_count": "steps",
+    "steps": "steps",
     "dietary_energy": "calories",
     "weight_body_mass": "weight",
+    "weight_and_body_mass": "weight",
+    "body_mass": "weight",
 }
+
+
+def _normalize(name):
+    """Normalize a metric name: lowercase, non-alphanumerics to underscores."""
+    return re.sub(r"[^a-z0-9]+", "_", str(name).lower()).strip("_")
 
 
 def read_health_metrics(export_dir, date_str):
@@ -47,7 +56,7 @@ def _metrics_from_file(path, date_str):
     metrics = (payload.get("data") or {}).get("metrics") or []
     found = {}
     for metric in metrics:
-        key = METRIC_MAP.get(metric.get("name"))
+        key = METRIC_MAP.get(_normalize(metric.get("name")))
         if not key:
             continue
         entries = [
