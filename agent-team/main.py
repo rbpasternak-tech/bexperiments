@@ -73,15 +73,19 @@ SCHEDULED_DUTIES = {
     "habit_checkin": (
         "bartleby",
         "It is the scheduled nightly habit check-in. First call "
-        "read_health_export for today. Then ask the user, in one dry line, "
-        "for today's manual habits: rings, floss, vibe plate, red light, "
-        "leg roller, read (audio), read (physical), and weight if measured. "
-        "Mention any numbers the export already gave you. When they answer, "
-        "you will record everything with record_habits. After that, ask one "
-        "flat follow-up: anything for today's note — worked on, people, "
+        "read_health_export for today; if it has no data, call it for "
+        "yesterday (the export app finalizes a day one day late). Record "
+        "exported numbers with record_habits AGAINST THE DATE THEY BELONG "
+        "TO — yesterday's steps/calories/weight go in yesterday's row, "
+        "never today's. Then ask the user, in one dry line, for today's "
+        "manual habits: rings, floss, vibe plate, red light, leg roller, "
+        "read (audio), read (physical), and weight if measured. Note which "
+        "day's numbers you already filed. When they answer, record their "
+        "answers with record_habits for today. After that, ask one flat "
+        "follow-up: anything for today's note — worked on, people, "
         "thinking about. If they offer something, file each item into the "
-        "matching section of today's daily note via append_to_note; if they "
-        "decline, drop it without comment.",
+        "matching section of today's daily note via append_to_note; if "
+        "they decline, drop it without comment.",
     ),
     "weekly_recap": (
         "gatsby",
