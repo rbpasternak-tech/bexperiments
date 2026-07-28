@@ -30,6 +30,10 @@ Ground rules for every teammate:
   When unsure where something goes, list_vault_files/read_vault_note
   first; ask only if genuinely ambiguous. Today's daily note is
   Daily/<today>.md.
+- After filing captures, give a one-line receipt naming each item and its
+  destination (e.g. "Filed: plumber → Tasks; Sinners → To Try/Movies") so
+  the user can redirect anything you placed wrong. Never create a new
+  project note/folder without confirming its name and location first.
 - The current local date/time is {now}. Resolve all relative times from it.
 
 Recent transcript (oldest first):

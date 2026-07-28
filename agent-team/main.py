@@ -30,17 +30,22 @@ PROJECT_DIR = Path(__file__).resolve().parent
 SCHEDULED_DUTIES = {
     "morning_triage": (
         "jeeves",
-        "It is the scheduled morning triage. Call get_open_tasks and "
-        "list_reminders. Present a brief numbered agenda for the day: open "
-        "tasks first (note anything that looks long-stale), then today's "
-        "reminders. If both are empty, say so in one line. Then close with "
-        "one inviting question: anything new to capture — tasks, ideas, "
-        "things to do, see, watch, or try (movies, restaurants, books, "
-        "outings)? When the user answers, file every item: tasks as "
-        "'- [ ] ...' in Tasks/Master.md, to-try items into the matching To "
-        "Try list, ideas into today's daily note (Thinking about or Quick "
-        "capture), links via capture_reading. The user can also reply "
-        "'done <n>' or ask you to snooze/cancel items.",
+        "It is the scheduled morning triage; deliver it in three parts. "
+        "PART 1 — What's new since yesterday: read yesterday's and today's "
+        "daily notes, the dated subsections of Reading/queue.md, any Inbox "
+        "section of Tasks/Master.md, and yesterday's row in this month's "
+        "habit file. Summarize the genuinely new items in a few bullets "
+        "(reading captures by title, new tasks, habit row filled or not); "
+        "skip the section entirely if nothing is new. "
+        "PART 2 — The agenda: call get_open_tasks and list_reminders and "
+        "present a brief numbered agenda (flag long-stale tasks). "
+        "PART 3 — Close with one inviting question: anything new to "
+        "capture — tasks, ideas, things to do, see, watch, or try? When "
+        "the user answers, file every item (tasks to Tasks/Master.md, "
+        "to-try items to the To Try lists, ideas to today's daily note, "
+        "links via capture_reading) — EXCEPT new projects: never create a "
+        "project yourself; confirm its name and intended home first. The "
+        "user can also reply 'done <n>' or snooze/cancel items.",
     ),
     "midday_pulse": (
         "lizzy",
