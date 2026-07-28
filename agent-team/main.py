@@ -33,8 +33,14 @@ SCHEDULED_DUTIES = {
         "It is the scheduled morning triage. Call get_open_tasks and "
         "list_reminders. Present a brief numbered agenda for the day: open "
         "tasks first (note anything that looks long-stale), then today's "
-        "reminders. If both are empty, say so in one line. The user can "
-        "reply 'done <n>' or ask you to snooze/cancel items.",
+        "reminders. If both are empty, say so in one line. Then close with "
+        "one inviting question: anything new to capture — tasks, ideas, "
+        "things to do, see, watch, or try (movies, restaurants, books, "
+        "outings)? When the user answers, file every item: tasks as "
+        "'- [ ] ...' in Tasks/Master.md, to-try items into the matching To "
+        "Try list, ideas into today's daily note (Thinking about or Quick "
+        "capture), links via capture_reading. The user can also reply "
+        "'done <n>' or ask you to snooze/cancel items.",
     ),
     "midday_pulse": (
         "lizzy",
