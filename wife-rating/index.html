@@ -82,8 +82,11 @@
         <p class="section-note">Your review hasn't gone anywhere yet &mdash; pick how to deliver it:</p>
         <div class="send-options">
           <div class="send-option">
-            <button type="button" class="btn btn-primary" id="email-btn">&#9993; Email your review<span id="email-to"></span></button>
-            <p>Opens your email app with the full report already written and addressed. You just press send.</p>
+            <div class="send-btn-row">
+              <button type="button" class="btn btn-primary" id="gmail-btn">&#9993; Open in Gmail</button>
+              <button type="button" class="btn" id="email-btn">Use my email app</button>
+            </div>
+            <p id="email-caption"></p>
           </div>
           <div class="send-option">
             <button type="button" class="btn" id="copy-link-btn">&#128279; Copy results link</button>

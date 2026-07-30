@@ -320,10 +320,11 @@ function addToLog(data, encoded) {
 }
 
 function renderLog(log, currentEncoded) {
-  if (log.length < 2) return;
+  if (!log.length) return;
   document.getElementById('log-card').classList.remove('hidden');
-  renderTrend(log);
-  document.getElementById('export-csv-btn').addEventListener('click', () => downloadCsv(log));
+  document.querySelector('.trend-wrap').classList.toggle('hidden', log.length < 2);
+  if (log.length >= 2) renderTrend(log);
+  document.getElementById('export-csv-btn').onclick = () => downloadCsv(log);
   document.getElementById('log-list').innerHTML = log
     .map((entry) => {
       const rounded = Math.max(1, Math.min(5, Math.round(entry.avg)));
@@ -343,11 +344,14 @@ function renderLog(log, currentEncoded) {
 
 // --- Trend chart: average score per review date ---
 
+let trendChart = null;
+
 function renderTrend(log) {
   if (typeof Chart === 'undefined') return;
   const entries = [...log].reverse();
   const metaFor = (avg) => STAR_META[Math.max(1, Math.min(5, Math.round(avg)))];
-  new Chart(document.getElementById('trend-chart'), {
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('trend-chart'), {
     type: 'line',
     data: {
       labels: entries.map((entry) => {
@@ -501,16 +505,20 @@ function bindFormEvents() {
       return;
     }
     const data = buildResultsData();
-    history.replaceState(null, '', resultsUrl(data));
+    const encoded = encodeResults(data);
+    history.replaceState(null, '', `${location.origin}${location.pathname}#r=${encoded}`);
     clearDraft();
     renderResults(data, { fromLink: false });
     bindSendButtons(data);
+    renderLog(addToLog(data, encoded), encoded);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
 
 function bindSendButtons(data) {
-  document.getElementById('email-to').textContent = RECIPIENT_EMAIL ? ` to ${RECIPIENT_EMAIL}` : '';
+  document.getElementById('email-caption').textContent = RECIPIENT_EMAIL
+    ? `Both open a draft addressed to ${RECIPIENT_EMAIL} with the full report written — you just press send.`
+    : 'Both open a draft with the full report written — add the address and press send.';
 
   document.getElementById('copy-link-btn').onclick = () =>
     copyToClipboard(resultsUrl(data), 'Results link copied. Send it with confidence.');
@@ -518,14 +526,30 @@ function bindSendButtons(data) {
   document.getElementById('copy-text-btn').onclick = () =>
     copyToClipboard(buildSummaryText(data), 'Summary copied to clipboard.');
 
+  const status = document.getElementById('copy-status');
+  const dateStr = formatDate(data.date);
+  const subject = encodeURIComponent(`The Wife Review${dateStr ? ` — ${dateStr}` : ''}`);
+  const body = encodeURIComponent(buildSummaryText(data));
+
+  document.getElementById('gmail-btn').onclick = () => {
+    const opened = window.open(
+      `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(RECIPIENT_EMAIL)}&su=${subject}&body=${body}`,
+      '_blank'
+    );
+    status.textContent = opened
+      ? 'Gmail is opening in a new tab with the draft — press Send there to deliver it.'
+      : 'The browser blocked the Gmail tab — allow pop-ups for this site, or copy the summary text below.';
+  };
+
   document.getElementById('email-btn').onclick = () => {
-    const dateStr = formatDate(data.date);
-    const subject = encodeURIComponent(`The Wife Review${dateStr ? ` — ${dateStr}` : ''}`);
-    const body = encodeURIComponent(buildSummaryText(data));
-    const status = document.getElementById('copy-status');
     status.textContent = 'Opening your email app with the draft — press Send there to deliver it.';
-    setTimeout(() => { status.textContent = ''; }, 6000);
     location.href = `mailto:${RECIPIENT_EMAIL}?subject=${subject}&body=${body}`;
+    // If nothing took over the page shortly after, no mail app handled it.
+    setTimeout(() => {
+      if (document.hasFocus()) {
+        status.textContent = 'Nothing opened? This browser has no mail app set up — use Open in Gmail, or copy the summary text below.';
+      }
+    }, 1800);
   };
 }
 
