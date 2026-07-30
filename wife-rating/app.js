@@ -431,6 +431,8 @@ function downloadCsv(log) {
   link.click();
   link.remove();
   URL.revokeObjectURL(link.href);
+  const status = document.getElementById('csv-status');
+  status.textContent = `Saved "wife-review-log.csv" (${log.length} review${log.length === 1 ? '' : 's'}) to this device's downloads — check your Downloads folder, or the Files app on a phone.`;
 }
 
 // --- Form behavior ---
