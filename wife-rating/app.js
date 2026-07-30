@@ -7,6 +7,7 @@
 const RECIPIENT_EMAIL = 'rbpasternak@gmail.com';
 
 const DRAFT_KEY = 'wife-review-draft';
+const LOG_KEY = 'wife-review-log';
 
 const STAR_META = {
   1: { name: 'blue', label: 'Room to grow' },
@@ -43,7 +44,30 @@ const CHIPS = [
 
 const AGAIN_OPTIONS = ['Yes', 'Absolutely', 'In every universe'];
 
+function todayString() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+// Handles both YYYY-MM-DD (date field) and full ISO stamps (older links)
+// without the UTC-midnight off-by-one-day trap.
+function formatDate(value) {
+  if (!value) return '';
+  let date;
+  if (value.includes('T')) {
+    date = new Date(value);
+  } else {
+    const [year, month, day] = value.split('-').map(Number);
+    date = new Date(year, month - 1, day);
+  }
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 const state = {
+  date: todayString(),
   ratings: {},
   chips: [],
   again: null,
@@ -83,7 +107,7 @@ export function decodeResults(encoded) {
 function buildResultsData() {
   return {
     v: 1,
-    date: new Date().toISOString(),
+    date: state.date || todayString(),
     ratings: state.ratings,
     chips: state.chips,
     again: state.again,
@@ -169,9 +193,7 @@ function renderResults(data, { fromLink }) {
   const avg = averageRating(data.ratings);
   const rounded = Math.max(1, Math.min(5, Math.round(avg)));
   const meta = STAR_META[rounded];
-  const dateStr = data.date
-    ? new Date(data.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-    : '';
+  const dateStr = formatDate(data.date);
 
   document.getElementById('results-title').textContent = fromLink
     ? 'A wife review has arrived'
@@ -224,7 +246,10 @@ function renderResults(data, { fromLink }) {
 // --- Summary text for email / clipboard ---
 
 function buildSummaryText(data) {
-  const lines = ['THE WIFE REVIEW — OFFICIAL RESULTS', ''];
+  const lines = ['THE WIFE REVIEW — OFFICIAL RESULTS'];
+  const dateStr = formatDate(data.date);
+  if (dateStr) lines.push(`Review date: ${dateStr}`);
+  lines.push('');
   const avg = averageRating(data.ratings);
   lines.push(`Overall score: ${avg.toFixed(1)} / 5 (${STAR_META[Math.max(1, Math.round(avg))].label})`, '');
   CATEGORIES.forEach((cat) => {
@@ -268,6 +293,50 @@ function loadDraft() {
 
 function clearDraft() {
   localStorage.removeItem(DRAFT_KEY);
+}
+
+// --- Review log (receiver side): every opened results link, kept locally ---
+
+function loadLog() {
+  try {
+    const log = JSON.parse(localStorage.getItem(LOG_KEY));
+    return Array.isArray(log) ? log : [];
+  } catch {
+    return [];
+  }
+}
+
+function addToLog(data, encoded) {
+  const log = loadLog();
+  if (log.some((entry) => entry.encoded === encoded)) return log;
+  log.push({
+    encoded,
+    date: data.date || '',
+    avg: Number(averageRating(data.ratings).toFixed(1)),
+  });
+  log.sort((a, b) => (a.date < b.date ? 1 : -1));
+  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  return log;
+}
+
+function renderLog(log, currentEncoded) {
+  if (log.length < 2) return;
+  document.getElementById('log-card').classList.remove('hidden');
+  document.getElementById('log-list').innerHTML = log
+    .map((entry) => {
+      const rounded = Math.max(1, Math.min(5, Math.round(entry.avg)));
+      const meta = STAR_META[rounded];
+      const current = entry.encoded === currentEncoded;
+      const label = `${formatDate(entry.date) || 'Undated'} — ${entry.avg.toFixed(1)} / 5`;
+      return `<li class="log-item ${current ? 'current' : ''}">
+        <a href="#r=${escapeAttr(entry.encoded)}">
+          <span class="log-stars stars-${meta.name}"><span class="legend-stars">${'★'.repeat(rounded)}</span></span>
+          <span class="log-label">${escapeHtml(label)}</span>
+          ${current ? '<span class="log-current">viewing</span>' : ''}
+        </a>
+      </li>`;
+    })
+    .join('');
 }
 
 // --- Form behavior ---
@@ -319,6 +388,13 @@ function bindFormEvents() {
     saveDraft();
   });
 
+  const dateInput = document.getElementById('review-date');
+  dateInput.value = state.date || todayString();
+  dateInput.addEventListener('change', () => {
+    state.date = dateInput.value || todayString();
+    saveDraft();
+  });
+
   [['keep-doing', 'keep'], ['suggestion', 'suggestion'], ['comments', 'comments']].forEach(([id, key]) => {
     const input = document.getElementById(id);
     input.value = state[key];
@@ -351,7 +427,8 @@ function bindSendButtons(data) {
     copyToClipboard(buildSummaryText(data), 'Summary copied to clipboard.');
 
   document.getElementById('email-btn').onclick = () => {
-    const subject = encodeURIComponent('The Wife Review — Official Results');
+    const dateStr = formatDate(data.date);
+    const subject = encodeURIComponent(`The Wife Review${dateStr ? ` — ${dateStr}` : ''}`);
     const body = encodeURIComponent(buildSummaryText(data));
     location.href = `mailto:${RECIPIENT_EMAIL}?subject=${subject}&body=${body}`;
   };
@@ -359,7 +436,7 @@ function bindSendButtons(data) {
 
 function startFreshReview() {
   history.replaceState(null, '', location.pathname);
-  Object.assign(state, { ratings: {}, chips: [], again: null, keep: '', suggestion: '', comments: '' });
+  Object.assign(state, { date: todayString(), ratings: {}, chips: [], again: null, keep: '', suggestion: '', comments: '' });
   clearDraft();
   document.getElementById('results').classList.add('hidden');
   const form = document.getElementById('review-form');
@@ -368,6 +445,7 @@ function startFreshReview() {
   renderCategories();
   renderChips();
   renderAgainOptions();
+  document.getElementById('review-date').value = state.date;
   [['keep-doing', 'keep'], ['suggestion', 'suggestion'], ['comments', 'comments']].forEach(([id, key]) => {
     document.getElementById(id).value = state[key];
   });
@@ -380,11 +458,14 @@ function startFreshReview() {
 function init() {
   renderLegend();
   document.getElementById('new-review-btn').addEventListener('click', startFreshReview);
+  // Log links swap the hash on the same page; reload so init re-renders.
+  window.addEventListener('hashchange', () => location.reload());
 
   const match = location.hash.match(/^#r=(.+)$/);
   const shared = match && decodeResults(match[1]);
   if (shared && shared.ratings) {
     renderResults(shared, { fromLink: true });
+    renderLog(addToLog(shared, match[1]), match[1]);
     return;
   }
 

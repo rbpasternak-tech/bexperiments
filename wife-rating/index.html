@@ -22,6 +22,14 @@
 
     <!-- Feedback form (hidden when viewing submitted results) -->
     <form id="review-form" class="hidden" novalidate>
+      <section class="card date-card">
+        <label class="field date-field">
+          <span class="field-label">Review date</span>
+          <input type="date" id="review-date">
+        </label>
+        <p class="section-note">Filing daily? Excellent. The committee rewards consistency.</p>
+      </section>
+
       <section class="card">
         <h2>Part 1 &middot; Performance categories</h2>
         <p class="section-note">Rate each category from 1 to 5 stars. Stars change color with your verdict.</p>
@@ -78,6 +86,11 @@
           <button type="button" class="btn" id="copy-text-btn">&#128203; Copy summary text</button>
         </div>
         <p class="copy-status" id="copy-status" role="status"></p>
+      </div>
+      <div class="card hidden" id="log-card">
+        <h2>Review log</h2>
+        <p class="section-note">Every review opened on this device, newest first.</p>
+        <ol class="log-list" id="log-list"></ol>
       </div>
       <div class="results-actions">
         <button type="button" class="btn btn-ghost" id="new-review-btn">Start a fresh review</button>

@@ -292,6 +292,63 @@ button.chip:hover {
   border-color: var(--accent);
 }
 
+.date-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.date-card .field {
+  margin-bottom: 0;
+}
+
+.date-card .section-note {
+  margin: 0;
+}
+
+.date-field input {
+  width: auto;
+}
+
+/* Review log */
+
+.log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.log-item a {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.log-item a:hover {
+  background: var(--paper);
+}
+
+.log-item.current a {
+  background: var(--paper);
+}
+
+.log-stars .legend-stars {
+  min-width: 90px;
+  font-size: 1rem;
+}
+
+.log-current {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
 /* Buttons */
 
 .btn {
