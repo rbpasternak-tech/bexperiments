@@ -79,11 +79,20 @@
       </div>
       <div class="card" id="send-card">
         <h2>Send your results back</h2>
-        <p class="section-note">Pick any (or all) of these to deliver your review:</p>
-        <div class="send-buttons">
-          <button type="button" class="btn" id="copy-link-btn">&#128279; Copy results link</button>
-          <button type="button" class="btn" id="email-btn">&#9993; Email results</button>
-          <button type="button" class="btn" id="copy-text-btn">&#128203; Copy summary text</button>
+        <p class="section-note">Your review hasn't gone anywhere yet &mdash; pick how to deliver it:</p>
+        <div class="send-options">
+          <div class="send-option">
+            <button type="button" class="btn btn-primary" id="email-btn">&#9993; Email your review<span id="email-to"></span></button>
+            <p>Opens your email app with the full report already written and addressed. You just press send.</p>
+          </div>
+          <div class="send-option">
+            <button type="button" class="btn" id="copy-link-btn">&#128279; Copy results link</button>
+            <p>Copies a link to this exact report &mdash; paste it into a text or chat instead.</p>
+          </div>
+          <div class="send-option">
+            <button type="button" class="btn" id="copy-text-btn">&#128203; Copy summary text</button>
+            <p>Plain-text version of the report, for pasting anywhere.</p>
+          </div>
         </div>
         <p class="copy-status" id="copy-status" role="status"></p>
       </div>
@@ -96,6 +105,7 @@
         <ol class="log-list" id="log-list"></ol>
         <div class="log-actions">
           <button type="button" class="btn" id="export-csv-btn">&#8595; Download CSV</button>
+          <p class="log-note">The log lives only in this browser. The CSV saves to this device's downloads &mdash; nothing is stored online.</p>
         </div>
       </div>
       <div class="results-actions">

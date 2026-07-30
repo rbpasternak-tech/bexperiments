@@ -510,6 +510,8 @@ function bindFormEvents() {
 }
 
 function bindSendButtons(data) {
+  document.getElementById('email-to').textContent = RECIPIENT_EMAIL ? ` to ${RECIPIENT_EMAIL}` : '';
+
   document.getElementById('copy-link-btn').onclick = () =>
     copyToClipboard(resultsUrl(data), 'Results link copied. Send it with confidence.');
 
@@ -520,6 +522,9 @@ function bindSendButtons(data) {
     const dateStr = formatDate(data.date);
     const subject = encodeURIComponent(`The Wife Review${dateStr ? ` — ${dateStr}` : ''}`);
     const body = encodeURIComponent(buildSummaryText(data));
+    const status = document.getElementById('copy-status');
+    status.textContent = 'Opening your email app with the draft — press Send there to deliver it.';
+    setTimeout(() => { status.textContent = ''; }, 6000);
     location.href = `mailto:${RECIPIENT_EMAIL}?subject=${subject}&body=${body}`;
   };
 }
