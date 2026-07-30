@@ -3,8 +3,8 @@
 // scale, adds comments, and sends results back via link, email, or clipboard.
 // No backend: results are base64-encoded into the URL hash.
 
-// Optional: set this to prefill the "to" address on the email button.
-const RECIPIENT_EMAIL = '';
+// Prefills the "to" address on the email button.
+const RECIPIENT_EMAIL = 'rbpasternak@gmail.com';
 
 const DRAFT_KEY = 'wife-review-draft';
 
