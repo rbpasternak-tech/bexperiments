@@ -30,7 +30,7 @@ A Telegram bot hosting a team of Claude-powered personas — a classic literatur
 ### The Wife Review
 [`wife-rating/`](wife-rating/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/wife-rating/)
 
-A tongue-in-cheek wife feedback portal (a joke, but not really). Rate performance across nine marriage categories — emotional availability, listening skills, patience & grace, and more — on a color-coded star scale (1★ blue → 5★ gold), check off highlight chips, answer the big question, and leave written comments. No backend: results are base64-encoded into a shareable link, with email and copy-to-clipboard delivery options. Drafts persist via localStorage.
+A tongue-in-cheek wife feedback portal (a joke, but not really). Rate performance across nine marriage categories — emotional availability, listening skills, patience & grace, and more — on a color-coded star scale (1★ blue → 5★ gold), check off highlight chips, answer the big question, and leave written comments. Built for daily filing: each review is dated, and opened results accumulate into a local review log with a Chart.js trend line of scores over time and CSV export. No backend: results are base64-encoded into a shareable link, with email and copy-to-clipboard delivery options. Drafts persist via localStorage.
 
 ### Legal Doc Catalog
 [`legal-doc-catalog/`](legal-doc-catalog/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/legal-doc-catalog/)

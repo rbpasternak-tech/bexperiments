@@ -90,7 +90,13 @@
       <div class="card hidden" id="log-card">
         <h2>Review log</h2>
         <p class="section-note">Every review opened on this device, newest first.</p>
+        <div class="trend-wrap">
+          <canvas id="trend-chart" role="img" aria-label="Average wife rating over time"></canvas>
+        </div>
         <ol class="log-list" id="log-list"></ol>
+        <div class="log-actions">
+          <button type="button" class="btn" id="export-csv-btn">&#8595; Download CSV</button>
+        </div>
       </div>
       <div class="results-actions">
         <button type="button" class="btn btn-ghost" id="new-review-btn">Start a fresh review</button>
@@ -102,6 +108,7 @@
     </footer>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

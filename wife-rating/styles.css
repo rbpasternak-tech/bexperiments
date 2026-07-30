@@ -314,6 +314,17 @@ button.chip:hover {
 
 /* Review log */
 
+.trend-wrap {
+  position: relative;
+  height: 200px;
+  margin: 4px 0 16px;
+}
+
+.log-actions {
+  margin-top: 14px;
+  text-align: right;
+}
+
 .log-list {
   list-style: none;
   margin: 0;

@@ -10,11 +10,11 @@ const DRAFT_KEY = 'wife-review-draft';
 const LOG_KEY = 'wife-review-log';
 
 const STAR_META = {
-  1: { name: 'blue', label: 'Room to grow' },
-  2: { name: 'green', label: 'Getting there' },
-  3: { name: 'purple', label: 'Solid wife behavior' },
-  4: { name: 'bronze', label: 'Excellent work' },
-  5: { name: 'gold', label: 'World-class wife' },
+  1: { name: 'blue', label: 'Room to grow', color: '#3b7dd8' },
+  2: { name: 'green', label: 'Getting there', color: '#3d9e6a' },
+  3: { name: 'purple', label: 'Solid wife behavior', color: '#8d5bcb' },
+  4: { name: 'bronze', label: 'Excellent work', color: '#b5762f' },
+  5: { name: 'gold', label: 'World-class wife', color: '#e0a400' },
 };
 
 const CATEGORIES = [
@@ -322,6 +322,8 @@ function addToLog(data, encoded) {
 function renderLog(log, currentEncoded) {
   if (log.length < 2) return;
   document.getElementById('log-card').classList.remove('hidden');
+  renderTrend(log);
+  document.getElementById('export-csv-btn').addEventListener('click', () => downloadCsv(log));
   document.getElementById('log-list').innerHTML = log
     .map((entry) => {
       const rounded = Math.max(1, Math.min(5, Math.round(entry.avg)));
@@ -337,6 +339,94 @@ function renderLog(log, currentEncoded) {
       </li>`;
     })
     .join('');
+}
+
+// --- Trend chart: average score per review date ---
+
+function renderTrend(log) {
+  if (typeof Chart === 'undefined') return;
+  const entries = [...log].reverse();
+  const metaFor = (avg) => STAR_META[Math.max(1, Math.min(5, Math.round(avg)))];
+  new Chart(document.getElementById('trend-chart'), {
+    type: 'line',
+    data: {
+      labels: entries.map((entry) => {
+        const [year, month, day] = (entry.date || '').split('-').map(Number);
+        return year ? new Date(year, month - 1, day).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '?';
+      }),
+      datasets: [{
+        data: entries.map((entry) => entry.avg),
+        borderColor: '#7a6d5f',
+        borderWidth: 2,
+        tension: 0.3,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        pointBackgroundColor: entries.map((entry) => metaFor(entry.avg).color),
+        pointBorderColor: '#3d3229',
+        pointBorderWidth: 1.5,
+      }],
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          displayColors: false,
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toFixed(1)} / 5 — ${metaFor(ctx.parsed.y).label}`,
+          },
+        },
+      },
+      scales: {
+        y: {
+          min: 1,
+          max: 5,
+          ticks: { stepSize: 1, color: '#7a6d5f' },
+          grid: { color: '#eadfd2' },
+        },
+        x: {
+          ticks: { color: '#7a6d5f' },
+          grid: { display: false },
+        },
+      },
+    },
+  });
+}
+
+// --- CSV export of the full log ---
+
+function csvField(value) {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
+}
+
+function buildCsv(log) {
+  const header = [
+    'Date', 'Average',
+    ...CATEGORIES.map((cat) => cat.title),
+    'Would marry again', 'Highlights', 'Keep doing', 'Gentle suggestion', 'Comments',
+  ];
+  const rows = [...log].reverse().map((entry) => {
+    const data = decodeResults(entry.encoded) || {};
+    const ratings = data.ratings || {};
+    return [
+      entry.date, entry.avg,
+      ...CATEGORIES.map((cat) => ratings[cat.id] ?? ''),
+      data.again ?? '', (data.chips || []).join('; '),
+      data.keep ?? '', data.suggestion ?? '', data.comments ?? '',
+    ];
+  });
+  return [header, ...rows].map((row) => row.map(csvField).join(',')).join('\r\n');
+}
+
+function downloadCsv(log) {
+  const blob = new Blob([buildCsv(log)], { type: 'text/csv;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'wife-review-log.csv';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
 }
 
 // --- Form behavior ---
