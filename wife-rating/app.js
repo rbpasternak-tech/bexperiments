@@ -511,7 +511,7 @@ function bindFormEvents() {
     renderResults(data, { fromLink: false });
     bindSendButtons(data);
     renderLog(addToLog(data, encoded), encoded);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   });
 }
 
