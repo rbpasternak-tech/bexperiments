@@ -197,7 +197,14 @@ function renderResults(data, { fromLink }) {
 
   document.getElementById('results-title').textContent = fromLink
     ? 'A wife review has arrived'
-    : 'Review submitted';
+    : 'Review complete — one step left';
+
+  const stepBanner = document.getElementById('step-banner');
+  stepBanner.classList.toggle('hidden', fromLink);
+  if (!fromLink) {
+    stepBanner.classList.remove('sent');
+    stepBanner.textContent = 'Not delivered yet — use the send options below to make it official.';
+  }
 
   document.getElementById('score-banner').innerHTML = `
     <div class="score-banner-inner stars-${meta.name}">
@@ -522,16 +529,26 @@ function bindSendButtons(data) {
     ? `Both open a draft addressed to ${RECIPIENT_EMAIL} with the full report written — you just press send.`
     : 'Both open a draft with the full report written — add the address and press send.';
 
-  document.getElementById('copy-link-btn').onclick = () =>
+  document.getElementById('copy-link-btn').onclick = () => {
     copyToClipboard(resultsUrl(data), 'Results link copied. Send it with confidence.');
+    markSent('✓ Link copied — paste it into a text or chat to deliver your review.');
+  };
 
-  document.getElementById('copy-text-btn').onclick = () =>
+  document.getElementById('copy-text-btn').onclick = () => {
     copyToClipboard(buildSummaryText(data), 'Summary copied to clipboard.');
+    markSent('✓ Summary copied — paste it into any message to deliver your review.');
+  };
 
   const status = document.getElementById('copy-status');
   const dateStr = formatDate(data.date);
   const subject = encodeURIComponent(`The Wife Review${dateStr ? ` — ${dateStr}` : ''}`);
   const body = encodeURIComponent(buildSummaryText(data));
+
+  const markSent = (message) => {
+    const stepBanner = document.getElementById('step-banner');
+    stepBanner.classList.add('sent');
+    stepBanner.textContent = message;
+  };
 
   document.getElementById('gmail-btn').onclick = () => {
     const opened = window.open(
@@ -541,6 +558,7 @@ function bindSendButtons(data) {
     status.textContent = opened
       ? 'Gmail is opening in a new tab with the draft — press Send there to deliver it.'
       : 'The browser blocked the Gmail tab — allow pop-ups for this site, or copy the summary text below.';
+    if (opened) markSent('✓ Draft opened in Gmail — press Send there and your review is officially filed.');
   };
 
   document.getElementById('email-btn').onclick = () => {
@@ -550,6 +568,8 @@ function bindSendButtons(data) {
     setTimeout(() => {
       if (document.hasFocus()) {
         status.textContent = 'Nothing opened? This browser has no mail app set up — use Open in Gmail, or copy the summary text below.';
+      } else {
+        markSent('✓ Draft handed to your email app — press Send there and your review is officially filed.');
       }
     }, 1800);
   };

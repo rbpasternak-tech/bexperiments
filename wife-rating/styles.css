@@ -416,6 +416,17 @@ button.chip:hover {
 
 /* Results */
 
+.step-banner {
+  margin: 6px 0 0;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--accent);
+}
+
+.step-banner.sent {
+  color: var(--green);
+}
+
 .score-banner-inner {
   display: flex;
   flex-direction: column;
