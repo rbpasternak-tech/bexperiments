@@ -97,6 +97,40 @@ else:
     else:
         print(f"WARN: {month_rel} missing — the fixed bot creates it on the "
               "first habit write of the month")
+    # Column check: values whose names don't match the table header can't
+    # be recorded, so surface any mismatch against what the bot writes.
+    from agent_tools import HABIT_BOOL_COLS
+    from vault import _find_table_columns
+    habits_dir = vault.root / HABITS_DIR
+    grids = sorted(habits_dir.glob("*.md")) if habits_dir.is_dir() else []
+    if grids:
+        grid = habits_dir / f"{today:%Y-%m}.md"
+        grid = grid if grid.is_file() else grids[-1]
+        columns = _find_table_columns(grid.read_text().splitlines()) or []
+        expected = ["Steps", "Calories", "Weight"] + list(HABIT_BOOL_COLS.values())
+        missing = [c for c in expected if c not in columns]
+        if not columns:
+            print(f"FAIL: {grid.name}: no '| Date' table header found — "
+                  "the bot cannot write rows")
+        elif missing:
+            print(f"WARN: {grid.name} lacks column(s) the bot writes: "
+                  f"{', '.join(missing)} (table has: {', '.join(columns[1:])})")
+        else:
+            print(f"PASS: habit table columns match ({grid.name})")
+    else:
+        print(f"WARN: no habit grid files at all under {HABITS_DIR}/")
+
+from health_export import find_candidate_export_dirs
+configured = cfg.get("health_export_dir") or ""
+candidates = find_candidate_export_dirs()
+if candidates:
+    for cand in candidates:
+        marker = " (= configured)" if configured and \
+            Path(configured).expanduser() == cand else ""
+        print(f"INFO: export-folder candidate: {cand}{marker}")
+elif not configured:
+    print("INFO: no Health Auto Export folders found in the usual iCloud "
+          "spots — has the iPhone automation ever run?")
 
 today = datetime.date.today()
 any_data = False
@@ -113,6 +147,20 @@ if not any_data:
           "(folder, permissions, iCloud download, or the automation "
           "hasn't exported yet)")
 PYEOF
+
+echo
+echo "--- searching iCloud for Health Auto Export files (may take a moment) ---"
+FOUND=$(find "$HOME/Library/Mobile Documents" -maxdepth 5 \
+    -iname "*HealthAutoExport*" 2>/dev/null | head -5)
+if [ -n "$FOUND" ]; then
+    echo "$FOUND" | sed 's/^/found: /'
+    echo "(set health_export_dir in config.yaml to the FOLDER containing these;"
+    echo " names ending in .icloud are not downloaded — open the folder in Finder"
+    echo " or run: brctl download \"<folder>\")"
+else
+    echo "none found — the iPhone automation hasn't exported yet, or it saves"
+    echo "to a folder without 'HealthAutoExport' in the filename."
+fi
 
 echo
 echo "--- last 15 lines of bot.log ---"

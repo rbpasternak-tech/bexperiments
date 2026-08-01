@@ -217,8 +217,18 @@ class Vault:
         merged = _merge_cells(columns, _split_row(lines[row_idx]), values)
         lines[row_idx] = "| " + " | ".join(merged) + " |\n"
         path.write_text("".join(lines))
-        filled = ", ".join(f"{k}={v}" for k, v in values.items() if v != "")
-        return f"Updated {date_str} in {month_file}: {filled}{created_note}"
+        saved = {k: v for k, v in values.items() if v != "" and k in columns}
+        filled = ", ".join(f"{k}={v}" for k, v in saved.items())
+        message = f"Updated {date_str} in {month_file}: {filled}{created_note}"
+        unmatched = [k for k in values if k not in columns]
+        if unmatched:
+            message += (
+                f" WARNING: NOT saved — the table has no column(s) named "
+                f"{', '.join(unmatched)} (its columns are: "
+                f"{', '.join(columns[1:])}). Tell the user about this "
+                "mismatch."
+            )
+        return message
 
     def _create_habit_month(self, month):
         """Create the month's grid file with a blank row for every day.

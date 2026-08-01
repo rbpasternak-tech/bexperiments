@@ -38,7 +38,10 @@ def read_health_metrics(export_dir, date_str):
     placeholders, or simply no data for the date).
     """
     if not export_dir:
-        return {"error": "No health_export_dir configured in config.yaml."}
+        return {
+            "error": "No health_export_dir configured in config.yaml."
+            + _candidates_hint()
+        }
     directory = Path(export_dir).expanduser()
     try:
         os.stat(directory)
@@ -52,7 +55,10 @@ def read_health_metrics(export_dir, date_str):
             )
         }
     except OSError:
-        return {"error": f"Health export folder does not exist: {directory}"}
+        return {
+            "error": f"Health export folder does not exist: {directory}"
+            + _candidates_hint(directory)
+        }
     if not directory.is_dir():
         return {"error": f"Health export path is not a folder: {directory}"}
     try:
@@ -80,6 +86,7 @@ def read_health_metrics(export_dir, date_str):
                 f"No JSON files in {directory} — has the Health Auto "
                 "Export automation run and synced via iCloud yet?"
             )
+            + _candidates_hint(directory)
         }
     return {
         "error": (
@@ -95,6 +102,49 @@ def _mtime(path):
         return path.stat().st_mtime
     except OSError:
         return 0
+
+
+KNOWN_EXPORT_DIRS = (
+    # The app's own iCloud container ("Health Auto Export" in Finder's
+    # iCloud Drive sidebar lives here on disk).
+    "~/Library/Mobile Documents/iCloud~com~HealthExport~HealthAutoExport/Documents",
+)
+CLOUD_DOCS = "~/Library/Mobile Documents/com~apple~CloudDocs"
+
+
+def find_candidate_export_dirs():
+    """Return existing folders on this machine that look like Health Auto
+    Export destinations: the app's iCloud container, plus any folder in
+    iCloud Drive proper whose name mentions health."""
+    found = []
+    for spec in KNOWN_EXPORT_DIRS:
+        path = Path(spec).expanduser()
+        if path.is_dir():
+            found.append(path)
+    cloud = Path(CLOUD_DOCS).expanduser()
+    try:
+        children = list(cloud.iterdir()) if cloud.is_dir() else []
+    except OSError:
+        children = []
+    for child in children:
+        if child.is_dir() and "health" in child.name.lower():
+            found.append(child)
+    return found
+
+
+def _candidates_hint(exclude=None):
+    """Suffix suggesting likely export folders, or '' when none exist."""
+    candidates = [
+        str(p) for p in find_candidate_export_dirs()
+        if exclude is None or p != Path(exclude)
+    ]
+    if not candidates:
+        return ""
+    return (
+        " Possible export folders found on this Mac: "
+        + "; ".join(candidates)
+        + " — set health_export_dir in config.yaml to the right one."
+    )
 
 
 def _metrics_from_file(path, date_str):
