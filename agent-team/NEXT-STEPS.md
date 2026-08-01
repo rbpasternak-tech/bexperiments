@@ -1,5 +1,14 @@
 # Agent Team — Next Steps
 
+Update 2026-08-01: fixed the month-rollover bug that broke habit reporting
+on Aug 1 — nothing created `Tracking/Habits/2026-08.md`, so every
+`record_habits` write failed with "Habit file not found" while the Apple
+Health/MyFitnessPal export itself parsed fine. `upsert_habit_row` now
+creates each new month's grid (columns copied from the previous month) and
+inserts missing date rows. Health-export and vault errors now say exactly
+what's wrong (folder missing vs. macOS/launchd permission denial vs.
+undownloaded iCloud placeholder files) instead of a generic "not found".
+
 Status 2026-07-27 (evening): **LIVE.** The Household Staff Bot
 (t.me/HouseholdStaffBot) is running on Rebecca's Mac with its own BotFather
 token; vault verified; Jeeves added a real task and Gatsby filed a To Try

@@ -18,7 +18,9 @@ When an Obsidian vault is configured (`vault_path` in config.yaml) the team
 also works your second brain: reading notes, capturing links to the reading
 queue, checking off tasks in `Tasks/Master.md`, and filling the monthly
 habit grid — with steps/calories/weight pulled from a Health Auto Export
-folder (`health_export_dir`). Scheduled duties run on the polling loop:
+folder (`health_export_dir`). On the first write of a new month the bot
+creates `Tracking/Habits/YYYY-MM.md` itself, copying the previous month's
+table columns, so the grid rolls over without manual setup. Scheduled duties run on the polling loop:
 Jeeves' 7am task triage, Bartleby's 9pm habit check-in, Gatsby's Sunday
 recap (times configurable under `schedules`).
 

@@ -269,7 +269,8 @@ def main():
         "health_export_dir": config.get("health_export_dir"),
     }
 
-    vault_note = "vault OK" if vault.available() else "vault NOT found (tools degrade)"
+    vault_error = vault.availability_error()
+    vault_note = "vault OK" if not vault_error else f"vault UNAVAILABLE: {vault_error}"
     print(f"Agent team online ({', '.join(personas_cfg['personas'])}); {vault_note}.")
     offset = 0
     while True:
