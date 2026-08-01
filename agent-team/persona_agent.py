@@ -9,7 +9,14 @@ from datetime import datetime
 
 from agent_tools import TOOL_DEFINITIONS, handle_tool_call
 
-MAX_TOOL_ROUNDS = 5
+MAX_TOOL_ROUNDS = 8
+MAX_TOKENS = 2048
+
+WRAP_UP_NOTE = (
+    "(System note: the tool budget for this turn is used up. Reply to the "
+    "user now in plain text — summarize what you did and relay any tool "
+    "errors verbatim so the user knows exactly what failed.)"
+)
 
 SHARED_RULES = """
 Ground rules for every teammate:
@@ -70,10 +77,10 @@ def run_persona_turn(anthropic_client, model, persona_key, personas_cfg, user_te
         persona_key, personas_cfg, ctx["state"].get_history(ctx["chat_id"])
     )
     messages = [{"role": "user", "content": user_text}]
-    for _ in range(MAX_TOOL_ROUNDS):
+    for round_no in range(1, MAX_TOOL_ROUNDS + 1):
         response = anthropic_client.messages.create(
             model=model,
-            max_tokens=1024,
+            max_tokens=MAX_TOKENS,
             system=system_prompt,
             tools=TOOL_DEFINITIONS,
             messages=messages,
@@ -86,9 +93,46 @@ def run_persona_turn(anthropic_client, model, persona_key, personas_cfg, user_te
             if block.type != "tool_use":
                 continue
             result = handle_tool_call(block.name, block.input, ctx)
+            print(
+                f"[tool] {persona_key} round {round_no}: {block.name} -> "
+                f"{str(result)[:200]}",
+                flush=True,
+            )
             tool_results.append(
                 {"type": "tool_result", "tool_use_id": block.id, "content": result}
             )
         messages.append({"role": "user", "content": tool_results})
+    else:
+        # Budget exhausted while the model still wanted tools. Its last
+        # response has no text, so force one final text-only wrap-up
+        # instead of sending the user an empty reply.
+        print(
+            f"[persona_turn] {persona_key}: tool budget exhausted after "
+            f"{MAX_TOOL_ROUNDS} rounds, forcing wrap-up",
+            flush=True,
+        )
+        messages[-1]["content"] = list(messages[-1]["content"]) + [
+            {"type": "text", "text": WRAP_UP_NOTE}
+        ]
+        response = anthropic_client.messages.create(
+            model=model,
+            max_tokens=MAX_TOKENS,
+            system=system_prompt,
+            tools=TOOL_DEFINITIONS,
+            tool_choice={"type": "none"},
+            messages=messages,
+        )
     text_parts = [block.text for block in response.content if block.type == "text"]
-    return "\n".join(text_parts).strip() or "…"
+    reply = "\n".join(text_parts).strip()
+    if not reply:
+        print(
+            f"[persona_turn] {persona_key}: empty reply "
+            f"(stop_reason={response.stop_reason})",
+            flush=True,
+        )
+        reply = (
+            "(I came back without a reply — the turn ended with "
+            f"stop_reason '{response.stop_reason}'. Details are in "
+            ".claude/telegram-state/bot.log.)"
+        )
+    return reply
