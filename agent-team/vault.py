@@ -7,6 +7,8 @@ in Tasks/Master.md — daily notes and review sections belong to the Cowork
 scheduled tasks.
 """
 
+import calendar
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -25,7 +27,35 @@ class Vault:
 
     def available(self):
         """Return True when the vault folder exists on this machine."""
-        return bool(self.root) and self.root.is_dir()
+        return self.availability_error() is None
+
+    def availability_error(self):
+        """Return None when the vault is usable, else the specific reason.
+
+        Distinguishes 'not configured', 'folder missing', and 'macOS denied
+        access' — the last one is what a launchd-run bot sees for iCloud
+        folders (~/Library/Mobile Documents) without Full Disk Access.
+        """
+        if not self.root:
+            return "no vault_path configured in config.yaml"
+        try:
+            os.stat(self.root)
+        except PermissionError:
+            return (
+                f"macOS denied access to {self.root} — if the bot runs "
+                "under launchd, grant Full Disk Access to its Python binary "
+                "(System Settings > Privacy & Security), or run it from "
+                "Terminal"
+            )
+        except OSError:
+            return f"vault folder does not exist: {self.root}"
+        if not self.root.is_dir():
+            return f"vault path is not a folder: {self.root}"
+        return None
+
+    def _unavailable_message(self):
+        """Return the user-facing string for a failed availability check."""
+        return f"Vault not available: {self.availability_error()}."
 
     def _resolve(self, relative):
         """Resolve a vault-relative path, refusing anything outside the root."""
@@ -37,7 +67,7 @@ class Vault:
     def read_note(self, relative, max_chars=8000):
         """Return a note's text (truncated), or an explanatory message."""
         if not self.available():
-            return "Vault not available on this machine."
+            return self._unavailable_message()
         path = self._resolve(relative)
         if not path.is_file():
             return f"Note not found: {relative}"
@@ -68,7 +98,7 @@ class Vault:
         rewrites existing content. Creates the section (and the note) if
         missing. Returns a status message."""
         if not self.available():
-            return "Vault not available on this machine."
+            return self._unavailable_message()
         if not relative.endswith(".md"):
             return "Can only append to .md notes."
         path = self._resolve(relative)
@@ -104,7 +134,7 @@ class Vault:
     def append_reading_item(self, url, title, source="telegram"):
         """Add a capture to the queue's Inbox section, deduped by URL."""
         if not self.available():
-            return "Vault not available on this machine."
+            return self._unavailable_message()
         path = self._resolve(READING_QUEUE)
         if not path.is_file():
             return f"{READING_QUEUE} not found in vault."
@@ -161,27 +191,77 @@ class Vault:
 
         values maps column names (as in the table header) to cell strings.
         Existing non-empty cells are only overwritten when a new value is
-        provided. Returns a status message.
+        provided. A missing month file is created from the previous month's
+        table format, and a missing date row is inserted in date order.
+        Returns a status message.
         """
         if not self.available():
-            return "Vault not available on this machine."
-        month_file = f"{HABITS_DIR}/{date_str[:7]}.md"
+            return self._unavailable_message()
+        month = date_str[:7]
+        month_file = f"{HABITS_DIR}/{month}.md"
         path = self._resolve(month_file)
+        created_note = ""
         if not path.is_file():
-            return f"Habit file not found: {month_file}"
+            if not self._create_habit_month(month):
+                return (
+                    f"Habit file not found: {month_file}, and no earlier "
+                    f"month file exists in {HABITS_DIR}/ to copy the table "
+                    "format from."
+                )
+            created_note = f" (created {month_file} for the new month)"
         lines = path.read_text().splitlines(keepends=True)
         columns = _find_table_columns(lines)
         if not columns:
             return f"No habit table header found in {month_file}."
-        for i, line in enumerate(lines):
-            if line.strip().startswith(f"| {date_str}"):
-                cells = _split_row(line)
-                merged = _merge_cells(columns, cells, values)
-                lines[i] = "| " + " | ".join(merged) + " |\n"
-                path.write_text("".join(lines))
-                filled = ", ".join(f"{k}={v}" for k, v in values.items() if v != "")
-                return f"Updated {date_str} in {month_file}: {filled}"
-        return f"No row for {date_str} in {month_file} (add the date row first)."
+        row_idx = _find_or_insert_row(lines, columns, date_str)
+        merged = _merge_cells(columns, _split_row(lines[row_idx]), values)
+        lines[row_idx] = "| " + " | ".join(merged) + " |\n"
+        path.write_text("".join(lines))
+        filled = ", ".join(f"{k}={v}" for k, v in values.items() if v != "")
+        return f"Updated {date_str} in {month_file}: {filled}{created_note}"
+
+    def _create_habit_month(self, month):
+        """Create the month's grid file with a blank row for every day.
+
+        The table header and separator are copied from the newest earlier
+        month file so custom columns carry over. Returns True on success,
+        False when no earlier month grid exists to copy from.
+        """
+        habits_dir = self._resolve(HABITS_DIR)
+        if not habits_dir.is_dir():
+            return False
+        earlier = sorted(
+            p for p in habits_dir.glob("*.md")
+            if re.fullmatch(r"\d{4}-\d{2}", p.stem) and p.stem < month
+        )
+        if not earlier:
+            return False
+        prev = earlier[-1]
+        prev_lines = prev.read_text().splitlines()
+        header = separator = None
+        for i, line in enumerate(prev_lines):
+            if line.strip().startswith("| Date"):
+                header = line.rstrip("\n")
+                if i + 1 < len(prev_lines) and set(prev_lines[i + 1].strip()) <= set("|-: "):
+                    separator = prev_lines[i + 1].rstrip("\n")
+                break
+        if not header:
+            return False
+        columns = _split_row(header)
+        if not separator:
+            separator = "| " + " | ".join(["---"] * len(columns)) + " |"
+        year, mon = (int(x) for x in month.split("-"))
+        days = calendar.monthrange(year, mon)[1]
+        rows = "".join(
+            "| " + " | ".join([f"{month}-{day:02d}"] + [""] * (len(columns) - 1)) + " |\n"
+            for day in range(1, days + 1)
+        )
+        title = f"# {month}"
+        if prev_lines and prev_lines[0].startswith("#"):
+            title = prev_lines[0].replace(prev.stem, month)
+        path = self._resolve(f"{HABITS_DIR}/{month}.md")
+        path.write_text(f"{title}\n\n{header}\n{separator}\n{rows}")
+        return True
 
 
 def _insert_in_section(text, heading_pattern, block):
@@ -200,6 +280,31 @@ def _insert_in_section(text, heading_pattern, block):
     else:
         lines.append(f"\n## Inbox (raw drops)\n\n{block}")
     return "".join(lines)
+
+
+def _find_or_insert_row(lines, columns, date_str):
+    """Return the index of date_str's row, inserting a blank one if missing.
+
+    A missing row goes in date order among the existing date rows, or right
+    after the header separator when the table has no rows yet. Mutates lines.
+    """
+    insert_at = None
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if insert_at is None:
+            if stripped.startswith("| Date"):
+                insert_at = i + 2
+            continue
+        match = re.match(r"\|\s*(\d{4}-\d{2}-\d{2})", stripped)
+        if not match:
+            continue
+        if match.group(1) == date_str:
+            return i
+        if match.group(1) < date_str:
+            insert_at = i + 1
+    row = "| " + " | ".join([date_str] + [""] * (len(columns) - 1)) + " |\n"
+    lines.insert(insert_at, row)
+    return min(insert_at, len(lines) - 1)
 
 
 def _find_table_columns(lines):

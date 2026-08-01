@@ -8,6 +8,7 @@ MyFitnessPal nutrition arrives via its Apple Health sync as dietary_energy.
 """
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -31,20 +32,69 @@ def read_health_metrics(export_dir, date_str):
 
     Scans JSON files in export_dir newest-first and uses the first file that
     contains data for the date. Steps/calories are summed across entries;
-    weight takes the last reading. Missing values are None.
+    weight takes the last reading. Missing values are None. On failure the
+    dict carries an "error" key that says exactly what went wrong (folder
+    unconfigured/missing, macOS permission denial, undownloaded iCloud
+    placeholders, or simply no data for the date).
     """
-    directory = Path(export_dir).expanduser() if export_dir else None
-    if not directory or not directory.is_dir():
-        return {"error": "Health export folder not configured or not found."}
-    files = sorted(
-        directory.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True
-    )
+    if not export_dir:
+        return {"error": "No health_export_dir configured in config.yaml."}
+    directory = Path(export_dir).expanduser()
+    try:
+        os.stat(directory)
+    except PermissionError:
+        return {
+            "error": (
+                f"macOS denied access to {directory} — if the bot runs "
+                "under launchd, grant Full Disk Access to its Python binary "
+                "(System Settings > Privacy & Security), or run it from "
+                "Terminal."
+            )
+        }
+    except OSError:
+        return {"error": f"Health export folder does not exist: {directory}"}
+    if not directory.is_dir():
+        return {"error": f"Health export path is not a folder: {directory}"}
+    try:
+        files = sorted(directory.rglob("*.json"), key=_mtime, reverse=True)
+        placeholders = len(list(directory.rglob("*.icloud")))
+    except OSError as exc:
+        return {"error": f"Could not scan {directory}: {exc}"}
     for path in files:
         result = _metrics_from_file(path, date_str)
         if result:
             result["source_file"] = path.name
             return result
-    return {"error": f"No health export data found for {date_str}."}
+    if placeholders:
+        return {
+            "error": (
+                f"No data for {date_str}; {placeholders} export file(s) in "
+                f"{directory} are iCloud placeholders not downloaded to "
+                "this Mac. Open the folder in Finder or run: "
+                f"brctl download '{directory}'"
+            )
+        }
+    if not files:
+        return {
+            "error": (
+                f"No JSON files in {directory} — has the Health Auto "
+                "Export automation run and synced via iCloud yet?"
+            )
+        }
+    return {
+        "error": (
+            f"No health export data found for {date_str} in "
+            f"{len(files)} file(s) (newest: {files[0].name})."
+        )
+    }
+
+
+def _mtime(path):
+    """Return a file's mtime, or 0 when it vanishes mid-scan (iCloud)."""
+    try:
+        return path.stat().st_mtime
+    except OSError:
+        return 0
 
 
 def _metrics_from_file(path, date_str):
@@ -53,7 +103,11 @@ def _metrics_from_file(path, date_str):
         payload = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError):
         return None
-    metrics = (payload.get("data") or {}).get("metrics") or []
+    if not isinstance(payload, dict):
+        return None
+    data = payload.get("data")
+    metrics = data.get("metrics") if isinstance(data, dict) else None
+    metrics = metrics or []
     found = {}
     for metric in metrics:
         key = METRIC_MAP.get(_normalize(metric.get("name")))

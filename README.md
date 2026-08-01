@@ -27,6 +27,11 @@ A browser-based bulk document editor. Upload hundreds of `.docx` and `.pdf` file
 
 A Telegram bot hosting a team of Claude-powered personas — a classic literature cast — that help run your life. Jeeves plans, Elizabeth Bennet keeps you accountable, Gatsby handles celebration, Bartleby delivers deadpan nudges. A router picks who answers (or address them by name), personas share one conversation, and they can set timed reminders and pull topics from the newsletter digest data. Python, long-polling, no framework.
 
+### The Wife Review
+[`wife-rating/`](wife-rating/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/wife-rating/)
+
+A tongue-in-cheek wife feedback portal (a joke, but not really). Rate performance across nine marriage categories — emotional availability, listening skills, patience & grace, and more — on a color-coded star scale (1★ blue → 5★ gold), check off highlight chips, answer the big question, and leave written comments. Built for daily filing: each review is dated, and opened results accumulate into a local review log with a Chart.js trend line of scores over time and CSV export. No backend: results are base64-encoded into a shareable link, with email and copy-to-clipboard delivery options. Drafts persist via localStorage.
+
 ### Legal Doc Catalog
 [`legal-doc-catalog/`](legal-doc-catalog/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/legal-doc-catalog/)
 

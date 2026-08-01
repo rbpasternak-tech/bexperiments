@@ -70,14 +70,29 @@ class TelegramClient:
         self.base_url = f"{API_BASE}/bot{token}"
 
     def _call(self, method, params, http_timeout=40):
-        """POST a Bot API method and return its "result" payload."""
+        """POST a Bot API method and return its "result" payload.
+
+        Raises RuntimeError with Telegram's error description (never the
+        token-bearing URL, so logs stay safe to share). A 409 gets an
+        explicit hint: it means another process is polling this token.
+        """
         response = requests.post(
             f"{self.base_url}/{method}", json=params, timeout=http_timeout
         )
-        response.raise_for_status()
-        payload = response.json()
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {}
         if not payload.get("ok"):
-            raise RuntimeError(f"Telegram API error from {method}: {payload}")
+            description = payload.get("description") or f"HTTP {response.status_code}"
+            hint = ""
+            if response.status_code == 409:
+                hint = (
+                    " — another process is polling this bot token (only one "
+                    "may run); use agent-team/doctor.sh to find it and "
+                    "./install-launchd.sh to restart cleanly"
+                )
+            raise RuntimeError(f"Telegram API error from {method}: {description}{hint}")
         return payload["result"]
 
     def get_updates(self, offset, poll_timeout=25):

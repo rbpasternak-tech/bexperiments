@@ -13,6 +13,7 @@ This is a monorepo — all projects share one git repo. New projects go in new s
 - **trends-dashboard/** — Static JS dashboard visualizing digest data with Chart.js. Entry: `trends-dashboard/index.html`
 - **doc-find-replace/** — Browser-based document find-and-replace tool for .docx and .pdf files. Vanilla JS, IndexedDB persistence. Includes `txt_to_docx.py` helper for batch-converting test files. Entry: `doc-find-replace/index.html`
 - **legal-doc-catalog/** — Vanilla JS app backed by Supabase for cataloging legal documents with full-text search. Python seed script for importing .docx files. Entry: `legal-doc-catalog/index.html`
+- **wife-rating/** — Vanilla JS "wife performance review" feedback app (a joke, but not really). Color-coded star ratings across marriage categories, highlight chips, comments, dated daily reviews; results are base64-encoded into a shareable link (no backend). Receiver side keeps a localStorage review log with a Chart.js trend chart and CSV export. Entry: `wife-rating/index.html`
 - **telegram_bot.py** — Standalone Telegram bot script
 - **agent-team/** — Telegram bot hosting a team of Claude-powered personas (classic literature cast: Jeeves, Elizabeth Bennet, Gatsby, Bartleby) that plan, nudge, set reminders, and read the digest data. Entry: `agent-team/main.py`
 

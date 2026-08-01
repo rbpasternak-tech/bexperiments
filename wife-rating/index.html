@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Wife Review — Official Feedback Portal</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💍</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div class="header-badge">CONFIDENTIAL &middot; FOR KEVIN'S EYES ONLY</div>
+      <h1>The Wife Review&trade;</h1>
+      <p class="tagline">Kevin's official wife feedback portal. Your opinion matters. Choose wisely.</p>
+    </header>
+
+    <section class="legend card" aria-label="Star rating color guide">
+      <h2>How the star scale works</h2>
+      <ul class="legend-list" id="legend-list"></ul>
+    </section>
+
+    <!-- Feedback form (hidden when viewing submitted results) -->
+    <form id="review-form" class="hidden" novalidate>
+      <section class="card date-card">
+        <label class="field date-field">
+          <span class="field-label">Review date</span>
+          <input type="date" id="review-date">
+        </label>
+        <p class="section-note">Filing daily? Excellent. The committee rewards consistency.</p>
+      </section>
+
+      <section class="card">
+        <h2>Part 1 &middot; Performance categories</h2>
+        <p class="section-note">Rate each category from 1 to 5 stars. Stars change color with your verdict.</p>
+        <div id="categories"></div>
+      </section>
+
+      <section class="card">
+        <h2>Part 2 &middot; Highlights reel</h2>
+        <p class="section-note">Check everything that applied recently. Multiple selections encouraged.</p>
+        <div class="chips" id="chips"></div>
+      </section>
+
+      <section class="card">
+        <h2>Part 3 &middot; The big question</h2>
+        <p class="section-note">Would you marry her again?</p>
+        <div class="again-options" id="again-options"></div>
+      </section>
+
+      <section class="card">
+        <h2>Part 4 &middot; Written feedback</h2>
+        <label class="field">
+          <span class="field-label">One thing to definitely keep doing</span>
+          <input type="text" id="keep-doing" maxlength="200" placeholder="e.g., the surprise snacks">
+        </label>
+        <label class="field">
+          <span class="field-label">One (very gentle) suggestion</span>
+          <input type="text" id="suggestion" maxlength="200" placeholder="Tread carefully.">
+        </label>
+        <label class="field">
+          <span class="field-label">Additional comments</span>
+          <textarea id="comments" rows="4" maxlength="1000" placeholder="Free space. Compliments perform well here."></textarea>
+        </label>
+      </section>
+
+      <div class="submit-row">
+        <button type="submit" class="btn btn-primary" id="submit-btn">Finish review &rarr;</button>
+        <p class="submit-hint" id="submit-hint"></p>
+        <p class="submit-hint">Next step: sending it. Nothing is delivered yet.</p>
+      </div>
+    </form>
+
+    <!-- Post-submit / shared-link results view -->
+    <section id="results" class="hidden">
+      <div class="card results-card">
+        <h2 id="results-title">Review complete</h2>
+        <p class="step-banner hidden" id="step-banner"></p>
+        <div class="score-banner" id="score-banner"></div>
+      </div>
+      <div class="card" id="send-card">
+        <h2>Final step &middot; Send it</h2>
+        <p class="section-note">Finishing the form didn't send anything &mdash; your review is delivered only when you use one of these:</p>
+        <div class="send-options">
+          <div class="send-option">
+            <div class="send-btn-row">
+              <button type="button" class="btn btn-primary" id="gmail-btn">&#9993; Open in Gmail</button>
+              <button type="button" class="btn" id="email-btn">Use my email app</button>
+            </div>
+            <p id="email-caption"></p>
+          </div>
+          <div class="send-option">
+            <button type="button" class="btn" id="copy-link-btn">&#128279; Copy results link</button>
+            <p>Copies a link to this exact report &mdash; paste it into a text or chat instead.</p>
+          </div>
+          <div class="send-option">
+            <button type="button" class="btn" id="copy-text-btn">&#128203; Copy summary text</button>
+            <p>Plain-text version of the report, for pasting anywhere.</p>
+          </div>
+        </div>
+        <p class="copy-status" id="copy-status" role="status"></p>
+      </div>
+      <div class="card">
+        <h2>The full report</h2>
+        <div id="results-body"></div>
+      </div>
+      <div class="card hidden" id="log-card">
+        <h2>Review log</h2>
+        <p class="section-note">Every review opened on this device, newest first.</p>
+        <div class="trend-wrap">
+          <canvas id="trend-chart" role="img" aria-label="Average wife rating over time"></canvas>
+        </div>
+        <ol class="log-list" id="log-list"></ol>
+        <div class="log-actions">
+          <button type="button" class="btn" id="export-csv-btn">&#8595; Download CSV of all reviews</button>
+          <p class="copy-status" id="csv-status" role="status"></p>
+          <p class="log-note">The log lives only in this browser. The CSV saves to this device's downloads &mdash; nothing is stored online.</p>
+        </div>
+      </div>
+      <div class="results-actions">
+        <button type="button" class="btn btn-ghost" id="new-review-btn">Start a fresh review</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Results are transmitted by link &mdash; nothing is stored on any server. Marriage not legally affected by star count.</p>
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -30,17 +30,22 @@ PROJECT_DIR = Path(__file__).resolve().parent
 SCHEDULED_DUTIES = {
     "morning_triage": (
         "jeeves",
-        "It is the scheduled morning triage. Call get_open_tasks and "
-        "list_reminders. Present a brief numbered agenda for the day: open "
-        "tasks first (note anything that looks long-stale), then today's "
-        "reminders. If both are empty, say so in one line. Then close with "
-        "one inviting question: anything new to capture — tasks, ideas, "
-        "things to do, see, watch, or try (movies, restaurants, books, "
-        "outings)? When the user answers, file every item: tasks as "
-        "'- [ ] ...' in Tasks/Master.md, to-try items into the matching To "
-        "Try list, ideas into today's daily note (Thinking about or Quick "
-        "capture), links via capture_reading. The user can also reply "
-        "'done <n>' or ask you to snooze/cancel items.",
+        "It is the scheduled morning triage; deliver it in three parts. "
+        "PART 1 — What's new since yesterday: read yesterday's and today's "
+        "daily notes, the dated subsections of Reading/queue.md, any Inbox "
+        "section of Tasks/Master.md, and yesterday's row in this month's "
+        "habit file. Summarize the genuinely new items in a few bullets "
+        "(reading captures by title, new tasks, habit row filled or not); "
+        "skip the section entirely if nothing is new. "
+        "PART 2 — The agenda: call get_open_tasks and list_reminders and "
+        "present a brief numbered agenda (flag long-stale tasks). "
+        "PART 3 — Close with one inviting question: anything new to "
+        "capture — tasks, ideas, things to do, see, watch, or try? When "
+        "the user answers, file every item (tasks to Tasks/Master.md, "
+        "to-try items to the To Try lists, ideas to today's daily note, "
+        "links via capture_reading) — EXCEPT new projects: never create a "
+        "project yourself; confirm its name and intended home first. The "
+        "user can also reply 'done <n>' or snooze/cancel items.",
     ),
     "midday_pulse": (
         "lizzy",
@@ -68,15 +73,19 @@ SCHEDULED_DUTIES = {
     "habit_checkin": (
         "bartleby",
         "It is the scheduled nightly habit check-in. First call "
-        "read_health_export for today. Then ask the user, in one dry line, "
-        "for today's manual habits: rings, floss, vibe plate, red light, "
-        "leg roller, read (audio), read (physical), and weight if measured. "
-        "Mention any numbers the export already gave you. When they answer, "
-        "you will record everything with record_habits. After that, ask one "
-        "flat follow-up: anything for today's note — worked on, people, "
+        "read_health_export for today; if it has no data, call it for "
+        "yesterday (the export app finalizes a day one day late). Record "
+        "exported numbers with record_habits AGAINST THE DATE THEY BELONG "
+        "TO — yesterday's steps/calories/weight go in yesterday's row, "
+        "never today's. Then ask the user, in one dry line, for today's "
+        "manual habits: rings, floss, vibe plate, red light, leg roller, "
+        "read (audio), read (physical), and weight if measured. Note which "
+        "day's numbers you already filed. When they answer, record their "
+        "answers with record_habits for today. After that, ask one flat "
+        "follow-up: anything for today's note — worked on, people, "
         "thinking about. If they offer something, file each item into the "
-        "matching section of today's daily note via append_to_note; if they "
-        "decline, drop it without comment.",
+        "matching section of today's daily note via append_to_note; if "
+        "they decline, drop it without comment.",
     ),
     "weekly_recap": (
         "gatsby",
@@ -260,7 +269,8 @@ def main():
         "health_export_dir": config.get("health_export_dir"),
     }
 
-    vault_note = "vault OK" if vault.available() else "vault NOT found (tools degrade)"
+    vault_error = vault.availability_error()
+    vault_note = "vault OK" if not vault_error else f"vault UNAVAILABLE: {vault_error}"
     print(f"Agent team online ({', '.join(personas_cfg['personas'])}); {vault_note}.")
     offset = 0
     while True:

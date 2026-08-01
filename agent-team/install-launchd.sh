@@ -26,9 +26,15 @@ fi
 mkdir -p "$LOG_DIR" "$HOME/Library/LaunchAgents"
 
 # Only one process may poll the bot token: stop a previous launchd job and
-# best-effort kill a manually started main.py.
+# kill any main.py whose working directory is this project (catches manual
+# runs with any python, without touching other projects' main.py).
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
-pkill -f "[.]venv/bin/python main.py" 2>/dev/null || true
+for pid in $(pgrep -f "python[^ ]* main\.py" 2>/dev/null || true); do
+    cwd=$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p')
+    if [ "$cwd" = "$PROJECT_DIR" ]; then
+        kill "$pid" 2>/dev/null || true
+    fi
+done
 sleep 1
 
 cat > "$PLIST" <<PLIST
