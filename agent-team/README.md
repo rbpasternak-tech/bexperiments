@@ -50,6 +50,15 @@ belong to their own scheduled tasks — the bot never rewrites content.
 6. Run `python main.py`, message your bot `/whoami`, and add the printed chat
    id to `allowed_chat_ids` in `config.yaml`. Restart.
 
+## Troubleshooting
+
+Run `./doctor.sh` in this folder. It checks the checked-out code version,
+that exactly one bot process is polling (two causes Telegram 409 and a
+silent bot), the launchd job, config paths, a live health-export parse for
+today and yesterday, the month's habit grid, and tails `bot.log` — each as
+a PASS/WARN/FAIL line. Remember: `git pull` does not restart the bot;
+re-run `./install-launchd.sh` after updating.
+
 ## Usage
 
 - `/team` — roster
