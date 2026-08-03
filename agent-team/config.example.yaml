@@ -32,6 +32,15 @@ vault_path: ""
 # "~/Library/Mobile Documents/iCloud~com~HealthExport~HealthAutoExport/Documents"
 health_export_dir: ""
 
+# Apple Watch ring goals, used to auto-fill the Rings habit column from the
+# export. Needs the automation to also export Active Energy, Exercise Time,
+# and Stand Hours. Set move_kcal to YOUR Move goal (Fitness app shows it).
+# Delete this block to keep answering the rings question manually.
+ring_goals:
+  move_kcal: 500
+  exercise_min: 30
+  stand_hours: 12
+
 # Recurring duties, local time. "HH:MM" daily, "ddd HH:MM" weekly.
 # Delete a line to disable that duty.
 schedules:

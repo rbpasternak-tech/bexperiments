@@ -75,13 +75,17 @@ SCHEDULED_DUTIES = {
         "It is the scheduled nightly habit check-in. First call "
         "read_health_export for today; if it has no data, call it for "
         "yesterday (the export app finalizes a day one day late). Record "
-        "exported numbers with record_habits AGAINST THE DATE THEY BELONG "
-        "TO — yesterday's steps/calories/weight go in yesterday's row, "
-        "never today's. Then ask the user, in one dry line, for today's "
-        "manual habits: rings, floss, vibe plate, red light, leg roller, "
-        "read (audio), read (physical), and weight if measured. Note which "
-        "day's numbers you already filed. When they answer, record their "
-        "answers with record_habits for today. After that, ask one flat "
+        "EVERYTHING the export gave you with record_habits AGAINST THE "
+        "DATE IT BELONGS TO — steps, calories, weight, and the rings "
+        "yes/no verdict when present; yesterday's numbers go in "
+        "yesterday's row, never today's. Then ask the user, in one dry "
+        "line, ONLY for the habits the export did not cover: floss, vibe "
+        "plate, red light, leg roller, read (audio), read (physical) — "
+        "plus rings only if the export had no rings verdict, and weight "
+        "only if it had no weight. Note which day's numbers you already "
+        "filed. When they answer, record their answers with record_habits "
+        "for today (their word beats the export if they correct a rings "
+        "call). After that, ask one flat "
         "follow-up: anything for today's note — worked on, people, "
         "thinking about. If they offer something, file each item into the "
         "matching section of today's daily note via append_to_note; if "
@@ -267,6 +271,7 @@ def main():
         "state": state,
         "vault": vault,
         "health_export_dir": config.get("health_export_dir"),
+        "ring_goals": config.get("ring_goals"),
     }
 
     vault_error = vault.availability_error()

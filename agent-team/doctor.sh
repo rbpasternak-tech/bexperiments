@@ -120,7 +120,7 @@ else:
     else:
         print(f"WARN: no habit grid files at all under {HABITS_DIR}/")
 
-from health_export import find_candidate_export_dirs
+from health_export import find_candidate_export_dirs, rings_closed
 configured = cfg.get("health_export_dir") or ""
 candidates = find_candidate_export_dirs()
 if candidates:
@@ -139,6 +139,13 @@ for label, day in (("today", today),
     result = read_health_metrics(cfg.get("health_export_dir"), day.isoformat())
     ok = "error" not in result
     any_data = any_data or ok
+    if ok:
+        rings = rings_closed(result, cfg.get("ring_goals"))
+        if rings:
+            result["rings"] = rings
+        elif cfg.get("ring_goals"):
+            result["rings"] = ("(unknown — automation must export Active "
+                               "Energy, Exercise Time, Stand Hours)")
     status = "PASS" if ok else ("WARN" if any_data else "FAIL")
     print(f"{status}: health export, {label} ({day}): "
           f"{json.dumps(result, ensure_ascii=False)}")

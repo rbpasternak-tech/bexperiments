@@ -19,6 +19,16 @@ METRIC_MAP = {
     "weight_body_mass": "weight",
     "weight_and_body_mass": "weight",
     "body_mass": "weight",
+    # Apple Watch ring ingredients (enable Active Energy, Exercise Time,
+    # and Stand Hours in the Health Auto Export automation's metrics).
+    "active_energy": "active_energy",
+    "active_energy_burned": "active_energy",
+    "apple_exercise_time": "exercise_minutes",
+    "exercise_time": "exercise_minutes",
+    "exercise_minutes": "exercise_minutes",
+    "apple_stand_hour": "stand_hours",
+    "apple_stand_hours": "stand_hours",
+    "stand_hours": "stand_hours",
 }
 
 
@@ -27,11 +37,38 @@ def _normalize(name):
     return re.sub(r"[^a-z0-9]+", "_", str(name).lower()).strip("_")
 
 
+def rings_closed(metrics, goals):
+    """Judge ring closure from exported metrics against configured goals.
+
+    goals is config.yaml's ring_goals: {move_kcal, exercise_min,
+    stand_hours}. Returns "yes" when all three ring metrics meet their
+    goals, "no" when any falls short, and None when goals aren't
+    configured or a needed metric/goal is missing (unknown, don't guess).
+    """
+    if not goals:
+        return None
+    needed = (
+        ("active_energy", "move_kcal"),
+        ("exercise_minutes", "exercise_min"),
+        ("stand_hours", "stand_hours"),
+    )
+    verdict = "yes"
+    for metric_key, goal_key in needed:
+        value, goal = metrics.get(metric_key), goals.get(goal_key)
+        if value is None or not goal:
+            return None
+        if value < goal:
+            verdict = "no"
+    return verdict
+
+
 def read_health_metrics(export_dir, date_str):
-    """Return {"steps", "calories", "weight"} for a YYYY-MM-DD date.
+    """Return the day's metrics ({"steps", "calories", "weight", plus
+    "active_energy"/"exercise_minutes"/"stand_hours" when the automation
+    exports them) for a YYYY-MM-DD date.
 
     Scans JSON files in export_dir newest-first and uses the first file that
-    contains data for the date. Steps/calories are summed across entries;
+    contains data for the date. Counts are summed across entries;
     weight takes the last reading. Missing values are None. On failure the
     dict carries an "error" key that says exactly what went wrong (folder
     unconfigured/missing, macOS permission denial, undownloaded iCloud
