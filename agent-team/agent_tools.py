@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from health_export import read_health_metrics
+from health_export import read_health_metrics, rings_closed
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DIGEST_DATA_DIR = REPO_ROOT / "trends-dashboard" / "data"
@@ -181,7 +181,9 @@ TOOL_DEFINITIONS = [
         "name": "read_health_export",
         "description": (
             "Read the day's Apple Health numbers (steps, calories via "
-            "MyFitnessPal sync, weight) from the Health Auto Export folder."
+            "MyFitnessPal sync, weight, and — when the automation exports "
+            "the Activity metrics — a computed 'rings' yes/no verdict) "
+            "from the Health Auto Export folder."
         ),
         "input_schema": {
             "type": "object",
@@ -324,9 +326,12 @@ def handle_tool_call(name, tool_input, ctx):
         )
     if name == "read_health_export":
         date_str = tool_input.get("date") or datetime.now().strftime("%Y-%m-%d")
-        return json.dumps(
-            read_health_metrics(ctx["health_export_dir"], date_str), ensure_ascii=False
-        )
+        result = read_health_metrics(ctx["health_export_dir"], date_str)
+        if "error" not in result:
+            rings = rings_closed(result, ctx.get("ring_goals"))
+            if rings:
+                result["rings"] = rings
+        return json.dumps(result, ensure_ascii=False)
     if name == "record_habits":
         return _record_habits(tool_input, vault)
     return f"Unknown tool: {name}"
