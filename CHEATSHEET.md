@@ -149,6 +149,10 @@ When you've done a workflow once and want it on tap forever, tell the tool:
 - **Codex:** same idea — its skills live in `~/.codex/skills/` and are
   invoked by name too.
 - Good candidates: anything you've now explained to the agent twice.
+- **Record a Skill (desktop app only):** in a Cowork task, click the **+**
+  menu → **Record a Skill**. Screen-record yourself doing the workflow while
+  narrating the important choices, and Claude turns it into a skill —
+  no typing out steps. ~10 min limit; needs Pro/Max/Team.
 
 ## Cloning a repo (copying a project from GitHub)
 
