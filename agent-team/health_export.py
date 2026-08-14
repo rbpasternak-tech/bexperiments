@@ -1,15 +1,27 @@
-"""Parses Health Auto Export JSON files (Apple Health -> iCloud folder).
+"""Parses Health Auto Export data (Apple Health -> iCloud folder).
 
-The iPhone app exports files shaped like:
-    {"data": {"metrics": [{"name": "step_count", "units": "count",
-                           "data": [{"date": "2026-07-26 00:00:00 -0400",
-                                     "qty": 12253.0}, ...]}, ...]}}
+Two sources are read, in order of trust for a given date:
+
+  * AutoSync .hae files (LZFSE-compressed JSON, one file per metric per
+    day under AutoSync/HealthMetrics/). The app pushes these
+    automatically overnight, no need to open it — a finished day
+    usually lands the following morning.
+  * Daily JSON exports from the app's file automations, shaped like:
+        {"data": {"metrics": [{"name": "step_count", "units": "count",
+                               "data": [{"date": "2026-07-26 00:00:00 -0400",
+                                         "qty": 12253.0}, ...]}, ...]}}
+    These only appear when the app is opened on the phone.
+
 MyFitnessPal nutrition arrives via its Apple Health sync as dietary_energy.
 """
 
 import json
 import os
 import re
+import subprocess
+import tempfile
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
 
 METRIC_MAP = {
@@ -30,6 +42,16 @@ METRIC_MAP = {
     "apple_stand_hours": "stand_hours",
     "stand_hours": "stand_hours",
 }
+
+# Metrics AutoSync records twice per sample (kJ and kcal duplicates).
+ENERGY_KEYS = {"calories", "active_energy"}
+KCAL_PER_KJ = 1 / 4.184
+
+# AutoSync records each weigh-in three times, once per unit (kg/lb/st).
+# The habit grid and the daily JSON exports both use pounds, so pounds is
+# the canonical unit; the factors convert the other two back to it.
+WEIGHT_UNIT_TO_LB = {"lb": 1.0, "kg": 2.2046226218, "st": 14.0}
+COMPRESSION_TOOL = "/usr/bin/compression_tool"
 
 
 def _normalize(name):
@@ -67,13 +89,30 @@ def read_health_metrics(export_dir, date_str):
     "active_energy"/"exercise_minutes"/"stand_hours" when the automation
     exports them) for a YYYY-MM-DD date.
 
-    Scans JSON files in export_dir newest-first and uses the first file that
-    contains data for the date. Counts are summed across entries;
-    weight takes the last reading. Missing values are None. On failure the
-    dict carries an "error" key that says exactly what went wrong (folder
+    Prefers complete-day AutoSync data (pushed by the phone
+    automatically overnight), then the daily JSON exports in export_dir
+    (newest file first), then partial AutoSync data flagged with
+    "partial"/"note". Counts are summed across entries; weight takes
+    the last reading. Missing values are None. On failure the dict
+    carries an "error" key that says exactly what went wrong (folder
     unconfigured/missing, macOS permission denial, undownloaded iCloud
     placeholders, or simply no data for the date).
     """
+    # iCloud can expose a new filename before its contents are readable on
+    # this Mac.  A short retry prevents the nightly check-in from treating
+    # that normal synchronization window as a missing export.
+    result = _read_health_metrics_once(export_dir, date_str)
+    if "error" not in result or not _may_be_syncing(result):
+        return result
+    time.sleep(5)
+    retry = _read_health_metrics_once(export_dir, date_str)
+    if "error" not in retry:
+        retry["sync_retry"] = True
+    return retry
+
+
+def _read_health_metrics_once(export_dir, date_str):
+    """Read one export snapshot; the public function handles iCloud retry."""
     if not export_dir:
         return {
             "error": "No health_export_dir configured in config.yaml."
@@ -103,11 +142,21 @@ def read_health_metrics(export_dir, date_str):
         placeholders = len(list(directory.rglob("*.icloud")))
     except OSError as exc:
         return {"error": f"Could not scan {directory}: {exc}"}
+    file_result = None
     for path in files:
         result = _metrics_from_file(path, date_str)
         if result:
             result["source_file"] = path.name
-            return result
+            file_result = result
+            break
+    sync_dir = _autosync_dir(directory)
+    autosync = _autosync_metrics(sync_dir, date_str) if sync_dir else None
+    if autosync and not autosync.get("partial"):
+        return autosync
+    if file_result:
+        return file_result
+    if autosync:
+        return autosync
     if placeholders:
         return {
             "error": (
@@ -125,12 +174,32 @@ def read_health_metrics(export_dir, date_str):
             )
             + _candidates_hint(directory)
         }
+    detail = f"{len(files)} daily file(s) (newest: {files[0].name})"
+    if sync_dir:
+        latest = _latest_core_sync_date(sync_dir)
+        if latest and latest < date_str:
+            detail += (
+                f"; AutoSync's newest core-metric day is {latest} — the "
+                "Health Auto Export app on the phone has not pushed "
+                "steps/energy/rings since then, so nothing past that date "
+                "can be filled. Open the app on the phone and confirm "
+                "AutoSync is on and has run recently"
+            )
+        else:
+            detail += (
+                " and AutoSync had no samples for that date either — the "
+                "phone usually pushes a finished day overnight, so try "
+                "again for it tomorrow"
+            )
     return {
-        "error": (
-            f"No health export data found for {date_str} in "
-            f"{len(files)} file(s) (newest: {files[0].name})."
-        )
+        "error": f"No health export data found for {date_str} in {detail}."
     }
+
+
+def _may_be_syncing(result):
+    """Whether an error can reasonably disappear after iCloud catches up."""
+    error = result.get("error", "")
+    return error.startswith("No health export data found") or "placeholder" in error
 
 
 def _mtime(path):
@@ -139,6 +208,142 @@ def _mtime(path):
         return path.stat().st_mtime
     except OSError:
         return 0
+
+
+def _autosync_dir(export_dir):
+    """Locate the app's AutoSync/HealthMetrics folder near export_dir."""
+    base = Path(export_dir).expanduser()
+    for root in (base, base.parent):
+        candidate = root / "AutoSync" / "HealthMetrics"
+        if candidate.is_dir():
+            return candidate
+    return None
+
+
+def _autosync_metrics(sync_dir, date_str):
+    """Read one day's metrics from AutoSync .hae files, or None if empty.
+
+    Flags the result "partial" when the newest contributing file was
+    last written before the day ended, i.e. the phone had not yet
+    pushed the finished day's totals.
+    """
+    day_file = date_str.replace("-", "") + ".hae"
+    found, newest_sync = {}, 0.0
+    try:
+        folders = sorted(p for p in sync_dir.iterdir() if p.is_dir())
+    except OSError:
+        return None
+    for folder in folders:
+        key = METRIC_MAP.get(_normalize(folder.name))
+        if not key or key in found:
+            continue
+        entries = _read_hae_entries(folder / day_file)
+        value = _aggregate_entries(key, entries or [])
+        if value is None:
+            continue
+        found[key] = value
+        newest_sync = max(newest_sync, _mtime(folder / day_file))
+    if not found:
+        return None
+    found["source_file"] = f"AutoSync/HealthMetrics/*/{day_file}"
+    if newest_sync < _day_end_epoch(date_str):
+        found["partial"] = True
+        found["note"] = (
+            "phone last synced before this day ended; totals may be "
+            "incomplete"
+        )
+    return found
+
+
+def _latest_core_sync_date(sync_dir):
+    """Return the newest YYYY-MM-DD an AutoSync-mapped metric has a .hae for.
+
+    Sparse nutrition/supplement metrics can keep syncing after the core
+    ring/step/energy metrics have stopped, so this reports the freshest
+    date among the metrics the automation actually records — the honest
+    "last time your phone pushed the numbers we care about" signal.
+    Returns None when the folder is unreadable or empty.
+    """
+    newest = None
+    try:
+        folders = [p for p in sync_dir.iterdir() if p.is_dir()]
+    except OSError:
+        return None
+    for folder in folders:
+        if METRIC_MAP.get(_normalize(folder.name)) is None:
+            continue
+        try:
+            names = [p.stem for p in folder.glob("*.hae")]
+        except OSError:
+            continue
+        for stem in names:
+            match = re.fullmatch(r"(\d{4})(\d{2})(\d{2})", stem)
+            if match:
+                date = "-".join(match.groups())
+                if newest is None or date > newest:
+                    newest = date
+    return newest
+
+
+def _read_hae_entries(path):
+    """Decompress one LZFSE .hae file and return its sample list, or None."""
+    if not path.is_file() or not os.path.exists(COMPRESSION_TOOL):
+        return None
+    with tempfile.NamedTemporaryFile(suffix=".json") as out:
+        proc = subprocess.run(
+            [COMPRESSION_TOOL, "-decode", "-a", "lzfse",
+             "-i", str(path), "-o", out.name],
+            capture_output=True,
+        )
+        if proc.returncode != 0:
+            return None
+        try:
+            payload = json.loads(Path(out.name).read_text())
+        except (OSError, json.JSONDecodeError):
+            return None
+    data = payload.get("data") if isinstance(payload, dict) else None
+    return data if isinstance(data, list) else None
+
+
+def _aggregate_entries(key, entries):
+    """Collapse a day's AutoSync samples into one value, or None.
+
+    Energy metrics arrive duplicated in kJ and kcal, so only the kcal
+    samples are summed (falling back to converted kJ). Weight takes the
+    last reading; every other metric sums its samples.
+    """
+    if key in ENERGY_KEYS:
+        kcal = [e["qty"] for e in entries
+                if e.get("qty") is not None and e.get("unit") == "kcal"]
+        if kcal:
+            return int(round(sum(kcal)))
+        kilojoules = [e["qty"] for e in entries
+                      if e.get("qty") is not None and e.get("unit") == "kJ"]
+        return int(round(sum(kilojoules) * KCAL_PER_KJ)) if kilojoules else None
+    quantities = [e.get("qty") for e in entries if e.get("qty") is not None]
+    if not quantities:
+        return None
+    if key == "weight":
+        # AutoSync duplicates each weigh-in in kg/lb/st, so a plain
+        # "last sample" grabs whichever unit sorted last (stone). Pick a
+        # single known unit and convert it to pounds; fall back to the raw
+        # last sample only when entries carry no recognizable unit.
+        for unit, factor in WEIGHT_UNIT_TO_LB.items():
+            in_unit = [e["qty"] for e in entries
+                       if e.get("qty") is not None and e.get("unit") == unit]
+            if in_unit:
+                return round(float(in_unit[-1]) * factor, 1)
+        return round(float(quantities[-1]), 1)
+    return int(round(sum(quantities)))
+
+
+def _day_end_epoch(date_str):
+    """Return the local Unix timestamp for midnight after the given day."""
+    try:
+        day = datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return 0.0
+    return (day + timedelta(days=1)).timestamp()
 
 
 KNOWN_EXPORT_DIRS = (
