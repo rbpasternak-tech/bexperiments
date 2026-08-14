@@ -10,7 +10,10 @@ Two sources are read, in order of trust for a given date:
         {"data": {"metrics": [{"name": "step_count", "units": "count",
                                "data": [{"date": "2026-07-26 00:00:00 -0400",
                                          "qty": 12253.0}, ...]}, ...]}}
-    These only appear when the app is opened on the phone.
+    These only appear when the app is opened on the phone. The configured
+    folder is scanned first; if it yields nothing, auto-discovered
+    candidate folders (the app's iCloud container and any iCloud Drive
+    folder named like an export/automation destination) are scanned too.
 
 MyFitnessPal nutrition arrives via its Apple Health sync as dietary_energy.
 """
@@ -89,14 +92,20 @@ def read_health_metrics(export_dir, date_str):
     "active_energy"/"exercise_minutes"/"stand_hours" when the automation
     exports them) for a YYYY-MM-DD date.
 
-    Prefers complete-day AutoSync data (pushed by the phone
-    automatically overnight), then the daily JSON exports in export_dir
-    (newest file first), then partial AutoSync data flagged with
-    "partial"/"note". Counts are summed across entries; weight takes
-    the last reading. Missing values are None. On failure the dict
-    carries an "error" key that says exactly what went wrong (folder
-    unconfigured/missing, macOS permission denial, undownloaded iCloud
-    placeholders, or simply no data for the date).
+    Two data paths, tried in order of trust:
+
+      1. AutoSync .hae files (the phone pushes a finished day overnight);
+         a complete day here beats everything else.
+      2. When AutoSync has nothing for the date, the JSON exports — the
+         configured folder first (_read_from_configured), then
+         auto-discovered candidate folders (_fallback_from_candidates), so
+         an automation writing to its own folder (e.g. "New Automations")
+         still gets found. A fallback hit carries "source_dir" and a
+         "warning" asking to point health_export_dir at that folder.
+
+    On total failure the dict carries an "error" key that says exactly
+    what went wrong (folder unconfigured/missing, macOS permission denial,
+    undownloaded iCloud placeholders, or simply no data for the date).
     """
     # iCloud can expose a new filename before its contents are readable on
     # this Mac.  A short retry prevents the nightly check-in from treating
@@ -112,7 +121,53 @@ def read_health_metrics(export_dir, date_str):
 
 
 def _read_health_metrics_once(export_dir, date_str):
-    """Read one export snapshot; the public function handles iCloud retry."""
+    """Read one snapshot: AutoSync .hae first, then the JSON exports in the
+    configured folder, then partial AutoSync, then auto-discovered folders.
+
+    The public function wraps this with the iCloud sync-window retry.
+    """
+    directory = Path(export_dir).expanduser() if export_dir else None
+    sync_dir = _autosync_dir(directory) if directory else None
+    autosync = _autosync_metrics(sync_dir, date_str) if sync_dir else None
+
+    # A complete AutoSync day (phone pushed the finished day) wins outright.
+    if autosync and not autosync.get("partial"):
+        return autosync
+
+    # Otherwise the JSON exports in the configured folder.
+    configured = _read_from_configured(export_dir, date_str)
+    if "error" not in configured:
+        return configured
+
+    # A partial AutoSync day still beats no data at all.
+    if autosync:
+        return autosync
+
+    # Nothing in the configured folder — try auto-discovered candidates.
+    fallback = _fallback_from_candidates(date_str, directory)
+    if fallback:
+        return fallback
+
+    # Everything missed. Enrich the "no data" error with AutoSync freshness
+    # so the operator knows whether the phone simply stopped pushing.
+    if sync_dir and configured.get("error", "").startswith(
+        "No health export data found"
+    ):
+        latest = _latest_core_sync_date(sync_dir)
+        if latest and latest < date_str:
+            configured["error"] += (
+                f" AutoSync's newest core-metric day is {latest} — the "
+                "Health Auto Export app on the phone has not pushed "
+                "steps/energy/rings since then, so nothing past that date "
+                "can be filled. Open the app on the phone and confirm "
+                "AutoSync is on and has run recently."
+            )
+    return configured
+
+
+def _read_from_configured(export_dir, date_str):
+    """Scan only the configured folder's JSON exports, returning metrics or
+    a specific {"error": ...} explaining why nothing was read."""
     if not export_dir:
         return {
             "error": "No health_export_dir configured in config.yaml."
@@ -142,21 +197,11 @@ def _read_health_metrics_once(export_dir, date_str):
         placeholders = len(list(directory.rglob("*.icloud")))
     except OSError as exc:
         return {"error": f"Could not scan {directory}: {exc}"}
-    file_result = None
     for path in files:
         result = _metrics_from_file(path, date_str)
         if result:
             result["source_file"] = path.name
-            file_result = result
-            break
-    sync_dir = _autosync_dir(directory)
-    autosync = _autosync_metrics(sync_dir, date_str) if sync_dir else None
-    if autosync and not autosync.get("partial"):
-        return autosync
-    if file_result:
-        return file_result
-    if autosync:
-        return autosync
+            return result
     if placeholders:
         return {
             "error": (
@@ -174,26 +219,46 @@ def _read_health_metrics_once(export_dir, date_str):
             )
             + _candidates_hint(directory)
         }
-    detail = f"{len(files)} daily file(s) (newest: {files[0].name})"
-    if sync_dir:
-        latest = _latest_core_sync_date(sync_dir)
-        if latest and latest < date_str:
-            detail += (
-                f"; AutoSync's newest core-metric day is {latest} — the "
-                "Health Auto Export app on the phone has not pushed "
-                "steps/energy/rings since then, so nothing past that date "
-                "can be filled. Open the app on the phone and confirm "
-                "AutoSync is on and has run recently"
-            )
-        else:
-            detail += (
-                " and AutoSync had no samples for that date either — the "
-                "phone usually pushes a finished day overnight, so try "
-                "again for it tomorrow"
-            )
     return {
-        "error": f"No health export data found for {date_str} in {detail}."
+        "error": (
+            f"No health export data found for {date_str} in "
+            f"{len(files)} file(s) (newest: {files[0].name})."
+        )
     }
+
+
+def _fallback_from_candidates(date_str, exclude):
+    """Scan candidate export folders for the date; None when nothing hits."""
+    for candidate in find_candidate_export_dirs():
+        if exclude is not None and candidate == exclude:
+            continue
+        result = _scan_folder(candidate, date_str)
+        if result:
+            result["source_dir"] = str(candidate)
+            result["warning"] = (
+                f"This data was found in {candidate}, which is NOT the "
+                "configured health_export_dir — the automation is writing "
+                "to a different folder than config.yaml points to. Set "
+                "health_export_dir to this folder and restart the bot. "
+                "Tell the user."
+            )
+            return result
+    return None
+
+
+def _scan_folder(directory, date_str):
+    """Return the date's metrics from the newest matching JSON file in
+    directory (recursive), or None."""
+    try:
+        files = sorted(directory.rglob("*.json"), key=_mtime, reverse=True)
+    except OSError:
+        return None
+    for path in files:
+        result = _metrics_from_file(path, date_str)
+        if result:
+            result["source_file"] = path.name
+            return result
+    return None
 
 
 def _may_be_syncing(result):
@@ -286,7 +351,13 @@ def _latest_core_sync_date(sync_dir):
 
 
 def _read_hae_entries(path):
-    """Decompress one LZFSE .hae file and return its sample list, or None."""
+    """Decompress one LZFSE .hae file and return its sample list, or None.
+
+    Uses macOS's built-in /usr/bin/compression_tool, so no third-party
+    LZFSE library is required; when the tool is absent or decoding fails,
+    returns None so the caller falls back to the JSON export path rather
+    than crashing.
+    """
     if not path.is_file() or not os.path.exists(COMPRESSION_TOOL):
         return None
     with tempfile.NamedTemporaryFile(suffix=".json") as out:
@@ -354,10 +425,14 @@ KNOWN_EXPORT_DIRS = (
 CLOUD_DOCS = "~/Library/Mobile Documents/com~apple~CloudDocs"
 
 
+CANDIDATE_NAME = re.compile(r"health|automation|export", re.IGNORECASE)
+
+
 def find_candidate_export_dirs():
     """Return existing folders on this machine that look like Health Auto
     Export destinations: the app's iCloud container, plus any folder in
-    iCloud Drive proper whose name mentions health."""
+    iCloud Drive proper whose name mentions health, automation, or export
+    (the app names automation folders things like 'New Automations')."""
     found = []
     for spec in KNOWN_EXPORT_DIRS:
         path = Path(spec).expanduser()
@@ -369,7 +444,7 @@ def find_candidate_export_dirs():
     except OSError:
         children = []
     for child in children:
-        if child.is_dir() and "health" in child.name.lower():
+        if child.is_dir() and CANDIDATE_NAME.search(child.name):
             found.append(child)
     return found
 

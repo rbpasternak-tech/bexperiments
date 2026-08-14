@@ -120,14 +120,19 @@ else:
     else:
         print(f"WARN: no habit grid files at all under {HABITS_DIR}/")
 
-from health_export import find_candidate_export_dirs, rings_closed
+from health_export import _mtime, find_candidate_export_dirs, rings_closed
 configured = cfg.get("health_export_dir") or ""
 candidates = find_candidate_export_dirs()
 if candidates:
     for cand in candidates:
         marker = " (= configured)" if configured and \
             Path(configured).expanduser() == cand else ""
-        print(f"INFO: export-folder candidate: {cand}{marker}")
+        jsons = sorted(cand.rglob("*.json"), key=_mtime, reverse=True)
+        newest = jsons[0].name if jsons else "NO json files"
+        print(f"INFO: export-folder candidate: {cand}{marker} — "
+              f"{len(jsons)} JSON file(s), newest: {newest}")
+    if configured and Path(configured).expanduser() not in candidates:
+        print(f"INFO: configured health_export_dir is {configured}")
 elif not configured:
     print("INFO: no Health Auto Export folders found in the usual iCloud "
           "spots — has the iPhone automation ever run?")
@@ -158,7 +163,8 @@ PYEOF
 echo
 echo "--- searching iCloud for Health Auto Export files (may take a moment) ---"
 FOUND=$(find "$HOME/Library/Mobile Documents" -maxdepth 5 \
-    -iname "*HealthAutoExport*" 2>/dev/null | head -5)
+    \( -iname "*HealthAutoExport*" -o -ipath "*utomation*" -iname "*.json" \) \
+    2>/dev/null | head -5)
 if [ -n "$FOUND" ]; then
     echo "$FOUND" | sed 's/^/found: /'
     echo "(set health_export_dir in config.yaml to the FOLDER containing these;"
