@@ -67,13 +67,60 @@ def read_health_metrics(export_dir, date_str):
     "active_energy"/"exercise_minutes"/"stand_hours" when the automation
     exports them) for a YYYY-MM-DD date.
 
-    Scans JSON files in export_dir newest-first and uses the first file that
-    contains data for the date. Counts are summed across entries;
-    weight takes the last reading. Missing values are None. On failure the
-    dict carries an "error" key that says exactly what went wrong (folder
-    unconfigured/missing, macOS permission denial, undownloaded iCloud
-    placeholders, or simply no data for the date).
+    Scans the configured folder first; when it yields nothing, falls back
+    to auto-discovered export folders (the app's iCloud container and any
+    iCloud Drive folder named like an export/automation destination), so a
+    Health Auto Export automation writing to its own folder — e.g. "New
+    Automations" — still gets found. A fallback hit carries "source_dir"
+    and a "warning" asking to point health_export_dir at that folder. On
+    total failure the dict carries an "error" key that says exactly what
+    went wrong.
     """
+    result = _read_from_configured(export_dir, date_str)
+    if "error" not in result:
+        return result
+    configured = Path(export_dir).expanduser() if export_dir else None
+    fallback = _fallback_from_candidates(date_str, configured)
+    return fallback or result
+
+
+def _fallback_from_candidates(date_str, exclude):
+    """Scan candidate export folders for the date; None when nothing hits."""
+    for candidate in find_candidate_export_dirs():
+        if exclude is not None and candidate == exclude:
+            continue
+        result = _scan_folder(candidate, date_str)
+        if result:
+            result["source_dir"] = str(candidate)
+            result["warning"] = (
+                f"This data was found in {candidate}, which is NOT the "
+                "configured health_export_dir — the automation is writing "
+                "to a different folder than config.yaml points to. Set "
+                "health_export_dir to this folder and restart the bot. "
+                "Tell the user."
+            )
+            return result
+    return None
+
+
+def _scan_folder(directory, date_str):
+    """Return the date's metrics from the newest matching JSON file in
+    directory (recursive), or None."""
+    try:
+        files = sorted(directory.rglob("*.json"), key=_mtime, reverse=True)
+    except OSError:
+        return None
+    for path in files:
+        result = _metrics_from_file(path, date_str)
+        if result:
+            result["source_file"] = path.name
+            return result
+    return None
+
+
+def _read_from_configured(export_dir, date_str):
+    """Scan only the configured folder, returning metrics or a specific
+    {"error": ...} explaining why nothing was read."""
     if not export_dir:
         return {
             "error": "No health_export_dir configured in config.yaml."
@@ -149,10 +196,14 @@ KNOWN_EXPORT_DIRS = (
 CLOUD_DOCS = "~/Library/Mobile Documents/com~apple~CloudDocs"
 
 
+CANDIDATE_NAME = re.compile(r"health|automation|export", re.IGNORECASE)
+
+
 def find_candidate_export_dirs():
     """Return existing folders on this machine that look like Health Auto
     Export destinations: the app's iCloud container, plus any folder in
-    iCloud Drive proper whose name mentions health."""
+    iCloud Drive proper whose name mentions health, automation, or export
+    (the app names automation folders things like 'New Automations')."""
     found = []
     for spec in KNOWN_EXPORT_DIRS:
         path = Path(spec).expanduser()
@@ -164,7 +215,7 @@ def find_candidate_export_dirs():
     except OSError:
         children = []
     for child in children:
-        if child.is_dir() and "health" in child.name.lower():
+        if child.is_dir() and CANDIDATE_NAME.search(child.name):
             found.append(child)
     return found
 

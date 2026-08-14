@@ -1,5 +1,17 @@
 # Agent Team — Next Steps
 
+Update 2026-08-01 (night): found why scheduled check-ins saw a "blank"
+export while manual pushes worked — the iPhone automation writes into its
+own iCloud Drive folder ("New Automations"), not the folder
+health_export_dir points to; manual exports go wherever you pick, which
+happened to be the configured folder. read_health_export now falls back
+to auto-discovered export folders (app container + any iCloud Drive
+folder named like health/automation/export), returns the data with a
+warning naming the mismatched folder, and doctor.sh lists every candidate
+folder with its file count and newest file. Permanent tidy-up: set
+health_export_dir to the automation's folder (doctor.sh prints the exact
+path) or repoint the automation's destination in the app.
+
 Update 2026-08-01 (later): fixed the "…" replies. A persona turn allowed
 only 5 tool rounds; when a turn needed more (tool-error retries, or the
 nightly check-in's read-today/read-yesterday/record-both flow), the loop
