@@ -50,6 +50,12 @@ METRIC_MAP = {
 ENERGY_KEYS = {"calories", "active_energy"}
 KCAL_PER_KJ = 1 / 4.184
 
+# Daily-cumulative metrics: the day's running total only grows, so when two
+# partial sources disagree the larger value is the fresher one. (Weight is
+# not cumulative and is handled separately.)
+COUNT_KEYS = ("steps", "calories", "active_energy", "exercise_minutes",
+              "stand_hours")
+
 # AutoSync records each weigh-in three times, once per unit (kg/lb/st).
 # The habit grid and the daily JSON exports both use pounds, so pounds is
 # the canonical unit; the factors convert the other two back to it.
@@ -136,7 +142,18 @@ def _read_health_metrics_once(export_dir, date_str):
 
     # Otherwise the JSON exports in the configured folder.
     configured = _read_from_configured(export_dir, date_str)
-    if "error" not in configured:
+    configured_ok = "error" not in configured
+
+    # In-progress day: AutoSync only has a partial push and the JSON export
+    # is a mid-day snapshot. Neither is complete, and each can be missing
+    # metrics the other has (the JSON often carries no calories; AutoSync
+    # lags a late walk), so combine them rather than letting the leaner
+    # snapshot mask the other — larger cumulative count per metric, and
+    # fill any metric one source is missing entirely.
+    if autosync and configured_ok:
+        return _combine_partial(configured, autosync)
+
+    if configured_ok:
         return configured
 
     # A partial AutoSync day still beats no data at all.
@@ -163,6 +180,40 @@ def _read_health_metrics_once(export_dir, date_str):
                 "AutoSync is on and has run recently."
             )
     return configured
+
+
+def _combine_partial(primary, secondary):
+    """Merge two partial reads of the same in-progress day into one dict.
+
+    For each daily-cumulative count the larger of the two values wins (a
+    running total only grows, so the bigger number is the fresher one),
+    and a metric present in only one source is carried over — this is how
+    calories from AutoSync survive when the JSON snapshot omits them.
+    Weight (not cumulative) is filled from the secondary only when the
+    primary lacks it. The result stays flagged "partial" if either source
+    was, and records both provenance strings.
+    """
+    merged = dict(primary)
+    for key in COUNT_KEYS:
+        a, b = primary.get(key), secondary.get(key)
+        if a is None:
+            if b is not None:
+                merged[key] = b
+        elif b is not None:
+            merged[key] = max(a, b)
+    if merged.get("weight") is None and secondary.get("weight") is not None:
+        merged["weight"] = secondary["weight"]
+    sources = [s.get("source_file") for s in (primary, secondary)
+               if s.get("source_file")]
+    if sources:
+        merged["source_file"] = " + ".join(sources)
+    if primary.get("partial") or secondary.get("partial"):
+        merged["partial"] = True
+        merged["note"] = (
+            primary.get("note") or secondary.get("note")
+            or "day still in progress; totals may be incomplete"
+        )
+    return merged
 
 
 def _read_from_configured(export_dir, date_str):
