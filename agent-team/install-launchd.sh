@@ -51,6 +51,13 @@ cat > "$PLIST" <<PLIST
     </array>
     <key>WorkingDirectory</key>
     <string>$PROJECT_DIR</string>
+    <!-- Unbuffered so a startup crash lands in the log instead of dying in
+         Python's stdout buffer (block-buffered when stdout is a file). -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+    </dict>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
