@@ -1,8 +1,11 @@
 """JSON-file persistence for conversation history and reminders.
 
-State lives in .claude/telegram-state/ at the repo root, which is already
-gitignored. Everything is small enough that read-modify-write per operation
-is fine.
+State lives in ~/Library/Application Support/agent-team/ — deliberately OUTSIDE
+the repo, because the repo sits in iCloud-synced ~/Documents. iCloud's "Optimize
+Mac Storage" evicts idle files to dataless placeholders, and launchd cannot
+rematerialize them at spawn time, which crash-looped the bot with EX_CONFIG.
+~/Library is not iCloud-synced, so state files stay local and materialized.
+Everything is small enough that read-modify-write per operation is fine.
 """
 
 import json
@@ -10,8 +13,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_STATE_DIR = REPO_ROOT / ".claude" / "telegram-state"
+DEFAULT_STATE_DIR = Path.home() / "Library" / "Application Support" / "agent-team"
 
 
 class StateStore:

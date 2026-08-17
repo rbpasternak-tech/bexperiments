@@ -9,7 +9,12 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 LABEL="com.bexperiments.agent-team"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
-LOG_DIR="$(dirname "$PROJECT_DIR")/.claude/telegram-state"
+# Log lives OUTSIDE the repo. The repo is in iCloud-synced ~/Documents, and
+# iCloud's "Optimize Mac Storage" evicts idle files to dataless placeholders
+# that launchd cannot rematerialize when it opens StandardOutPath at spawn —
+# which failed with EX_CONFIG (78) and crash-looped the bot. ~/Library/Logs is
+# not iCloud-synced, so the log file stays local and openable.
+LOG_DIR="$HOME/Library/Logs/agent-team"
 LOG_FILE="$LOG_DIR/bot.log"
 
 PYTHON="$PROJECT_DIR/.venv/bin/python"

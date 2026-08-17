@@ -133,6 +133,6 @@ def run_persona_turn(anthropic_client, model, persona_key, personas_cfg, user_te
         reply = (
             "(I came back without a reply — the turn ended with "
             f"stop_reason '{response.stop_reason}'. Details are in "
-            ".claude/telegram-state/bot.log.)"
+            "~/Library/Logs/agent-team/bot.log.)"
         )
     return reply
