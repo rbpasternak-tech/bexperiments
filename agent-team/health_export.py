@@ -248,11 +248,27 @@ def _read_from_configured(export_dir, date_str):
         placeholders = len(list(directory.rglob("*.icloud")))
     except OSError as exc:
         return {"error": f"Could not scan {directory}: {exc}"}
+    stranded = []  # dataless placeholders we could not fault in
     for path in files:
+        if _is_dataless(path) and not _materialize(path):
+            stranded.append(path.name)
+            continue
         result = _metrics_from_file(path, date_str)
         if result:
             result["source_file"] = path.name
             return result
+    if stranded:
+        return {
+            "error": (
+                f"No data for {date_str}; {len(stranded)} export file(s) in "
+                f"{directory} are iCloud placeholders evicted from this Mac "
+                "and could not be downloaded. The bot runs under launchd, "
+                "which cannot always fault in iCloud files. Fix: in Finder, "
+                "right-click the export folder and choose 'Keep Downloaded', "
+                "or turn off iCloud 'Optimize Mac Storage'. Affected: "
+                + ", ".join(stranded[:5])
+            )
+        }
     if placeholders:
         return {
             "error": (
@@ -515,8 +531,48 @@ def _candidates_hint(exclude=None):
     )
 
 
+# APFS file flag (sys/stat.h). A dataless file is an iCloud placeholder whose
+# contents have been evicted by "Optimize Mac Storage"; reading it needs a
+# fault-in that a launchd background process cannot reliably trigger on its
+# own, so we materialize it explicitly with brctl before reading.
+SF_DATALESS = 0x40000000
+
+
+def _is_dataless(path):
+    """True if the file is an iCloud placeholder with evicted contents."""
+    try:
+        return bool(os.stat(path).st_flags & SF_DATALESS)
+    except OSError:
+        return False
+
+
+def _materialize(path, timeout=20.0):
+    """Force-download a dataless iCloud file so it can be read.
+
+    Asks the iCloud daemon (via brctl) to fault the contents back in, then
+    polls the dataless flag until it clears or timeout passes. Returns True
+    if the file ends up materialized (or was never dataless), False if it is
+    still an evicted placeholder we could not download.
+    """
+    if not _is_dataless(path):
+        return True
+    try:
+        subprocess.run(
+            ["brctl", "download", str(path)], capture_output=True, timeout=timeout
+        )
+    except (OSError, subprocess.SubprocessError):
+        pass
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if not _is_dataless(path):
+            return True
+        time.sleep(0.5)
+    return not _is_dataless(path)
+
+
 def _metrics_from_file(path, date_str):
     """Extract the date's metrics from one export file, or None if absent."""
+    _materialize(path)
     try:
         payload = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError):
