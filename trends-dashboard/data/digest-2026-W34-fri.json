@@ -1,0 +1,854 @@
+{
+  "meta": {
+    "id": "2026-W34-fri",
+    "run_date": "2026-08-21T08:03:52.301968",
+    "date_range_start": "2026-08-18",
+    "date_range_end": "2026-08-21",
+    "newsletter_count": 23,
+    "rss_article_count": 125,
+    "sources_analyzed": [
+      "Matthew Wilding",
+      "Ars Technica",
+      "The Economist via LinkedIn",
+      "AI with ALLIE",
+      "IAPP Buzz Weekly",
+      "LegalGeek via LinkedIn",
+      "TechCrunch",
+      "LinkedIn",
+      "Ryan Wong",
+      "Reuters Legal via LinkedIn",
+      "Hacker News (Best)",
+      "Ruben Hassid",
+      "IAPP Daily Dashboard",
+      "LawSites (Bob Ambrogi)",
+      "The Code",
+      "Somalyta Nop via LinkedIn",
+      "She Breaks the Law via LinkedIn",
+      "Abhigyan Rathore",
+      "IAPP Events",
+      "Artificial Lawyer",
+      "Daria from AI blew my mind",
+      "Enterprise AI Executive",
+      "Above the Law",
+      "The Verge",
+      "Substack",
+      "How to AI (Ruben Hassid)",
+      "LinkedIn Job Alerts"
+    ]
+  },
+  "topics": [
+    {
+      "name": "Legal Tech Funding",
+      "category": "legal_tech",
+      "mention_count": 6,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Legal tech companies raised $171.2m over the past month (Wordsmith AI, Discern, Jusfy, Norm Ai, and others)",
+        "Ex-Eigen Team Raises $20m Seed For Twin1",
+        "Twin1 raises $20m to develop digital twins for lawyers"
+      ]
+    },
+    {
+      "name": "Contract Analysis AI",
+      "category": "legal_tech",
+      "mention_count": 3,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Avvoka Partners With Harvey, Launches Curate For Templates",
+        "NetDocuments Adds Tabular Review and Automatic Extraction of Legal Authorities to Its Platform",
+        "NetDocuments Goes After M&A Due Diligence"
+      ]
+    },
+    {
+      "name": "Law Firm Technology",
+      "category": "legal_tech",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Harvey launched Harvey II, introducing memory, matter history and personalised workflows",
+        "Law Practice Management Company Smokeball Unveils New Global Brand Built Around 'Powering People-Law'",
+        "Legora acquired Wexler, strengthening its AI-powered litigation offering"
+      ]
+    },
+    {
+      "name": "Legal AI Adoption",
+      "category": "legal_tech",
+      "mention_count": 6,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Lawyers Want To Figure Out AI, But Many Struggle To Know Where To Start",
+        "Law Firms Are Getting Faster With AI. Are They Getting Better At Growth?",
+        "Why General AI Alone Is Not Enough for Legal Work",
+        "ILTA and Thomson Reuters released an AI adoption guide"
+      ]
+    },
+    {
+      "name": "AI Agents",
+      "category": "ai",
+      "mention_count": 8,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Slack Code launches \u2014 native coding agents inside Slack threads",
+        "McKinsey-AWS unveil agentic AI lessons",
+        "Learn to build an AI workforce in under 1 hour",
+        "A Lawyer for AI Agents"
+      ]
+    },
+    {
+      "name": "Large Language Models",
+      "category": "ai",
+      "mention_count": 7,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "OpenAI is concerned with their new model \u2014 pauses training for cybersecurity review",
+        "OpenAI is gaining on Anthropic with business users, new data indicates",
+        "Grok keeps sending gibberish responses to users",
+        "A third of web pages published since ChatGPT's launch show signs of AI authorship, study finds"
+      ]
+    },
+    {
+      "name": "AI Safety & Ethics",
+      "category": "ai",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "OpenAI pauses model training to tighten cybersecurity safeguards",
+        "Anthropic CEO attributes public AI backlash to 'crisis of trust'",
+        "AI Prompt Injection Has Entered The Courtroom",
+        "Grok exfiltrates user data when malicious instructions are encrypted"
+      ]
+    },
+    {
+      "name": "AI Regulation",
+      "category": "regulation",
+      "mention_count": 3,
+      "sentiment": "restrictive",
+      "representative_headlines": [
+        "The EU AI Act entered its next phase, increasing regulatory obligations for AI providers",
+        "IAPP P.S.R. + AI Governance Global 2026 keynote lineup announced",
+        "The RegTech Vendor Challenges and Opportunities"
+      ]
+    },
+    {
+      "name": "Data Privacy",
+      "category": "data_privacy",
+      "mention_count": 4,
+      "sentiment": "mixed",
+      "representative_headlines": [
+        "Social media addiction trial against Meta begins in US court",
+        "Former Meta engineer resumes testimony in landmark trial over social media's harm to young users",
+        "Reverse-lookup service exposed millions of photos of people's faces"
+      ]
+    },
+    {
+      "name": "Compliance Technology",
+      "category": "legal_tech",
+      "mention_count": 3,
+      "sentiment": "neutral",
+      "representative_headlines": [
+        "The RegTech Vendor Challenges and Opportunities",
+        "Reed Smith launched Aquarius, helping crypto firms comply with the EU's MiCA regulation",
+        "Luminance launched a Customer Advisory Board for AI governance and adoption"
+      ]
+    },
+    {
+      "name": "Enterprise AI",
+      "category": "enterprise",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "McKinsey-AWS agentic AI lessons: how AWS is applying agentic AI to rewire its business",
+        "OpenAI is gaining on Anthropic with business users, new data indicates",
+        "Amazon launched Amazon Quick for Legal, marking its entry into the legal tech market"
+      ]
+    },
+    {
+      "name": "Workforce & Jobs",
+      "category": "workforce",
+      "mention_count": 3,
+      "sentiment": "neutral",
+      "representative_headlines": [
+        "Director, AI Transformation role open at Pillsbury Winthrop Shaw Pittman LLP",
+        "Associate Director of Artificial Intelligence \u2013 Knowledge Transformation at Latham & Watkins ($300K-$400K)",
+        "Andrew Yang to speak on future of work in the era of job automation"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "category": "security",
+      "mention_count": 4,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "OpenAI pauses model training due to cybersecurity concerns following Hugging Face breach",
+        "Grok exfiltrates user data when malicious instructions are encrypted",
+        "Someone targeted security researchers using a fake crypto conference as a lure",
+        "Malicious Rust crate Arrayref runs a build-time payload"
+      ]
+    },
+    {
+      "name": "Startup Ecosystem",
+      "category": "startup",
+      "mention_count": 5,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "AI data startup Micro1 reaches $500M gross run rate amid AI training boom",
+        "Ex-Eigen Team Raises $20m Seed For Twin1",
+        "Private Equity Found A Law Firm That Said Yes \u2014 $700M Charlesbank deal for Wood Smith Henning & Berman"
+      ]
+    },
+    {
+      "name": "Legal Practice Innovation",
+      "category": "legal_tech",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "representative_headlines": [
+        "Clio Grows Clio Grow with Launch of Grow AI, Providing 24/7 Intake Agents",
+        "Why General AI Alone Is Not Enough for Legal Work",
+        "A Lawyer for AI Agents",
+        "BigHand acquired ayora, expanding its legal data intelligence capabilities"
+      ]
+    },
+    {
+      "name": "IP & Copyright",
+      "category": "regulation",
+      "mention_count": 2,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "AI companies destroy physical books \u2013 let's scan rare books before it's too late",
+        "Aaron Swartz was prosecuted for scraping, while Meta does it without consequence"
+      ]
+    },
+    {
+      "name": "Court Technology",
+      "category": "legal_tech",
+      "mention_count": 1,
+      "sentiment": "negative",
+      "representative_headlines": [
+        "AI Prompt Injection Has Entered The Courtroom"
+      ]
+    }
+  ],
+  "ai_economy_events": [
+    {
+      "type": "partnership",
+      "entity": "Avvoka / Harvey",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Avvoka partners with Harvey and launches Curate to turn law firm transaction documents into gold-standard templates",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/08/20/avvoka-partners-with-harvey-launches-curate-for-templates/"
+    },
+    {
+      "type": "funding",
+      "entity": "Twin1",
+      "amount": "$20M",
+      "amount_usd": 20000000,
+      "headline": "Ex-Eigen team raises $20M seed round co-led by Bessemer Venture Partners to build digital twins for lawyers",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/08/20/ex-eigen-team-raises-20m-seed-for-twin1/"
+    },
+    {
+      "type": "funding",
+      "entity": "Norm Ai",
+      "amount": "$120M",
+      "amount_usd": 120000000,
+      "headline": "Norm Ai raises $120M in latest legal tech funding round",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Wordsmith AI",
+      "amount": "$14M",
+      "amount_usd": 14000000,
+      "headline": "Wordsmith AI raises $14M in legal tech funding",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Discern",
+      "amount": "$10M",
+      "amount_usd": 10000000,
+      "headline": "Discern raises $10M in legal tech funding",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Jusfy",
+      "amount": "$15M",
+      "amount_usd": 15000000,
+      "headline": "Jusfy raises $15M in legal tech funding",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Vikk AI",
+      "amount": "$4.2M",
+      "amount_usd": 4200000,
+      "headline": "Vikk AI raises $4.2M in legal tech funding",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "CopySight AI",
+      "amount": "$3M",
+      "amount_usd": 3000000,
+      "headline": "CopySight AI raises $3M in legal tech funding",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Aloi",
+      "amount": "$7M",
+      "amount_usd": 7000000,
+      "headline": "Aloi raises $7M in legal tech funding",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "EverSettled",
+      "amount": "$5M",
+      "amount_usd": 5000000,
+      "headline": "EverSettled raises $5M in legal tech funding",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "acquisition",
+      "entity": "BigHand",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "BigHand acquires ayora to expand legal data intelligence capabilities",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "acquisition",
+      "entity": "Legora",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Legora acquires Wexler to strengthen its AI-powered litigation offering",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Harvey",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Harvey launches Harvey II with memory, matter history, and personalised workflows for context-aware legal AI",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Amazon",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Amazon launches Amazon Quick for Legal, marking its entry into the legal tech market",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Salesforce / Slack",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Salesforce launches Slack Code, bringing native AI coding agents into Slack threads for real-time collaborative coding",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Clio",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Clio launches Grow AI, a 24/7 AI-powered client intake agent for law firms",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/08/clio-grows-clio-grow-with-launch-of-grow-ai-providing-24-7-intake-agents.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "NetDocuments",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "NetDocuments adds Tabular Review and automatic Legal Authorities extraction, targeting M&A due diligence",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/08/netdocuments-adds-tabular-review-and-automatic-extraction-of-legal-authorities-to-its-platform.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Ramp",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Ramp launches Router, an AI model routing service that auto-selects the cheapest model meeting quality thresholds",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/08/20/ramp-launches-its-own-ai-model-router-called-router/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Cursor / SpaceXAI",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Cursor and SpaceXAI launch Origin, a GitHub competitor with native AI agents living inside code repositories",
+      "source": "The Code",
+      "source_url": null
+    },
+    {
+      "type": "funding",
+      "entity": "Micro1",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "AI data startup Micro1 reaches $500M gross run rate amid AI training boom",
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/08/20/ai-data-startup-micro1-reaches-500m-gross-run-rate-amid-ai-training-boom/"
+    },
+    {
+      "type": "acquisition",
+      "entity": "Charlesbank / Wood Smith Henning & Berman",
+      "amount": "$700M",
+      "amount_usd": 700000000,
+      "headline": "Private equity firm Charlesbank strikes reported $700M deal to acquire law firm Wood Smith Henning & Berman",
+      "source": "Above the Law",
+      "source_url": "https://abovethelaw.com/2026/08/private-equity-found-a-law-firm-that-said-yes/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Reed Smith",
+      "amount": null,
+      "amount_usd": null,
+      "headline": "Reed Smith launches Aquarius to help crypto firms comply with EU MiCA regulation",
+      "source": "LegalGeek",
+      "source_url": null
+    }
+  ],
+  "regulatory_events": [
+    {
+      "jurisdiction": "EU",
+      "type": "new_regulation",
+      "title": "EU AI Act Enters Next Phase",
+      "summary": "The EU AI Act has entered its next phase, increasing regulatory obligations for AI providers operating in or serving the European market.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "AI Regulation",
+        "Enterprise AI",
+        "Large Language Models"
+      ],
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "court_ruling",
+      "title": "Meta Social Media Addiction Trial Begins",
+      "summary": "A multi-state lawsuit seeking approximately $200 billion in damages alleges Meta designed Facebook and Instagram to addict children, with a former Meta engineer testifying about ignored internal safety research.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "AI Safety & Ethics"
+      ],
+      "source": "IAPP Daily Dashboard",
+      "source_url": null
+    },
+    {
+      "jurisdiction": "US",
+      "type": "court_ruling",
+      "title": "AI Prompt Injection Enters the Courtroom",
+      "summary": "A US court encountered AI prompt injection in legal proceedings and did not look favorably upon it, signaling judicial scrutiny of AI manipulation techniques.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Court Technology",
+        "AI Safety & Ethics"
+      ],
+      "source": "Above the Law",
+      "source_url": "https://abovethelaw.com/2026/08/ai-prompt-injection-has-entered-the-courtroom/"
+    },
+    {
+      "jurisdiction": "US",
+      "type": "legislative_proposal",
+      "title": "Senators Demand TikTok Answers Over Disabled Safety Safeguards",
+      "summary": "US Senators are demanding answers from TikTok after the company ran an experiment disabling safeguards designed to prevent users from being overwhelmed by harmful content, testing whether the safeguard reduced engagement.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/08/20/senators-demand-answers-from-tiktok-over-experiment-that-disabled-safeguards/"
+    },
+    {
+      "jurisdiction": "US",
+      "type": "new_regulation",
+      "title": "Nevada Approves Up to 8,000 Robotaxi Permits",
+      "summary": "Tesla, Uber, and Waymo have all received permits to operate thousands of robotaxis in Nevada, with combined approvals allowing up to 8,000 robotaxis to be deployed over the next 12 months.",
+      "sentiment": "permissive",
+      "impact_area": [
+        "AI Regulation",
+        "Enterprise AI"
+      ],
+      "source": "TechCrunch",
+      "source_url": "https://techcrunch.com/2026/08/20/tesla-uber-and-waymo-all-get-the-ok-to-operate-thousands-of-robotaxis-in-nevada/"
+    },
+    {
+      "jurisdiction": "Australia",
+      "type": "enforcement_action",
+      "title": "Australia Finds Roblox Non-Compliant on Child Safety",
+      "summary": "Australia's eSafety regulator says Roblox has failed to sufficiently fix its child predator problem and demands further changes, marking the first platform to submit to independent audits under Australia's Online Safety Act.",
+      "sentiment": "restrictive",
+      "impact_area": [
+        "Data Privacy",
+        "AI Safety & Ethics"
+      ],
+      "source": "Ars Technica",
+      "source_url": "https://arstechnica.com/tech-policy/2026/08/weak-roblox-safeguards-failed-to-stop-adults-contacting-kids-regulator-says/"
+    }
+  ],
+  "legal_tech_signals": [
+    {
+      "type": "partnership",
+      "entity": "Avvoka / Harvey",
+      "description": "Avvoka formed a partnership with Harvey and launched 'Curate', a tool that turns a law firm's transaction documents into gold-standard templates, expanding Harvey's partner network in the drafting automation space.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/08/20/avvoka-partners-with-harvey-launches-curate-for-templates/"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Clio",
+      "description": "Clio launched Grow AI within its Clio Grow client intake product, providing 24/7 AI intake agents that autonomously turn inquiries into clients around the clock.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/08/clio-grows-clio-grow-with-launch-of-grow-ai-providing-24-7-intake-agents.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "NetDocuments",
+      "description": "NetDocuments launched Tabular Review for structured document analysis and Legal Authorities for automatic case citation extraction, targeting M&A due diligence workflows.",
+      "source": "LawSites (Bob Ambrogi)",
+      "source_url": "https://www.lawnext.com/2026/08/netdocuments-adds-tabular-review-and-automatic-extraction-of-legal-authorities-to-its-platform.html"
+    },
+    {
+      "type": "product_launch",
+      "entity": "Harvey",
+      "description": "Harvey launched Harvey II, introducing persistent memory, matter history, and personalized workflows to create a more context-aware legal AI platform.",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Amazon",
+      "description": "Amazon launched Amazon Quick for Legal, marking the cloud giant's direct entry into the legal technology market.",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "acquisition",
+      "entity": "BigHand",
+      "description": "BigHand acquired ayora to expand its legal data intelligence capabilities.",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "acquisition",
+      "entity": "Legora",
+      "description": "Legora acquired Wexler to strengthen its AI-powered litigation support offering.",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "milestone",
+      "entity": "Luminance",
+      "description": "Luminance launched a Customer Advisory Board, bringing together legal leaders to shape AI governance and adoption practices across its platform.",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Reed Smith",
+      "description": "BigLaw firm Reed Smith launched Aquarius, a compliance tool helping crypto firms navigate the EU's MiCA regulation.",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Smokeball",
+      "description": "Law practice management company Smokeball unveiled a new global brand focused on 'Powering People-Law', reframing its identity around empowering lawyers and their clients.",
+      "source": "Above the Law",
+      "source_url": "https://www.lawnext.com/2026/08/law-practice-management-company-smokeball-unveils-new-global-brand-built-around-powering-people-law.html"
+    },
+    {
+      "type": "milestone",
+      "entity": "ILTA / Thomson Reuters",
+      "description": "ILTA and Thomson Reuters released a joint AI adoption guide to help legal professionals navigate AI responsibly.",
+      "source": "LegalGeek",
+      "source_url": null
+    },
+    {
+      "type": "product_launch",
+      "entity": "Twin1",
+      "description": "Twin1 came out of stealth with a $20M seed round to build digital twins for lawyers, with the ex-Eigen team leading development.",
+      "source": "Artificial Lawyer",
+      "source_url": "https://www.artificiallawyer.com/2026/08/20/ex-eigen-team-raises-20m-seed-for-twin1/"
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Pillsbury Winthrop Shaw Pittman LLP",
+      "description": "Pillsbury is actively recruiting a Director of AI Transformation in New York, signaling deep commitment to enterprise AI integration at the firm level.",
+      "source": "LinkedIn Job Alerts",
+      "source_url": null
+    },
+    {
+      "type": "firm_adoption",
+      "entity": "Latham & Watkins",
+      "description": "Latham & Watkins is recruiting an Associate Director of Artificial Intelligence \u2013 Knowledge Transformation at $300K-$400K, one of the highest-compensated legal tech roles observed.",
+      "source": "LinkedIn Job Alerts",
+      "source_url": null
+    }
+  ],
+  "source_contributions": [
+    {
+      "source_name": "LegalGeek",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Legal Tech Funding",
+        "Law Firm Technology",
+        "Legal AI Adoption"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Artificial Lawyer",
+      "source_type": "rss",
+      "article_count": 7,
+      "top_topics": [
+        "Contract Analysis AI",
+        "Legal Practice Innovation",
+        "AI Agents"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "LawSites (Bob Ambrogi)",
+      "source_type": "rss",
+      "article_count": 2,
+      "top_topics": [
+        "Legal Practice Innovation",
+        "Law Firm Technology",
+        "Contract Analysis AI"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "TechCrunch",
+      "source_type": "rss",
+      "article_count": 18,
+      "top_topics": [
+        "Large Language Models",
+        "Enterprise AI",
+        "Startup Ecosystem"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "Above the Law",
+      "source_type": "rss",
+      "article_count": 14,
+      "top_topics": [
+        "Legal AI Adoption",
+        "Legal Practice Innovation",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "high"
+    },
+    {
+      "source_name": "IAPP Daily Dashboard",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Compliance Technology",
+        "Data Privacy",
+        "AI Regulation"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "IAPP Buzz Weekly",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Regulation",
+        "Data Privacy",
+        "Compliance Technology"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "IAPP Events",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Regulation",
+        "Data Privacy"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "The Code",
+      "source_type": "newsletter",
+      "article_count": 3,
+      "top_topics": [
+        "AI Agents",
+        "Large Language Models",
+        "AI Safety & Ethics"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Enterprise AI Executive",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Enterprise AI",
+        "AI Agents"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Ars Technica",
+      "source_type": "rss",
+      "article_count": 8,
+      "top_topics": [
+        "Cybersecurity",
+        "AI Safety & Ethics",
+        "Data Privacy"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "Hacker News (Best)",
+      "source_type": "rss",
+      "article_count": 14,
+      "top_topics": [
+        "AI Agents",
+        "Cybersecurity",
+        "Large Language Models"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "The Verge",
+      "source_type": "rss",
+      "article_count": 10,
+      "top_topics": [
+        "Large Language Models",
+        "Data Privacy"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "AI with ALLIE",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "AI Agents",
+        "Enterprise AI"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "She Breaks the Law",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Legal Practice Innovation"
+      ],
+      "signal_strength": "low"
+    },
+    {
+      "source_name": "Reuters Legal",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Data Privacy",
+        "Court Technology"
+      ],
+      "signal_strength": "medium"
+    },
+    {
+      "source_name": "LinkedIn Job Alerts",
+      "source_type": "newsletter",
+      "article_count": 1,
+      "top_topics": [
+        "Workforce & Jobs",
+        "Legal AI Adoption",
+        "Law Firm Technology"
+      ],
+      "signal_strength": "medium"
+    }
+  ],
+  "weekly_snapshot": {
+    "top_stories": [
+      {
+        "rank": 1,
+        "headline": "Legal Tech Sector Raises $171.2M in a Single Month, Led by Norm Ai's $120M Round",
+        "why_it_matters": "The volume and concentration of capital \u2014 with Norm Ai alone capturing 70% of the total \u2014 signals investor conviction that AI-native compliance and legal workflow tools are reaching inflection points. The breadth of funded companies, from contract tools to litigation AI, indicates a maturing market with diverse bets.",
+        "sources": [
+          {
+            "name": "LegalGeek",
+            "url": null
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "headline": "Avvoka Partners With Harvey and Launches Curate; Harvey Also Partners With DeepL",
+        "why_it_matters": "Harvey's rapid partnership expansion \u2014 now spanning translation (DeepL) and drafting automation (Avvoka) \u2014 suggests the company is building a legal AI ecosystem rather than a standalone product, a platform play that could reshape how BigLaw assembles its technology stack.",
+        "sources": [
+          {
+            "name": "Artificial Lawyer",
+            "url": "https://www.artificiallawyer.com/2026/08/20/avvoka-partners-with-harvey-launches-curate-for-templates/"
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "headline": "OpenAI Pauses Model Training for Two Weeks Over Cybersecurity Concerns Following Hugging Face Breach",
+        "why_it_matters": "OpenAI freezing its largest planned RL run suggests frontier model capabilities are outpacing safety infrastructure, a dynamic that will directly affect enterprise legal AI buyers who must assess model risk before deployment. This underscores the growing tension between capability advancement and responsible deployment.",
+        "sources": [
+          {
+            "name": "The Code",
+            "url": null
+          }
+        ]
+      }
+    ],
+    "one_to_watch": {
+      "headline": "Private Equity Closes Reported $700M Deal for Law Firm Wood Smith Henning & Berman",
+      "why_it_matters": "Charlesbank's deal is the clearest signal yet that private equity's slow march into law firm ownership is accelerating \u2014 with direct implications for how AI investment decisions get made inside PE-backed firms, potentially fast-tracking technology adoption to drive margin expansion.",
+      "sources": [
+        {
+          "name": "Above the Law",
+          "url": "https://abovethelaw.com/2026/08/private-equity-found-a-law-firm-that-said-yes/"
+        }
+      ]
+    },
+    "quick_stats": {
+      "total_articles_analyzed": 23,
+      "funding_total_usd": 198200000,
+      "new_regulations_count": 2,
+      "product_launches_count": 10,
+      "dominant_topic": "Legal Tech Funding",
+      "sentiment_balance": {
+        "positive": 45,
+        "neutral": 30,
+        "negative": 25
+      }
+    }
+  },
+  "weekly_narrative": "This week's signals point to a legal tech sector undergoing rapid capital concentration and platform consolidation: $171M in legal tech funding in a single month \u2014 anchored by Norm Ai's $120M raise \u2014 coincides with Harvey aggressively building a partner ecosystem across drafting, translation, and workflow automation, while Amazon's entry into legal tech raises the stakes for incumbents. Simultaneously, AI safety risk is becoming a board-level concern across the broader AI industry, with OpenAI freezing frontier model training over cybersecurity vulnerabilities and AI prompt injection entering courtrooms, signaling that legal AI deployment risk is no longer theoretical. For senior legal technology leaders, the week's convergence of PE capital entering law firms, major cloud platforms targeting legal workflows, and the EU AI Act tightening obligations creates an urgent strategic question: which AI vendors can demonstrate both enterprise-grade safety and domain-specific legal depth, and which will be displaced before they can prove it."
+}
