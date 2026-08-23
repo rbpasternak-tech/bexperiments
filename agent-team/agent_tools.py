@@ -6,7 +6,7 @@ isn't reachable (e.g. running off the Mac).
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from health_export import read_health_metrics, rings_closed
@@ -181,9 +181,12 @@ TOOL_DEFINITIONS = [
         "name": "read_health_export",
         "description": (
             "Read the day's Apple Health numbers (steps, calories via "
-            "MyFitnessPal sync, weight, and — when the automation exports "
-            "the Activity metrics — a computed 'rings' yes/no verdict) "
-            "from the Health Auto Export folder."
+            "MyFitnessPal sync, weight, and — when the Activity metrics "
+            "are exported — a computed 'rings' yes/no verdict) from the "
+            "Health Auto Export folder. The phone pushes a finished day "
+            "automatically overnight, so a date's numbers usually become "
+            "available the following morning; a result flagged "
+            "'partial' means the day's totals are not final yet."
         ),
         "input_schema": {
             "type": "object",
@@ -269,6 +272,48 @@ def _record_habits(tool_input, vault):
     if not values:
         return "Nothing to record — no fields provided."
     return vault.upsert_habit_row(date_str, values)
+
+
+def record_health_rows(ctx, days=4):
+    """Deterministically write recent days' health metrics to the habit grid.
+
+    Runs before the LLM habit check-in so the numbers land even if the
+    persona's turn fails or hits its token limit. Only fills days whose
+    Steps cell is still empty (never overwrites a hand-corrected value) and
+    skips days flagged 'partial' (their finished totals arrive the next
+    day). Returns a short summary for the log / Telegram.
+    """
+    vault = ctx["vault"]
+    export_dir = ctx.get("health_export_dir")
+    goals = ctx.get("ring_goals")
+    recorded, last_error = [], None
+    today = datetime.now().date()
+    for i in range(days):
+        date_str = (today - timedelta(days=i)).isoformat()
+        cells = vault.habit_row_cells(date_str)
+        if cells is None or cells.get("Steps"):
+            continue  # row missing, or steps already recorded
+        metrics = read_health_metrics(export_dir, date_str)
+        if "error" in metrics:
+            last_error = metrics["error"]  # e.g. eviction vs phone not syncing
+            continue
+        if metrics.get("steps") is None or metrics.get("partial"):
+            continue  # nothing usable yet, or day not finished
+        fields = {"date": date_str, "steps": metrics["steps"]}
+        if metrics.get("calories") is not None:
+            fields["calories"] = metrics["calories"]
+        if metrics.get("weight") is not None:
+            fields["weight"] = metrics["weight"]
+        rings = rings_closed(metrics, goals)
+        if rings:
+            fields["rings"] = rings
+        _record_habits(fields, vault)
+        recorded.append(date_str)
+    if recorded:
+        return "recorded " + ", ".join(recorded)
+    if last_error:
+        return "no rows recorded — " + last_error
+    return "no new days to record"
 
 
 def handle_tool_call(name, tool_input, ctx):

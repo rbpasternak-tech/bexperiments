@@ -18,6 +18,7 @@ from pathlib import Path
 import anthropic
 import yaml
 
+from agent_tools import record_health_rows
 from persona_agent import run_persona_turn
 from router import build_alias_map, pick_persona
 from schedules import Scheduler
@@ -72,13 +73,17 @@ SCHEDULED_DUTIES = {
     ),
     "habit_checkin": (
         "bartleby",
-        "It is the scheduled nightly habit check-in. First call "
-        "read_health_export for today; if it has no data, call it for "
-        "yesterday (the export app finalizes a day one day late). Record "
-        "EVERYTHING the export gave you with record_habits AGAINST THE "
-        "DATE IT BELONGS TO — steps, calories, weight, and the rings "
-        "yes/no verdict when present; yesterday's numbers go in "
-        "yesterday's row, never today's. Then ask the user, in one dry "
+        "It is the scheduled nightly habit check-in. First read this "
+        "month's habit file (Tracking/Habits/<YYYY-MM>.md) and note "
+        "which of the LAST FOUR days (today included) have an empty "
+        "Steps cell. For each such day call read_health_export and "
+        "record what it returns with record_habits AGAINST THE DATE IT "
+        "BELONGS TO — steps, calories, weight, and the rings yes/no "
+        "verdict when present; a finished day's numbers usually arrive "
+        "the morning after, so yesterday's numbers go in yesterday's "
+        "row, never today's. Skip a day whose result is flagged "
+        "'partial' unless its row would otherwise stay empty. Then ask "
+        "the user, in one dry "
         "line, ONLY for the habits the export did not cover: floss, vibe "
         "plate, red light, leg roller, read (audio), read (physical) — "
         "plus rings only if the export had no rings verdict, and weight "
@@ -215,6 +220,15 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
             print(f"Warning: schedule {key!r} has no matching duty/persona.")
             continue
         persona = personas_cfg["personas"][persona_key]
+        # Write the health numbers deterministically BEFORE the LLM turn, so
+        # a finished day's steps/calories/rings land even if the persona's
+        # reply fails or hits its token limit. The persona then only has to
+        # ask for the manual habits.
+        if key == "habit_checkin":
+            summary = record_health_rows(dict(ctx, chat_id=chat_id))
+            print(f"[habit_checkin] deterministic health write: {summary}")
+            if "COULD NOT READ" in summary:
+                telegram.send_message(chat_id, f"⚠️ Health import: {summary}")
         try:
             reply = run_persona_turn(
                 claude, config["model"], persona_key, personas_cfg, instruction,

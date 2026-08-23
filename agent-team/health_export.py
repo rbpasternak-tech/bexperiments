@@ -243,6 +243,7 @@ def _read_from_configured(export_dir, date_str):
         }
     if not directory.is_dir():
         return {"error": f"Health export path is not a folder: {directory}"}
+    _prefetch_dir(directory)
     try:
         files = sorted(directory.rglob("*.json"), key=_mtime, reverse=True)
         placeholders = len(list(directory.rglob("*.icloud")))
@@ -361,10 +362,18 @@ def _autosync_metrics(sync_dir, date_str):
     """
     day_file = date_str.replace("-", "") + ".hae"
     found, newest_sync = {}, 0.0
+    # Pull the whole AutoSync tree first: today's/yesterday's metric files may
+    # not exist on this Mac yet (iCloud hasn't synced the names), and a launchd
+    # bot can't fault them in by listing alone.
+    _prefetch_dir(sync_dir)
     try:
         folders = sorted(p for p in sync_dir.iterdir() if p.is_dir())
     except OSError:
         return None
+    # Kick off all of this day's fault-ins together before reading any, so a
+    # cold day (dozens of evicted metric files) downloads in parallel instead
+    # of each file waiting out its own serial poll.
+    _materialize_many([folder / day_file for folder in folders])
     for folder in folders:
         key = METRIC_MAP.get(_normalize(folder.name))
         if not key or key in found:
@@ -425,6 +434,10 @@ def _read_hae_entries(path):
     returns None so the caller falls back to the JSON export path rather
     than crashing.
     """
+    # The .hae files live in iCloud and may be evicted to dataless
+    # placeholders; a launchd process cannot fault those in transparently
+    # (read fails with EDEADLK), so download them with brctl first.
+    _materialize(path)
     if not path.is_file() or not os.path.exists(COMPRESSION_TOOL):
         return None
     with tempfile.NamedTemporaryFile(suffix=".json") as out:
@@ -568,6 +581,60 @@ def _materialize(path, timeout=20.0):
             return True
         time.sleep(0.5)
     return not _is_dataless(path)
+
+
+def _materialize_many(paths, timeout=90.0):
+    """Download a batch of dataless iCloud files concurrently, then wait.
+
+    One `brctl download` with every dataless path kicks all fault-ins off at
+    once (a day of AutoSync spans dozens of metric files); polling per file
+    serially, as _materialize does, would let later files exceed their own
+    window while earlier ones download. Best effort — returns nothing.
+    """
+    dataless = [p for p in paths if _is_dataless(p)]
+    if not dataless:
+        return
+    try:
+        subprocess.run(
+            ["brctl", "download", *(str(p) for p in dataless)],
+            capture_output=True, timeout=timeout,
+        )
+    except (OSError, subprocess.SubprocessError):
+        pass
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if not any(_is_dataless(p) for p in dataless):
+            return
+        time.sleep(0.5)
+
+
+_PREFETCHED = {}
+_PREFETCH_TTL = 300.0  # seconds; long enough to cover one nightly read pass
+
+
+def _prefetch_dir(directory, timeout=120.0):
+    """Force iCloud to sync a folder to this Mac, at most once per TTL.
+
+    New AutoSync files are often not present on the Mac at all — not even as
+    dataless placeholders — until brctl pulls the folder; a launchd bot
+    cannot fault them in just by listing. `brctl download` on the directory
+    makes iCloud materialize the names and contents. Cached with a short TTL
+    (not per-process) because the bot runs for days: one nightly read touches
+    several dates and should prefetch once, but each night must prefetch anew
+    to pull that day's files. Best effort.
+    """
+    key = str(directory)
+    now = time.monotonic()
+    if now - _PREFETCHED.get(key, -_PREFETCH_TTL) < _PREFETCH_TTL:
+        return
+    _PREFETCHED[key] = now
+    try:
+        subprocess.run(
+            ["brctl", "download", str(directory)],
+            capture_output=True, timeout=timeout,
+        )
+    except (OSError, subprocess.SubprocessError):
+        pass
 
 
 def _metrics_from_file(path, date_str):

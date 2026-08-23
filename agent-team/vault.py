@@ -64,6 +64,31 @@ class Vault:
             raise ValueError(f"Path escapes vault: {relative}")
         return path
 
+    def habit_row_cells(self, date_str):
+        """Return {column: cell_text} for a date's habit row, or None.
+
+        None means the month grid or the date's row does not exist. Used by
+        the deterministic nightly recorder to tell which cells are already
+        filled so it never clobbers a value the user corrected by hand.
+        """
+        if not self.available():
+            return None
+        path = self._resolve(f"{HABITS_DIR}/{date_str[:7]}.md")
+        if not path.is_file():
+            return None
+        lines = path.read_text().splitlines()
+        columns = _find_table_columns(lines)
+        if not columns:
+            return None
+        for line in lines:
+            cells = _split_row(line)
+            if cells and cells[0] == date_str:
+                return {
+                    col: (cells[i] if i < len(cells) else "")
+                    for i, col in enumerate(columns)
+                }
+        return None
+
     def read_note(self, relative, max_chars=8000):
         """Return a note's text (truncated), or an explanatory message."""
         if not self.available():
