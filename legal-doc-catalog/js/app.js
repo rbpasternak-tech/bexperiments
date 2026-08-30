@@ -144,13 +144,16 @@ function showAuth() {
   authContainer.hidden = false;
   appContent.hidden = true;
   headerActions.innerHTML = '';
-  renderAuth(authContainer, () => {});
+  renderAuth(authContainer, async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) showApp(session);
+  });
 }
 
 async function init() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    showApp(session);
+  const { data, error: sessionError } = await supabase.auth.getSession();
+  if (data?.session) {
+    showApp(data.session);
   } else {
     showAuth();
   }

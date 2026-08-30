@@ -92,6 +92,10 @@ body {
   padding: 24px;
 }
 
+#auth-container[hidden] {
+  display: none;
+}
+
 .auth-card {
   width: 100%;
   max-width: 400px;

@@ -42,12 +42,12 @@ export function renderAuth(container, onLogin) {
     submitBtn.textContent = isSignUp ? 'Signing up...' : 'Signing in...';
     errorEl.hidden = true;
 
-    const { error } = isSignUp
+    const result = isSignUp
       ? await supabase.auth.signUp({ email, password })
       : await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      errorEl.textContent = error.message;
+    if (result.error) {
+      errorEl.textContent = result.error.message;
       errorEl.hidden = false;
       submitBtn.disabled = false;
       submitBtn.textContent = isSignUp ? 'Sign Up' : 'Sign In';
@@ -63,7 +63,9 @@ export function renderAuth(container, onLogin) {
       return;
     }
 
-    onLogin();
+    if (result.data?.session) {
+      onLogin(result.data.session);
+    }
   });
 }
 
