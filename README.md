@@ -1,53 +1,119 @@
 # bexperiments
 
-A collection of personal tools and experiments, deployed via GitHub Pages.
-
-
-
----
+Rebecca's personal monorepo for small applications, automations, and learning
+experiments. The canonical local path is
+`~/Documents/GitHub/bexperiments/`; `~/bexperiments` is a compatibility
+shortcut to the same repository.
 
 ## Projects
 
-### Habit Tracker
-**Live site:** https://rbpasternak-tech.github.io/bexperiments/
-[`habit-tracker/`](habit-tracker/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/habit-tracker/)
-
-A progressive web app (PWA) for daily habit tracking, styled as a digital bullet journal. Built with vanilla HTML/CSS/JS and localStorage. Supports daily checklist view, monthly grid view, habit editing with carry-forward between months, and offline use via service worker.
-
-### Newsletter Digest + Trends Dashboard
-[`newsletter-digest/`](newsletter-digest/) · [`trends-dashboard/`](trends-dashboard/) · [Live dashboard](https://rbpasternak-tech.github.io/bexperiments/trends-dashboard/)
-
-### Doc Find & Replace
-[`doc-find-replace/`](doc-find-replace/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/doc-find-replace/)
-
-A browser-based bulk document editor. Upload hundreds of `.docx` and `.pdf` files, then manage global find-and-replace across all of them from a spreadsheet-style table. Auto-extracts `[bracketed]` placeholders into the Find column. Downloads as clean files or native tracked-changes redlines, individually or as a zip. Documents persist across sessions via IndexedDB. Includes a `txt_to_docx.py` helper for batch-converting `.txt` test files to `.docx`.
+Projects are listed alphabetically by their descriptive name. Each retained
+project lives in a self-contained root-level folder.
 
 ### Agent Team
+
 [`agent-team/`](agent-team/)
 
-A Telegram bot hosting a team of Claude-powered personas — a classic literature cast — that help run your life. Jeeves plans, Elizabeth Bennet keeps you accountable, Gatsby handles celebration, Bartleby delivers deadpan nudges. A router picks who answers (or address them by name), personas share one conversation, and they can set timed reminders and pull topics from the newsletter digest data. Python, long-polling, no framework.
+A Telegram bot hosting a team of Claude-powered literary personas that plan,
+nudge, set reminders, and read newsletter-digest data.
 
-### The Wife Review
-[`wife-rating/`](wife-rating/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/wife-rating/)
+### Clause Remediation App
 
-A tongue-in-cheek wife feedback portal (a joke, but not really). Rate performance across nine marriage categories — emotional availability, listening skills, patience & grace, and more — on a color-coded star scale (1★ blue → 5★ gold), check off highlight chips, answer the big question, and leave written comments. Built for daily filing: each review is dated, and opened results accumulate into a local review log with a Chart.js trend line of scores over time and CSV export. No backend: results are base64-encoded into a shareable link, with email and copy-to-clipboard delivery options. Drafts persist via localStorage.
+[`clause-remediation-app/`](clause-remediation-app/)
+
+A Flask prototype for reviewing and remediating contract clauses with a fixed,
+multi-step AI workflow.
+
+### Doc Find & Replace
+
+[`doc-find-replace/`](doc-find-replace/) ·
+[Live app](https://rbpasternak-tech.github.io/bexperiments/doc-find-replace/)
+
+A browser-based bulk editor for `.docx` and `.pdf` files, with IndexedDB
+persistence, placeholder extraction, and clean or tracked-changes exports.
+
+### Dynamic Workflows Cookbook
+
+[`dynamic-workflows-cookbook/`](dynamic-workflows-cookbook/)
+
+A learn-by-watching collection of coordinated-agent workflow patterns, run
+logs, clause examples, and an interactive pattern board.
+
+### Habit Tracker
+
+[`habit-tracker/`](habit-tracker/) ·
+[Live app](https://rbpasternak-tech.github.io/bexperiments/habit-tracker/)
+
+A vanilla JavaScript PWA for daily habit tracking, monthly grids, statistics,
+and offline use.
 
 ### Legal Doc Catalog
-[`legal-doc-catalog/`](legal-doc-catalog/) · [Live app](https://rbpasternak-tech.github.io/bexperiments/legal-doc-catalog/)
 
-A searchable catalog for legal documents, backed by Supabase (Postgres). Browse by category and year, or full-text search across document content with highlighted snippets. Includes a Python seed script that extracts text from `.docx` files and uploads to Supabase. Built with vanilla JS and ES modules.
+[`legal-doc-catalog/`](legal-doc-catalog/) ·
+[Live app](https://rbpasternak-tech.github.io/bexperiments/legal-doc-catalog/)
 
----
+A Supabase-backed catalog for legal documents with category browsing,
+full-text search, highlighted snippets, and a Python import utility.
 
-A two-part pipeline for tracking tech and legal tech trends:
+### Loop & Graph Workflows
 
-- **Newsletter Digest** — Python tool that fetches Gmail newsletters and RSS feeds (TechCrunch, Ars Technica, Hacker News, Artificial Lawyer, etc.), summarizes with the Claude API, and sends a formatted HTML digest email. Runs automatically via macOS launchd.
-- **Trends Dashboard** — Interactive web dashboard built from the digest data. Displays a weekly snapshot, topic heatmap, trend lines, AI economy tracker, regulatory pulse, legal tech signals, and key voices. Uses Chart.js and vanilla JS with ES modules. Data is auto-committed to this repo after each digest run.
+[`loop-graph-workflows/`](loop-graph-workflows/)
 
----
+Two Claude Code workflow experiments: a verifier-controlled goal loop and a
+dependency graph whose agents run as soon as their inputs are ready.
 
-## Dev Tools
+### Newsletter Digest & Trends Dashboard
 
-### tmux workspace
+[`newsletter-digest/`](newsletter-digest/) ·
+[`trends-dashboard/`](trends-dashboard/) ·
+[Live dashboard](https://rbpasternak-tech.github.io/bexperiments/trends-dashboard/)
 
-[`tmux-bexperiments.sh`](tmux-bexperiments.sh) launches a [tmux](https://github.com/tmux/tmux) session with one window per project, each opened in its own folder. Run `./tmux-bexperiments.sh` from anywhere; detach with `Ctrl-b d` and reattach with `tmux attach -t bexperiments`. Requires tmux (`brew install tmux`).
+A Python pipeline that gathers and summarizes newsletters and RSS feeds,
+paired with a static Chart.js dashboard for weekly technology and legal-tech
+trends.
+
+### The Wife Review
+
+[`wife-rating/`](wife-rating/) ·
+[Live app](https://rbpasternak-tech.github.io/bexperiments/wife-rating/)
+
+A tongue-in-cheek, browser-only feedback app with shareable review links,
+local history, trend charts, and CSV export.
+
+## Project support
+
+- [`legal-test-docs/`](legal-test-docs/) contains test fixtures shared by the
+  legal-document experiments; it is not a separate product.
+- [`clause-remediation-app-plan.md`](clause-remediation-app-plan.md) is the
+  implementation plan for the Clause Remediation App.
+
+## Repository tools
+
+- [`CHEATSHEET.md`](CHEATSHEET.md) and `CHEATSHEET.pdf` provide the local Claude
+  Code command reference.
+- [`claude-code-new-project-checklist.md`](claude-code-new-project-checklist.md)
+  and [`claude-code-scaffold.sh`](claude-code-scaffold.sh) help start new
+  projects consistently.
+- [`tmux-bexperiments.sh`](tmux-bexperiments.sh) opens a tmux workspace for the
+  monorepo; [`watchtower.py`](watchtower.py) monitors its Claude sessions.
+- `telegram_bot.py` is the earlier standalone Telegram bot retained for
+  reference; current bot development lives in `agent-team/`.
+
+## Filing rules
+
+- Keep code projects in this repository, each in a descriptive root-level
+  folder. Do not use names such as `my-new-project` or `untitled`.
+- Keep drafts and generated intermediates in the affected project's `work/`
+  folder when needed.
+- Keep finished user-facing artifacts in the affected project's `outputs/`
+  folder when practical.
+- Keep Git branches and pull requests attached to this repository; do not
+  create separate local PR folders.
+- Update this catalog and the project inventory in `CLAUDE.md` together when a
+  retained project is added, removed, or renamed.
+
+## Development workspace
+
+Run `./tmux-bexperiments.sh` from the repository root to open the standard tmux
+workspace. Detach with `Ctrl-b d` and reattach with
+`tmux attach -t bexperiments`.
