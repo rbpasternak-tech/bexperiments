@@ -2,7 +2,7 @@
 # Launch a tmux session for the bexperiments monorepo, one window per project,
 # with a Claude Code session ready in each project window.
 # Usage: ./tmux-bexperiments.sh                    (run from anywhere)
-#        ./tmux-bexperiments.sh my-new-project     (also add windows for these folders)
+#        ./tmux-bexperiments.sh loop-graph-workflows  (also add named folders)
 #        NO_CLAUDE=1 ./tmux-bexperiments.sh        (skip auto-launching claude)
 # Safe to rerun: it adds any missing project windows to the existing session
 # instead of just reattaching, so new projects get picked up.
@@ -14,7 +14,8 @@ SESSION="bexperiments"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 PROJECTS=(doc-find-replace legal-doc-catalog clause-remediation-app
-          trends-dashboard newsletter-digest dynamic-workflows-cookbook)
+          trends-dashboard newsletter-digest dynamic-workflows-cookbook
+          loop-graph-workflows)
 # Extra project folders passed as arguments get windows too.
 PROJECTS+=("$@")
 

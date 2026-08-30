@@ -5,8 +5,8 @@
 # For bexperiments sub-projects, just make a folder — the root CLAUDE.md and .gitignore
 # already have you covered.
 #
-# Usage: cd into your new repo, then run:
-#   bash ~/bexperiments/claude-code-scaffold.sh
+# Usage: cd into your new repo under ~/Documents/GitHub, then run:
+#   bash ~/Documents/GitHub/bexperiments/claude-code-scaffold.sh
 
 set -e
 
@@ -17,12 +17,48 @@ mkdir -p .claude/rules
 mkdir -p .claude/skills
 mkdir -p .claude/agents
 
+# --- AGENTS.md (shared agent policy) ---
+if [ ! -f AGENTS.md ]; then
+  cat > AGENTS.md << 'AGENTSMD'
+# Project instructions
+
+## Repository structure
+
+- Keep the repository self-contained.
+- Use descriptive folder and file names; do not retain `new-project`,
+  `untitled`, or prompt fragments.
+- Preserve unrelated and uncommitted changes.
+
+## Documentation roles
+
+- `README.md` is the human-facing project overview.
+- `AGENTS.md` is the shared behavior and safety policy for coding agents.
+- `CLAUDE.md` contains matching rules plus detailed commands and Claude-specific
+  guidance.
+- Keep `AGENTS.md` and `CLAUDE.md` behaviorally aligned.
+
+## Safety and verification
+
+- Never commit credentials, tokens, OAuth files, or local secret configuration.
+- Test affected behavior locally before proposing a push or deployment.
+- Put temporary generated material in `work/` and finished user-facing
+  artifacts in `outputs/` when practical.
+AGENTSMD
+  echo "  Created AGENTS.md (edit this with shared project rules)"
+else
+  echo "  AGENTS.md already exists — skipping"
+fi
+
 # --- CLAUDE.md (starter template — edit this!) ---
 if [ ! -f CLAUDE.md ]; then
   cat > CLAUDE.md << 'CLAUDEMD'
 # Project Name
 
 One-line description of what this project does.
+
+`CLAUDE.md` and `AGENTS.md` must remain behaviorally aligned. `AGENTS.md`
+contains the shared agent policy; this file adds detailed project commands and
+Claude Code guidance.
 
 ## Structure
 
@@ -126,9 +162,10 @@ fi
 
 echo ""
 echo "Done! Next steps:"
-echo "  1. Edit CLAUDE.md with your project details"
-echo "  2. Edit .claude/rules/code-style.md with your conventions"
-echo "  3. Add any secrets/env vars to .claude/settings.local.json"
-echo "  4. Commit:"
-echo "     git add CLAUDE.md .claude/settings.json .claude/rules/ .gitignore"
+echo "  1. Edit AGENTS.md and CLAUDE.md with your project details"
+echo "  2. Keep their shared behavior rules aligned"
+echo "  3. Edit .claude/rules/code-style.md with your conventions"
+echo "  4. Add any secrets/env vars to .claude/settings.local.json"
+echo "  5. Commit:"
+echo "     git add AGENTS.md CLAUDE.md .claude/settings.json .claude/rules/ .gitignore"
 echo "     git commit -m 'Add Claude Code project scaffold'"

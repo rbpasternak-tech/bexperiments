@@ -40,3 +40,4 @@ agent-team/credentials.json
 .idea/
 *.swp
 *.swo
+legal-doc-catalog/seed/.env
