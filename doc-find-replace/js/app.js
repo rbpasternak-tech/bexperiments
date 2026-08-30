@@ -11,12 +11,13 @@ import {
 } from './storage.js';
 import { readDocxText, applyDocxCleanReplacements } from './docx-processor.js';
 import { readPdfText } from './pdf-processor.js';
-import { extractBracketedTerms } from './bracket-extractor.js';
-import { applyReplacement, applyAllReplacements } from './replacer.js';
+import { extractAllTerms } from './term-extractor.js';
+import { escapeRegex, applyReplacement, applyAllReplacements } from './replacer.js';
 import {
   exportCleanIndividual, exportCleanZip,
   exportRedlineIndividual, exportRedlineZip
 } from './export.js';
+import { validateTerms } from './term-validator.js';
 
 // ─── DOM References ───
 
@@ -31,6 +32,7 @@ const tableFilter = document.getElementById('table-filter');
 const checkAll = document.getElementById('check-all');
 const btnAddRow = document.getElementById('btn-add-row');
 const btnExtractAll = document.getElementById('btn-extract-all');
+const btnValidate = document.getElementById('btn-validate');
 const btnApplyAll = document.getElementById('btn-apply-all');
 const btnExportClean = document.getElementById('btn-export-clean');
 const btnExportCleanZip = document.getElementById('btn-export-clean-zip');
@@ -39,6 +41,10 @@ const btnExportRedlineZip = document.getElementById('btn-export-redline-zip');
 const progressOverlay = document.getElementById('progress-overlay');
 const progressText = document.getElementById('progress-text');
 const toastContainer = document.getElementById('toast-container');
+const previewPanel = document.getElementById('preview-panel');
+const previewTitle = document.getElementById('preview-title');
+const previewBody = document.getElementById('preview-body');
+const previewClose = document.getElementById('preview-close');
 
 // ─── Helpers ───
 
@@ -214,11 +220,12 @@ async function extractAndStoreForDoc(docId, docName, type, data) {
     return;
   }
 
-  const terms = extractBracketedTerms(text);
+  const terms = extractAllTerms(text);
   const existing = await getAllReplacements();
+  const autoSources = new Set(['auto', 'bracket', 'quoted', 'defined']);
   const existingKeys = new Set(
     existing
-      .filter((r) => r.docId === docId && r.source === 'auto')
+      .filter((r) => r.docId === docId && autoSources.has(r.source))
       .map((r) => r.find.toLowerCase())
   );
 
@@ -229,7 +236,7 @@ async function extractAndStoreForDoc(docId, docName, type, data) {
         docName,
         find: term.find,
         replace: '',
-        source: 'auto',
+        source: term.type,
         active: true
       });
     }
@@ -255,13 +262,19 @@ async function refreshTable() {
   for (const r of replacements) {
     const tr = document.createElement('tr');
     tr.dataset.id = r.id;
-    tr.dataset.docId = r.docId;
+    tr.dataset.docId = r.docId || '';
     tr.dataset.source = r.source;
+    tr.dataset.scope = r.scope || 'doc';
+    const isGlobal = r.scope === 'global';
+    const docCell = isGlobal
+      ? `<span class="scope-global">All Documents</span>`
+      : escapeHtml(r.docName);
+    const sourceLabel = r.source === 'auto' ? 'bracket' : r.source;
     tr.innerHTML = `
-      <td title="${escapeHtml(r.docName)}">${escapeHtml(r.docName)}</td>
+      <td title="${escapeHtml(r.docName || 'All Documents')}">${docCell}</td>
       <td><input type="text" value="${escapeHtml(r.find)}" data-field="find"></td>
       <td><input type="text" value="${escapeHtml(r.replace || '')}" data-field="replace" placeholder="Enter replacement..."></td>
-      <td><span class="source-badge source-${r.source}">${r.source}</span></td>
+      <td><span class="source-badge source-${r.source}">${sourceLabel}</span></td>
       <td class="td-check"><input type="checkbox" ${r.active ? 'checked' : ''} data-field="active"></td>
       <td class="td-actions"><button class="row-delete" title="Delete row">&times;</button></td>
     `;
@@ -312,8 +325,86 @@ function wireTableEvents() {
       const id = Number(tr.dataset.id);
       await deleteReplacement(id);
       await refreshTable();
+      previewPanel.classList.add('hidden');
     });
   });
+
+  // Row click for context preview
+  replaceTbody.querySelectorAll('tr').forEach((tr) => {
+    tr.addEventListener('click', (e) => {
+      if (e.target.closest('input, button')) return;
+      replaceTbody.querySelectorAll('tr').forEach((r) => r.classList.remove('selected-row'));
+      tr.classList.add('selected-row');
+      showPreview(tr);
+    });
+  });
+}
+
+async function showPreview(tr) {
+  const id = Number(tr.dataset.id);
+  const replacements = await getAllReplacements();
+  const record = replacements.find((r) => r.id === id);
+  if (!record) return;
+
+  const isGlobal = record.scope === 'global';
+  const isBracket = record.source === 'auto' || record.source === 'bracket';
+  const docs = isGlobal ? await getAllDocuments() : [await getDocument(record.docId)].filter(Boolean);
+
+  previewBody.innerHTML = '';
+  let totalMatches = 0;
+  const contextRadius = 80;
+
+  for (const doc of docs) {
+    let text;
+    try {
+      if (doc.type === 'docx') {
+        text = await readDocxText(doc.data);
+      } else {
+        text = await readPdfText(doc.data);
+      }
+    } catch (_) {
+      continue;
+    }
+
+    let patternStr;
+    if (isBracket) {
+      patternStr = '\\[' + escapeRegex(record.find) + '\\](?:[\'\\u2019]s)?';
+    } else {
+      patternStr = '\\b' + escapeRegex(record.find) + '(?:[\'\\u2019]s)?\\b';
+    }
+    const pattern = new RegExp(patternStr, 'gi');
+    let match;
+
+    while ((match = pattern.exec(text)) !== null) {
+      totalMatches++;
+      const start = Math.max(0, match.index - contextRadius);
+      const end = Math.min(text.length, match.index + match[0].length + contextRadius);
+      const before = text.substring(start, match.index);
+      const matched = text.substring(match.index, match.index + match[0].length);
+      const after = text.substring(match.index + match[0].length, end);
+
+      const div = document.createElement('div');
+      div.className = 'preview-match';
+      div.innerHTML =
+        (start > 0 ? '...' : '') +
+        escapeHtml(before) +
+        '<mark>' + escapeHtml(matched) + '</mark>' +
+        escapeHtml(after) +
+        (end < text.length ? '...' : '');
+
+      if (isGlobal && docs.length > 1) {
+        const label = document.createElement('div');
+        label.style.cssText = 'font-size:11px;color:#a0a0b8;margin-bottom:2px;';
+        label.textContent = doc.name;
+        previewBody.appendChild(label);
+      }
+      previewBody.appendChild(div);
+    }
+  }
+
+  const termLabel = isBracket ? '[' + record.find + ']' : record.find;
+  previewTitle.textContent = totalMatches + ' match' + (totalMatches !== 1 ? 'es' : '') + ' for "' + termLabel + '"';
+  previewPanel.classList.remove('hidden');
 }
 
 /**
@@ -400,16 +491,15 @@ async function handleAddRow() {
       }
 
       if (docVal === 'all') {
-        for (const doc of docs) {
-          await addReplacement({
-            docId: doc.id,
-            docName: doc.name,
-            find: findVal,
-            replace: replaceVal,
-            source: 'manual',
-            active: true
-          });
-        }
+        await addReplacement({
+          docId: null,
+          docName: 'All Documents',
+          find: findVal,
+          replace: replaceVal,
+          source: 'manual',
+          scope: 'global',
+          active: true
+        });
       } else {
         const doc = docs.find((d) => d.id === Number(docVal));
         if (doc) {
@@ -419,6 +509,7 @@ async function handleAddRow() {
             find: findVal,
             replace: replaceVal,
             source: 'manual',
+            scope: 'doc',
             active: true
           });
         }
@@ -456,7 +547,7 @@ async function handleExtractAll() {
     return;
   }
 
-  setProgress(true, 'Extracting bracketed terms...');
+  setProgress(true, 'Extracting defined terms...');
 
   try {
     let totalNew = 0;
@@ -467,7 +558,7 @@ async function handleExtractAll() {
       // Count new extractions by comparing before/after
     }
     await refreshTable();
-    showToast('Bracket extraction complete.', 'success');
+    showToast('Term extraction complete.', 'success');
   } catch (err) {
     showToast('Extraction error: ' + err.message, 'error');
     console.error(err);
@@ -493,17 +584,32 @@ async function handleApplyAll() {
   setProgress(true, 'Applying replacements...');
 
   try {
-    // Group by docId
+    const globalReps = [];
     const byDoc = new Map();
     for (const r of active) {
-      if (!byDoc.has(r.docId)) {
-        byDoc.set(r.docId, []);
-      }
-      byDoc.get(r.docId).push({
+      const rep = {
         find: r.find,
         replace: r.replace,
-        isBracket: r.source === 'auto'
-      });
+        isBracket: r.source === 'auto' || r.source === 'bracket'
+      };
+      if (r.scope === 'global') {
+        globalReps.push(rep);
+      } else {
+        if (!byDoc.has(r.docId)) {
+          byDoc.set(r.docId, []);
+        }
+        byDoc.get(r.docId).push(rep);
+      }
+    }
+
+    const docs = await getAllDocuments();
+    if (globalReps.length > 0) {
+      for (const doc of docs) {
+        if (!byDoc.has(doc.id)) {
+          byDoc.set(doc.id, []);
+        }
+        byDoc.get(doc.id).push(...globalReps);
+      }
     }
 
     let count = 0;
@@ -537,6 +643,88 @@ async function handleApplyAll() {
     showToast(`Applied replacements to ${total} document(s).`, 'success');
   } catch (err) {
     showToast('Apply error: ' + err.message, 'error');
+    console.error(err);
+  } finally {
+    setProgress(false);
+  }
+}
+
+// ─── Validate Terms ───
+
+async function handleValidate() {
+  const docs = await getAllDocuments();
+  if (docs.length === 0) {
+    showToast('No documents to validate.', 'warning');
+    return;
+  }
+
+  setProgress(true, 'Validating terms...');
+
+  try {
+    const allDefinedUnused = [];
+    const allUsedUndefined = [];
+
+    for (const doc of docs) {
+      let text;
+      try {
+        text = doc.type === 'docx' ? await readDocxText(doc.data) : await readPdfText(doc.data);
+      } catch (_) {
+        continue;
+      }
+
+      const result = validateTerms(text);
+      for (const item of result.definedUnused) {
+        allDefinedUnused.push({ ...item, docName: doc.name });
+      }
+      for (const item of result.usedUndefined) {
+        allUsedUndefined.push({ ...item, docName: doc.name });
+      }
+    }
+
+    previewBody.innerHTML = '';
+
+    if (allDefinedUnused.length === 0 && allUsedUndefined.length === 0) {
+      previewBody.innerHTML = '<div class="preview-match">All terms look consistent.</div>';
+      previewTitle.textContent = 'Term Validation';
+      previewPanel.classList.remove('hidden');
+      return;
+    }
+
+    if (allDefinedUnused.length > 0) {
+      const heading = document.createElement('div');
+      heading.style.cssText = 'font-size:12px;font-weight:600;color:#ff9800;padding:6px 0 4px;';
+      heading.textContent = 'Defined but rarely/never used (' + allDefinedUnused.length + ')';
+      previewBody.appendChild(heading);
+      for (const item of allDefinedUnused) {
+        const div = document.createElement('div');
+        div.className = 'preview-match';
+        div.innerHTML = '<mark>' + escapeHtml(item.term) + '</mark>'
+          + ' <span style="color:#a0a0b8;">in ' + escapeHtml(item.docName)
+          + ' (' + item.usageCount + ' usage' + (item.usageCount !== 1 ? 's' : '') + ')</span>';
+        previewBody.appendChild(div);
+      }
+    }
+
+    if (allUsedUndefined.length > 0) {
+      const heading = document.createElement('div');
+      heading.style.cssText = 'font-size:12px;font-weight:600;color:#64b5f6;padding:6px 0 4px;';
+      heading.textContent = 'Used but not formally defined (' + allUsedUndefined.length + ')';
+      previewBody.appendChild(heading);
+      for (const item of allUsedUndefined) {
+        const div = document.createElement('div');
+        div.className = 'preview-match';
+        div.innerHTML = '<mark>' + escapeHtml(item.term) + '</mark>'
+          + ' <span style="color:#a0a0b8;">in ' + escapeHtml(item.docName)
+          + ' (' + item.count + ' occurrences)</span>';
+        previewBody.appendChild(div);
+      }
+    }
+
+    previewTitle.textContent = 'Term Validation';
+    previewPanel.classList.remove('hidden');
+    showToast('Validation complete.', 'success');
+  } catch (err) {
+    showToast('Validation error: ' + err.message, 'error');
     console.error(err);
   } finally {
     setProgress(false);
@@ -628,11 +816,20 @@ async function init() {
     await refreshTable();
   });
 
+  // Preview close
+  previewClose.addEventListener('click', () => {
+    previewPanel.classList.add('hidden');
+    replaceTbody.querySelectorAll('tr').forEach((r) => r.classList.remove('selected-row'));
+  });
+
   // Add row
   btnAddRow.addEventListener('click', handleAddRow);
 
-  // Extract all brackets
+  // Extract all terms
   btnExtractAll.addEventListener('click', handleExtractAll);
+
+  // Validate terms
+  btnValidate.addEventListener('click', handleValidate);
 
   // Apply all
   btnApplyAll.addEventListener('click', handleApplyAll);

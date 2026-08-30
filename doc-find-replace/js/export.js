@@ -15,20 +15,37 @@ import { applyPdfCleanReplacements, applyPdfRedlineReplacements } from './pdf-pr
  */
 async function getActiveReplacementsByDoc() {
   const allReplacements = await getAllReplacements();
+  const globalReps = [];
   const byDoc = new Map();
 
   for (const r of allReplacements) {
     if (!r.active) continue;
     if (!r.replace && r.replace !== '') continue;
 
-    if (!byDoc.has(r.docId)) {
-      byDoc.set(r.docId, []);
-    }
-    byDoc.get(r.docId).push({
+    const rep = {
       find: r.find,
       replace: r.replace,
-      isBracket: r.source === 'auto'
-    });
+      isBracket: r.source === 'auto' || r.source === 'bracket'
+    };
+
+    if (r.scope === 'global') {
+      globalReps.push(rep);
+    } else {
+      if (!byDoc.has(r.docId)) {
+        byDoc.set(r.docId, []);
+      }
+      byDoc.get(r.docId).push(rep);
+    }
+  }
+
+  if (globalReps.length > 0) {
+    const docs = await getAllDocuments();
+    for (const doc of docs) {
+      if (!byDoc.has(doc.id)) {
+        byDoc.set(doc.id, []);
+      }
+      byDoc.get(doc.id).push(...globalReps);
+    }
   }
 
   return byDoc;

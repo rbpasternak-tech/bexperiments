@@ -1,40 +1,43 @@
-/**
- * replacer.js — Find/replace logic with whole-word, case-insensitive matching.
- * Supports both bracket-extracted terms and manual terms.
- */
-
-/**
- * Escapes special regex characters in a string.
- * @param {string} str - The string to escape.
- * @returns {string} The escaped string safe for regex use.
- */
 export function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/**
- * Applies a single find/replace operation to text.
- * For bracket terms (isBracket=true): finds '[word]' literally (with brackets).
- * For manual terms: finds 'word' as whole word using word boundaries.
- * Matching is case-insensitive.
- *
- * @param {string} text - The input text.
- * @param {string} find - The term to find (without brackets for bracket terms).
- * @param {string} replace - The replacement text.
- * @param {boolean} isBracket - Whether this is a bracket-extracted term.
- * @returns {{newText: string, count: number, positions: Array<{start: number, end: number, original: string}>}}
- */
+export function detectCase(str) {
+  if (str === str.toUpperCase() && str !== str.toLowerCase()) return 'upper';
+  if (str === str.toLowerCase()) return 'lower';
+  const words = str.split(/\s+/);
+  if (words.length > 1 && words.every((w) => /^[A-Z]/.test(w))) return 'title';
+  if (/^[A-Z]/.test(str) && str.slice(1) === str.slice(1).toLowerCase()) return 'capitalized';
+  return 'mixed';
+}
+
+export function applyCase(replacement, caseType) {
+  switch (caseType) {
+    case 'upper': return replacement.toUpperCase();
+    case 'lower': return replacement.toLowerCase();
+    case 'title':
+      return replacement.split(/\s+/).map(
+        (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+      ).join(' ');
+    case 'capitalized':
+      return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+    default: return replacement;
+  }
+}
+
 export function applyReplacement(text, find, replace, isBracket) {
   if (!text || !find) {
     return { newText: text || '', count: 0, positions: [] };
   }
 
-  let pattern;
+  const escaped = escapeRegex(find);
+  let patternStr;
   if (isBracket) {
-    pattern = new RegExp('\\[' + escapeRegex(find) + '\\]', 'gi');
+    patternStr = '\\[' + escaped + '\\](?:[\'\\u2019]s)?';
   } else {
-    pattern = new RegExp('\\b' + escapeRegex(find) + '\\b', 'gi');
+    patternStr = '\\b' + escaped + '(?:[\'\\u2019]s)?\\b';
   }
+  const pattern = new RegExp(patternStr, 'gi');
 
   const positions = [];
   let match;
@@ -46,16 +49,21 @@ export function applyReplacement(text, find, replace, isBracket) {
     });
   }
 
-  const newText = text.replace(pattern, replace);
+  const newText = text.replace(pattern, (matched) => {
+    const hasPossessive = /['’]s$/i.test(matched);
+    const core = hasPossessive ? matched.slice(0, -2) : matched;
+    const inner = isBracket ? core.slice(1, -1) : core;
+    const caseType = detectCase(inner);
+    let result = applyCase(replace, caseType);
+    if (hasPossessive) {
+      result += result.endsWith('s') || result.endsWith('S') ? "'" : "'s";
+    }
+    return result;
+  });
+
   return { newText, count: positions.length, positions };
 }
 
-/**
- * Applies multiple replacements to text in sequence.
- * @param {string} text - The input text.
- * @param {Array<{find: string, replace: string, isBracket: boolean}>} replacements - Replacement operations.
- * @returns {{newText: string, totalCount: number}}
- */
 export function applyAllReplacements(text, replacements) {
   let currentText = text;
   let totalCount = 0;

@@ -3,7 +3,7 @@
  * Handles text extraction, clean replacement, and redline (tracked changes) generation.
  */
 
-import { escapeRegex } from './replacer.js';
+import { escapeRegex, applyReplacement, detectCase, applyCase } from './replacer.js';
 
 /**
  * Reads a .docx ArrayBuffer and extracts all text content.
@@ -60,13 +60,8 @@ export async function applyDocxCleanReplacements(data, replacements) {
     let modified = paraText;
     for (const r of replacements) {
       if (r.replace === undefined || r.replace === null) continue;
-      let pattern;
-      if (r.isBracket) {
-        pattern = new RegExp('\\[' + escapeRegex(r.find) + '\\]', 'gi');
-      } else {
-        pattern = new RegExp('\\b' + escapeRegex(r.find) + '\\b', 'gi');
-      }
-      modified = modified.replace(pattern, r.replace);
+      const result = applyReplacement(modified, r.find, r.replace, r.isBracket);
+      modified = result.newText;
     }
 
     if (modified !== paraText) {
@@ -127,19 +122,29 @@ export async function applyDocxRedlineReplacements(data, replacements) {
     const allMatches = [];
     for (const r of replacements) {
       if (r.replace === undefined || r.replace === null) continue;
-      let pattern;
+      const escaped = escapeRegex(r.find);
+      let patternStr;
       if (r.isBracket) {
-        pattern = new RegExp('\\[' + escapeRegex(r.find) + '\\]', 'gi');
+        patternStr = '\\[' + escaped + '\\](?:[\'\\u2019]s)?';
       } else {
-        pattern = new RegExp('\\b' + escapeRegex(r.find) + '\\b', 'gi');
+        patternStr = '\\b' + escaped + '(?:[\'\\u2019]s)?\\b';
       }
+      const pattern = new RegExp(patternStr, 'gi');
       let m;
       while ((m = pattern.exec(fullText)) !== null) {
+        const hasPossessive = /['']s$/i.test(m[0]);
+        const core = hasPossessive ? m[0].slice(0, -2) : m[0];
+        const inner = r.isBracket ? core.slice(1, -1) : core;
+        const caseType = detectCase(inner);
+        let rep = applyCase(r.replace, caseType);
+        if (hasPossessive) {
+          rep += rep.endsWith('s') || rep.endsWith('S') ? "'" : "'s";
+        }
         allMatches.push({
           start: m.index,
           end: m.index + m[0].length,
           original: m[0],
-          replacement: r.replace
+          replacement: rep
         });
       }
     }

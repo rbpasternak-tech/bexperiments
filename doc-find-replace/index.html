@@ -41,7 +41,8 @@
       <div class="table-toolbar">
         <input type="text" id="table-filter" placeholder="Filter rows..." class="filter-input">
         <button id="btn-add-row" class="btn btn-secondary">Add Row</button>
-        <button id="btn-extract-all" class="btn btn-secondary">Extract All Brackets</button>
+        <button id="btn-extract-all" class="btn btn-secondary">Extract Terms</button>
+        <button id="btn-validate" class="btn btn-secondary">Validate Terms</button>
       </div>
       <div class="table-container">
         <table id="replace-table">
@@ -57,6 +58,13 @@
           <tbody id="replace-tbody"></tbody>
         </table>
         <p id="no-rows-msg" class="no-rows-msg">No replacements yet. Upload documents or add rows manually.</p>
+      </div>
+      <div id="preview-panel" class="preview-panel hidden">
+        <div class="preview-header">
+          <span id="preview-title">Context Preview</span>
+          <button id="preview-close" class="preview-close">&times;</button>
+        </div>
+        <div id="preview-body" class="preview-body"></div>
       </div>
     </main>
   </div>
