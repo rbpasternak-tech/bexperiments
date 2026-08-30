@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clause Remediation App</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Clause Remediation App</h1>
+      <p class="subtitle">Portfolio-Wide Clause Remediation</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- Scenario Banner -->
+    <section class="scenario-banner" id="scenarioBanner">
+      <div class="scenario-fields">
+        <div class="field">
+          <label>Clause Type</label>
+          <input type="text" id="clauseType" value="arbitration">
+        </div>
+        <div class="field">
+          <label>Old Standard</label>
+          <input type="text" id="oldStandard" value="AAA Commercial Arbitration Rules (2013)">
+        </div>
+        <div class="field">
+          <label>New Standard</label>
+          <input type="text" id="newStandard" value="AAA Commercial Arbitration Rules (2024)">
+        </div>
+        <div class="field">
+          <label>Category Filter</label>
+          <input type="text" id="categoryFilter" value="Services & Commercial">
+        </div>
+      </div>
+      <button id="btnStart" class="btn-start">Start Remediation</button>
+    </section>
+
+    <!-- Agent Cards -->
+    <section class="agent-cards">
+      <div class="agent-card" id="agentSearch" data-agent="SEARCH">
+        <div class="agent-icon">&#x1F50D;</div>
+        <div class="agent-info">
+          <h3>Search Agent</h3>
+          <p class="agent-status" id="searchStatus">Idle</p>
+          <div class="agent-stat" id="searchStat"></div>
+        </div>
+        <div class="agent-indicator"></div>
+      </div>
+      <div class="agent-card" id="agentLegal" data-agent="LEGAL">
+        <div class="agent-icon">&#x2696;</div>
+        <div class="agent-info">
+          <h3>Legal Agent</h3>
+          <p class="agent-status" id="legalStatus">Idle</p>
+          <div class="agent-stat" id="legalStat"></div>
+        </div>
+        <div class="agent-indicator"></div>
+      </div>
+      <div class="agent-card" id="agentProcessing" data-agent="PROCESSING">
+        <div class="agent-icon">&#x2699;</div>
+        <div class="agent-info">
+          <h3>Processing Agent</h3>
+          <p class="agent-status" id="processingStatus">Idle</p>
+          <div class="agent-stat" id="processingStat"></div>
+        </div>
+        <div class="agent-indicator"></div>
+      </div>
+    </section>
+
+    <!-- Progress Bar -->
+    <section class="progress-section" id="progressSection" style="display:none">
+      <div class="progress-label" id="progressLabel">Initializing...</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </section>
+
+    <!-- Two-Column: Event Log + Document Grid -->
+    <section class="content-area">
+      <div class="event-log-container">
+        <h2>Live Event Log</h2>
+        <div class="event-log" id="eventLog">
+          <div class="event-placeholder">Waiting to start...</div>
+        </div>
+      </div>
+      <div class="doc-grid-container">
+        <h2>Documents <span class="doc-count" id="docCount"></span></h2>
+        <div class="doc-grid" id="docGrid"></div>
+      </div>
+    </section>
+
+    <!-- Results Summary (hidden until complete) -->
+    <section class="results-summary" id="resultsSummary" style="display:none">
+      <h2>Remediation Complete</h2>
+      <div class="results-grid">
+        <div class="result-card">
+          <div class="result-value" id="resSearched">-</div>
+          <div class="result-label">Searched</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value" id="resAnalyzed">-</div>
+          <div class="result-label">Analyzed</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value" id="resClauses">-</div>
+          <div class="result-label">Clauses Found</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value" id="resUpdated">-</div>
+          <div class="result-label">Updated</div>
+        </div>
+        <div class="result-card result-card-highlight">
+          <div class="result-value" id="resApproved">-</div>
+          <div class="result-label">QA Approved</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value" id="resTime">-</div>
+          <div class="result-label">Elapsed</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
