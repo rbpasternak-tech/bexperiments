@@ -9,6 +9,7 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import mfp_source
 from health_export import read_health_metrics, rings_closed
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -274,41 +275,75 @@ def _record_habits(tool_input, vault):
     return vault.upsert_habit_row(date_str, values)
 
 
-def record_health_rows(ctx, days=4):
+def record_health_rows(ctx, days=5):
     """Deterministically write recent days' health metrics to the habit grid.
 
     Runs before the LLM habit check-in so the numbers land even if the
-    persona's turn fails or hits its token limit. Only fills days whose
-    Steps cell is still empty (never overwrites a hand-corrected value) and
-    skips days flagged 'partial' (their finished totals arrive the next
-    day). Returns a short summary for the log / Telegram.
+    persona's turn fails or hits its token limit. Fills each empty metric
+    cell (Steps, Calories, Weight, Rings) INDEPENDENTLY — never overwriting a
+    value already present, whether hand-corrected or written on an earlier
+    night. This matters because MyFitnessPal calories reach the export a day
+    or two AFTER steps: the old "skip the whole day once Steps is filled"
+    rule meant those late calories were never backfilled. Skips days flagged
+    'partial' (totals still moving). Returns a short summary for the
+    log / Telegram.
     """
     vault = ctx["vault"]
     export_dir = ctx.get("health_export_dir")
     goals = ctx.get("ring_goals")
     recorded, last_error = [], None
+    calorie_gaps = []  # finished days the local export had no calories for
     today = datetime.now().date()
     for i in range(days):
         date_str = (today - timedelta(days=i)).isoformat()
         cells = vault.habit_row_cells(date_str)
-        if cells is None or cells.get("Steps"):
-            continue  # row missing, or steps already recorded
+        if cells is None:
+            continue  # month grid or the date's row does not exist
+        # Only pursue metrics whose cell is still empty, so a value already in
+        # the grid (hand-entered or from an earlier run) is never clobbered.
+        needs = {
+            "steps": not cells.get("Steps"),
+            "calories": not cells.get("Calories"),
+            "weight": not cells.get("Weight"),
+            "rings": not cells.get("Rings"),
+        }
+        if not any(needs.values()):
+            continue  # every metric cell already filled
         metrics = read_health_metrics(export_dir, date_str)
         if "error" in metrics:
             last_error = metrics["error"]  # e.g. eviction vs phone not syncing
             continue
-        if metrics.get("steps") is None or metrics.get("partial"):
-            continue  # nothing usable yet, or day not finished
-        fields = {"date": date_str, "steps": metrics["steps"]}
-        if metrics.get("calories") is not None:
+        if metrics.get("partial"):
+            continue  # day not finished; totals still moving
+        fields = {"date": date_str}
+        if needs["steps"] and metrics.get("steps") is not None:
+            fields["steps"] = metrics["steps"]
+        if needs["calories"] and metrics.get("calories") is not None:
             fields["calories"] = metrics["calories"]
-        if metrics.get("weight") is not None:
+        elif needs["calories"]:
+            # Calories missing from the local export (the .hae files lag or
+            # skip days). Remember it for the MyFitnessPal backfill pass.
+            calorie_gaps.append(date_str)
+        if needs["weight"] and metrics.get("weight") is not None:
             fields["weight"] = metrics["weight"]
-        rings = rings_closed(metrics, goals)
-        if rings:
-            fields["rings"] = rings
-        _record_habits(fields, vault)
-        recorded.append(date_str)
+        if needs["rings"]:
+            rings = rings_closed(metrics, goals)
+            if rings:
+                fields["rings"] = rings
+        if len(fields) > 1:
+            _record_habits(fields, vault)
+            written = ",".join(k for k in fields if k != "date")
+            recorded.append(f"{date_str} ({written})")
+
+    # Backfill any still-missing calories straight from MyFitnessPal — the
+    # source of truth the Apple Health export drops. Best-effort: does nothing
+    # unless MyFitnessPal is configured, and never fails the run (see
+    # mfp_source). Runs after the local pass so it only fills genuine gaps.
+    if calorie_gaps and mfp_source.is_configured():
+        for date_str, calories in mfp_source.fetch_calories(calorie_gaps).items():
+            _record_habits({"date": date_str, "calories": calories}, vault)
+            recorded.append(f"{date_str} (calories via MyFitnessPal)")
+
     if recorded:
         return "recorded " + ", ".join(recorded)
     if last_error:

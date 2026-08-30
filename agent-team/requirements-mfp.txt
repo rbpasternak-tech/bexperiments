@@ -1,0 +1,10 @@
+# Dependencies for the ISOLATED MyFitnessPal venv only — NOT the bot's venv.
+# myfitnesspal pins an old typing-extensions that conflicts with the
+# anthropic/pydantic stack in requirements.txt, so it must live in a separate
+# environment (~/Library/Application Support/agent-team/.mfp-venv). Create it
+# with:
+#   python3 -m venv "$HOME/Library/Application Support/agent-team/.mfp-venv"
+#   "$HOME/Library/Application Support/agent-team/.mfp-venv/bin/python" \
+#       -m pip install -r agent-team/requirements-mfp.txt
+# Then run mfp_login.py once (see that file) to save the cookie jar.
+myfitnesspal

@@ -10,7 +10,10 @@ from datetime import datetime
 from agent_tools import TOOL_DEFINITIONS, handle_tool_call
 
 MAX_TOOL_ROUNDS = 8
-MAX_TOKENS = 2048
+MAX_TOKENS = 4096
+# A forced text-only wrap-up gets a wider budget than a normal turn: it must
+# fit a complete reply (plus any tool-result summary) in one shot.
+WRAP_UP_MAX_TOKENS = 6144
 
 WRAP_UP_NOTE = (
     "(System note: the tool budget for this turn is used up. Reply to the "
@@ -102,37 +105,52 @@ def run_persona_turn(anthropic_client, model, persona_key, personas_cfg, user_te
                 {"type": "tool_result", "tool_use_id": block.id, "content": result}
             )
         messages.append({"role": "user", "content": tool_results})
-    else:
-        # Budget exhausted while the model still wanted tools. Its last
-        # response has no text, so force one final text-only wrap-up
-        # instead of sending the user an empty reply.
+
+    text_parts = [block.text for block in response.content if block.type == "text"]
+    reply = "\n".join(text_parts).strip()
+
+    # No usable text means the turn ended without answering: it ran out of
+    # output budget mid-reply (stop_reason 'max_tokens' — more likely on a busy
+    # day when the long shared transcript pushes replies past the ceiling), or
+    # it used all MAX_TOOL_ROUNDS still wanting tools. Force ONE text-only turn
+    # with a wider budget rather than surfacing a raw 'max_tokens' apology.
+    # `messages` always ends on a user turn here (the loop breaks before
+    # appending the assistant turn), so this follow-up call is valid.
+    if not reply:
         print(
-            f"[persona_turn] {persona_key}: tool budget exhausted after "
-            f"{MAX_TOOL_ROUNDS} rounds, forcing wrap-up",
+            f"[persona_turn] {persona_key}: no text on first pass "
+            f"(stop_reason={response.stop_reason}); forcing text-only wrap-up",
             flush=True,
         )
-        messages[-1]["content"] = list(messages[-1]["content"]) + [
-            {"type": "text", "text": WRAP_UP_NOTE}
-        ]
+        wrap_messages = list(messages)
+        last = wrap_messages[-1]
+        if isinstance(last.get("content"), list):
+            # Nudge the model to summarize the tool results it already ran.
+            wrap_messages[-1] = {
+                "role": "user",
+                "content": list(last["content"])
+                + [{"type": "text", "text": WRAP_UP_NOTE}],
+            }
         response = anthropic_client.messages.create(
             model=model,
-            max_tokens=MAX_TOKENS,
+            max_tokens=WRAP_UP_MAX_TOKENS,
             system=system_prompt,
             tools=TOOL_DEFINITIONS,
             tool_choice={"type": "none"},
-            messages=messages,
+            messages=wrap_messages,
         )
-    text_parts = [block.text for block in response.content if block.type == "text"]
-    reply = "\n".join(text_parts).strip()
+        reply = "\n".join(
+            block.text for block in response.content if block.type == "text"
+        ).strip()
+
     if not reply:
         print(
-            f"[persona_turn] {persona_key}: empty reply "
+            f"[persona_turn] {persona_key}: still empty after wrap-up "
             f"(stop_reason={response.stop_reason})",
             flush=True,
         )
         reply = (
-            "(I came back without a reply — the turn ended with "
-            f"stop_reason '{response.stop_reason}'. Details are in "
-            "~/Library/Logs/agent-team/bot.log.)"
+            "Sorry — that reply ran long and got cut off. Ask me again, or "
+            "tell me to keep it brief and I'll trim it down."
         )
     return reply
