@@ -1,0 +1,6 @@
+LIMITATION OF LIABILITY. Notwithstanding anything to the contrary, Customer's
+aggregate liability under this Agreement shall be unlimited, and Customer shall
+indemnify, defend, and hold harmless Provider from any and all claims, losses,
+damages, and expenses of any kind whatsoever, including consequential and punitive
+damages, arising out of or relating to this Agreement, without cap and without
+regard to fault.

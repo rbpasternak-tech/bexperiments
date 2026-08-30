@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Workflows — the pattern board</title>
+<style>
+/* ============================================================
+   1. Base & typography
+   ============================================================ */
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --border: #e2e6ec;
+  --text: #1e2530;
+  --muted: #64748b;
+  --faint: #94a3b8;
+
+  /* The three "buys" families — reused in pills, diagrams, chips */
+  --speed: #2563eb;      --speed-bg: #e8eefc;
+  --quality: #7c3aed;    --quality-bg: #f1eafd;
+  --coverage: #0f766e;   --coverage-bg: #e0f0ed;
+
+  --good: #16a34a;  --good-bg: #e5f5ea;
+  --bad: #dc2626;   --bad-bg: #fdeaea;
+  --warn: #d97706;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 40px 20px 64px;
+}
+
+/* ============================================================
+   2. Header, intro, legend
+   ============================================================ */
+header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+}
+
+header .intro {
+  max-width: 760px;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.legend .key {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ============================================================
+   3. Scoreboard table
+   ============================================================ */
+.board {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(20, 30, 50, 0.05);
+  overflow: hidden;
+}
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: #fafbfc;
+  white-space: nowrap;
+  user-select: none;
+}
+
+thead th.sortable { cursor: pointer; }
+thead th.sortable:hover, thead th.sortable:focus-visible { color: var(--text); }
+thead th .arrow { font-size: 10px; margin-left: 4px; color: var(--speed); }
+
+tbody tr.row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+tbody tr.row:hover { background: #f4f7fc; }
+tbody tr.row:focus-visible {
+  outline: 2px solid var(--speed);
+  outline-offset: -2px;
+}
+tbody tr.row td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tbody tr.row.open { background: #f4f7fc; }
+tbody tr.row.open td { border-bottom-color: transparent; }
+
+td.num { color: var(--faint); font-variant-numeric: tabular-nums; width: 36px; }
+
+td.name { font-weight: 600; white-space: nowrap; }
+
+/* The Loops family (05, 07): amber tag + left accent stripe */
+.loop-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b45309;
+  background: #fdf1e0;
+  border: 1px solid #f3d9ae;
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-left: 8px;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+.legend .loop-tag { margin-left: 0; }
+tr.row.is-loop td:first-child,
+tr.detail.is-loop > td { box-shadow: inset 3px 0 0 var(--warn); }
+
+.chev {
+  display: inline-block;
+  margin-right: 8px;
+  color: var(--faint);
+  font-size: 11px;
+  transition: transform 0.2s ease;
+}
+tr.row.open .chev { transform: rotate(90deg); color: var(--speed); }
+
+.pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pill.speed    { background: var(--speed-bg);    color: var(--speed); }
+.pill.quality  { background: var(--quality-bg);  color: var(--quality); }
+.pill.coverage { background: var(--coverage-bg); color: var(--coverage); }
+
+td.agents, td.time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.time .na, td.agents .na { color: var(--faint); }
+
+.cost {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #475569;
+  background: #f1f4f8;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+td.when { color: var(--muted); font-size: 13.5px; max-width: 320px; }
+
+/* ============================================================
+   4. Expanded detail panel
+   ============================================================ */
+tr.detail > td {
+  padding: 0 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #f4f7fc;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.panel .idea {
+  font-size: 14.5px;
+  font-style: italic;
+  color: var(--text);
+  border-left: 3px solid var(--border);
+  padding-left: 12px;
+  margin: 0 0 16px;
+}
+
+.panel-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.diagram-wrap { flex: 1 1 420px; min-width: 0; }
+
+.diagram {
+  background: #fbfcfe;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+}
+.diagram svg { width: 100%; height: auto; display: block; }
+
+.d-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.replay {
+  font: 600 12.5px inherit;
+  font-family: inherit;
+  color: var(--speed);
+  background: var(--speed-bg);
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+.replay:hover { filter: brightness(0.96); }
+.replay:focus-visible { outline: 2px solid var(--speed); outline-offset: 2px; }
+
+.d-caption { font-size: 13px; color: var(--muted); }
+
+.guide { flex: 1 1 260px; min-width: 240px; }
+
+.guide h4 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 4px;
+}
+.guide .g-when h4 { color: var(--good); }
+.guide .g-dont h4 { color: var(--bad); }
+.guide p { margin: 0 0 14px; font-size: 14px; color: #374151; }
+
+.stat {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--coverage);
+  background: var(--coverage-bg);
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
+/* ============================================================
+   5. Footer
+   ============================================================ */
+footer {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ============================================================
+   6. Diagram animation primitives (SVG)
+   ============================================================ */
+/* .n  = node group: pops in                                     */
+/* .e  = edge path: draws in (pathLength=1 normalizes lengths)   */
+/* .f  = fade-in element (labels, chips, badges)                 */
+/* .e2 = feedback edge: fades in, then dashes march (infinite)   */
+/* .tok = pipeline token: slides across (infinite)               */
+/* .bar = round bar: grows from its base                         */
+.n {
+  opacity: 0;
+  animation: pop 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.25) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.e {
+  fill: none;
+  stroke: #a4afc0;
+  stroke-width: 1.8;
+  animation: draw 0.5s ease both;
+}
+.f { opacity: 0; animation: fadein 0.4s ease both; }
+.e2 {
+  fill: none;
+  stroke: var(--warn);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+  opacity: 0;
+  animation: fadein 0.5s ease both, march 0.9s linear infinite;
+}
+.tok { animation: slide 4s linear infinite; }
+.bar {
+  animation: grow 0.45s ease both;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+/* .cyc  = goal-loop orbiter (SMIL-driven; CSS only fades it in)   */
+/* .scan = loop-until-dry "current round" ring stepping endlessly  */
+.cyc { opacity: 0; animation: fadein 0.4s ease both; }
+.scan {
+  fill: none;
+  stroke: var(--warn);
+  stroke-width: 2.2;
+  opacity: 0;
+  animation: roundscan 6s linear infinite;
+}
+
+.box { fill: #fff; stroke: #b9c3d0; stroke-width: 1.5; }
+.tint-speed    { fill: var(--speed-bg);    stroke: var(--speed); }
+.tint-quality  { fill: var(--quality-bg);  stroke: var(--quality); }
+.tint-coverage { fill: var(--coverage-bg); stroke: var(--coverage); }
+.tint-good     { fill: var(--good-bg);     stroke: var(--good); }
+.tint-bad      { fill: var(--bad-bg);      stroke: var(--bad); }
+.tint-warn     { fill: #fdf1e0;            stroke: var(--warn); }
+
+.lbl  { font: 600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1e293b; text-anchor: middle; }
+.sub  { font: 400 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #64748b; text-anchor: middle; }
+.note { font: italic 400 11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #94a3b8; text-anchor: middle; }
+.dim  { opacity: 0.45; }
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes draw {
+  from { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  to   { stroke-dasharray: 1; stroke-dashoffset: 0; }
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes march {
+  to { stroke-dashoffset: -26; }
+}
+@keyframes slide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(510px); }
+}
+@keyframes grow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+/* Steps through the 5 rounds (118px apart), then fades and repeats */
+@keyframes roundscan {
+  0%        { transform: translateX(0);     opacity: 0; }
+  4%, 16%   { transform: translateX(0);     opacity: 1; }
+  22%, 36%  { transform: translateX(118px); opacity: 1; }
+  42%, 56%  { transform: translateX(236px); opacity: 1; }
+  62%, 76%  { transform: translateX(354px); opacity: 1; }
+  82%, 92%  { transform: translateX(472px); opacity: 1; }
+  100%      { transform: translateX(472px); opacity: 0; }
+}
+
+/* ============================================================
+   7. Reduced motion: show final state, no movement
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .n, .e, .f, .e2, .bar { animation: none; opacity: 1; }
+  .dim { opacity: 0.45; }
+  .tok { animation: none; visibility: hidden; }
+  .cyc, .scan { animation: none; visibility: hidden; }
+  .replay { display: none; }
+  .chev { transition: none; }
+  tbody tr.row { transition: none; }
+}
+
+/* ============================================================
+   8. Responsive
+   ============================================================ */
+@media (max-width: 760px) {
+  .wrap { padding: 24px 12px 48px; }
+  header h1 { font-size: 23px; }
+  th.col-when, td.when { display: none; }
+  table { min-width: 520px; }
+  .panel { padding: 14px; }
+}
+
+/* ============================================================
+   9. Learning games (quiz / build / sim) — no new keyframes;
+   sim strips reuse .n/.f/.e/.bar, already reduced-motion safe
+   ============================================================ */
+.game {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.g-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.g-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: #eef2f8;
+  color: var(--muted);
+}
+.game.speed .g-kicker    { background: var(--speed-bg);    color: var(--speed); }
+.game.quality .g-kicker  { background: var(--quality-bg);  color: var(--quality); }
+.game.coverage .g-kicker { background: var(--coverage-bg); color: var(--coverage); }
+.g-prompt { font-size: 14px; color: #374151; margin: 0 0 12px; }
+
+.g-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  border-radius: 7px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.g-btn:hover:not(:disabled) { background: #f4f7fc; }
+.g-btn.primary { background: var(--speed); border-color: var(--speed); color: #fff; }
+.g-btn.primary:hover:not(:disabled) { filter: brightness(1.06); }
+.g-btn:disabled { opacity: 0.45; cursor: default; }
+.g-btn:focus-visible, .q-opt:focus-visible,
+.b-piece:focus-visible, .b-slot:focus-visible {
+  outline: 2px solid var(--speed);
+  outline-offset: 2px;
+}
+
+/* quiz */
+.q-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.q-dots { display: inline-flex; gap: 5px; }
+.q-dot { width: 8px; height: 8px; border-radius: 50%; background: #dbe1ea; }
+.q-dot.on { background: var(--good); }
+.q-dot.cur { background: var(--speed); }
+.q-text { font-size: 14.5px; font-weight: 600; margin: 0 0 10px; }
+.q-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.q-opt {
+  text-align: left;
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.45;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+.q-opt:hover:not(:disabled) { border-color: #b6c2d4; background: #f8fafd; }
+.q-opt.correct { border-color: var(--good); background: var(--good-bg); }
+.q-opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.q-opt:disabled { cursor: default; }
+.g-why { font-size: 13px; border-radius: 8px; padding: 9px 12px; margin-bottom: 10px; }
+.g-why:empty { display: none; }
+.g-why.good { background: var(--good-bg); color: #14532d; }
+.g-why.bad { background: var(--bad-bg); color: #7f1d1d; }
+
+/* outcome banners */
+.g-out { font-size: 13.5px; border-radius: 8px; padding: 10px 13px; margin: 10px 0 0; }
+.g-out.good { background: var(--good-bg); color: #14532d; border: 1px solid #b7e0c3; }
+.g-out.bad  { background: var(--bad-bg);  color: #7f1d1d; border: 1px solid #f2c2c2; }
+.g-out.warn { background: #fdf1e0; color: #7c4a03; border: 1px solid #f3d9ae; }
+
+/* build */
+.b-canvas {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: #fbfcfe;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.b-fixed {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: #eef2f8;
+  color: var(--text);
+}
+.game.speed .b-fixed { background: var(--speed-bg); color: var(--speed); }
+.b-col { display: flex; flex-direction: column; gap: 6px; }
+.b-arrow { color: var(--faint); font-size: 13px; }
+.b-slot {
+  font-family: inherit;
+  font-size: 12.5px;
+  min-width: 96px;
+  min-height: 34px;
+  border: 1.5px dashed #b9c3d0;
+  background: #fff;
+  border-radius: 8px;
+  color: var(--faint);
+  cursor: pointer;
+  padding: 6px 10px;
+}
+.b-slot.filled {
+  border-style: solid;
+  color: var(--text);
+  font-weight: 600;
+  background: #f4f7fc;
+}
+.b-slot.over { border-color: var(--speed); background: var(--speed-bg); }
+.b-tray { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.b-piece {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: grab;
+}
+.b-piece.sel { border-color: var(--speed); background: var(--speed-bg); color: var(--speed); }
+.b-piece:disabled { opacity: 0.35; cursor: default; }
+.b-actions { display: flex; gap: 8px; }
+
+/* sim */
+.sim-strip {
+  background: #fbfcfe;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  margin-bottom: 10px;
+}
+.sim-strip svg { width: 100%; height: auto; display: block; }
+.sim-log {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 13px;
+  color: #374151;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+.sim-log li { padding: 4px 8px; background: #f6f8fb; border-radius: 6px; }
+.sim-log li.dry { color: #7c4a03; background: #fdf1e0; }
+.sim-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+/* progress + done markers */
+.done-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--good);
+  background: var(--good-bg);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.progress-chip {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--speed);
+  background: var(--speed-bg);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+/* final challenge */
+#final-challenge {
+  margin-top: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(20, 30, 50, 0.05);
+  padding: 20px 22px;
+}
+#final-challenge h2 { margin: 0 0 6px; font-size: 19px; }
+#final-challenge .fc-sub { margin: 0; color: var(--muted); font-size: 14px; }
+#final-challenge .game { border-top: none; padding-top: 4px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Dynamic Workflows — the pattern board</h1>
+    <p class="intro">
+      Seven ways to turn one task into many coordinating AI agents. Each pattern
+      was run live and watched; the numbers are from real runs. A workflow buys
+      you exactly two things — speed/scale, or confidence/quality — so each row
+      says what it buys, what it costs, and when to reach for it. Click a
+      pattern to see how its agents actually flow. Two of the seven are
+      <strong>loops</strong> — how a workflow keeps going when one pass
+      isn&rsquo;t enough: 05 loops for discovery, 07 loops for convergence.
+    </p>
+    <div class="legend">
+      <span class="key"><span class="dot" style="background:var(--speed)"></span>Speed &amp; scale</span>
+      <span class="key"><span class="dot" style="background:var(--quality)"></span>Confidence &amp; quality</span>
+      <span class="key"><span class="dot" style="background:var(--coverage)"></span>Completeness · coverage · convergence</span>
+      <span class="key"><span class="loop-tag">↻ Loop</span>repeats until a stop condition fires</span>
+      <span class="key"><span class="progress-chip" id="progress-n">0/7 practiced</span></span>
+    </div>
+  </header>
+
+  <div class="board">
+    <div class="table-wrap">
+      <table id="board">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th class="sortable" data-key="name" tabindex="0" role="button">Pattern<span class="arrow"></span></th>
+            <th>Buys</th>
+            <th class="sortable" data-key="agents" tabindex="0" role="button">Agents<span class="arrow"></span></th>
+            <th class="sortable" data-key="time" tabindex="0" role="button">Time<span class="arrow"></span></th>
+            <th class="sortable" data-key="cost" tabindex="0" role="button">Cost<span class="arrow"></span></th>
+            <th class="col-when">Reach for it when</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Unhidden when all 7 patterns are practiced. Lives outside the
+       table body so table re-renders never touch it. -->
+  <section id="final-challenge" hidden aria-label="Final challenge">
+    <h2>Final challenge</h2>
+    <p class="fc-sub">All seven practiced. Eight fresh scenarios — route each one to the right pattern.</p>
+    <div id="final-body" class="game" data-game="final"></div>
+  </section>
+
+  <footer>
+    Patterns 01–04 are foundations (speed → quality); 05–07 add completeness,
+    coverage, and convergence.
+  </footer>
+
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   Data — one record per pattern
+   ============================================================ */
+const PATTERNS = [
+  {
+    id: 'fanout',
+    num: '01',
+    name: 'Fan-out',
+    buys: 'Speed',
+    group: 'speed',
+    agents: '5', agentsSort: 5,
+    time: '13s', timeSort: 13,
+    cost: 1,
+    whenShort: 'the pieces don’t depend on each other (review 20 files, classify 50 records)',
+    idea: 'One task → split into N independent pieces → run an agent on each concurrently → collect results.',
+    when: 'The pieces don’t depend on each other (review 20 files, classify 50 records).',
+    dont: 'Steps depend on each other (that’s a pipeline) or there’s only one piece.',
+    stat: null,
+    caption: 'One burst, one barrier — the join waits for all five.'
+  },
+  {
+    id: 'pipeline',
+    num: '02',
+    name: 'Pipeline',
+    buys: 'Throughput (with dependencies)',
+    group: 'speed',
+    agents: '10', agentsSort: 10,
+    time: '34s', timeSort: 34,
+    cost: 2,
+    whenShort: 'each item needs a sequence where later steps depend on earlier (analyze → fix → check)',
+    idea: 'Each item flows through ordered stages (step 2 needs step 1), and items move independently — no barrier.',
+    when: 'Each item needs a sequence where later steps depend on earlier (analyze → fix → check).',
+    dont: 'Steps are independent (fan out) or a stage needs ALL items at once.',
+    stat: null,
+    caption: 'No barrier — a fast item exits while a slow one is still mid-pipe.'
+  },
+  {
+    id: 'adversarial',
+    num: '03',
+    name: 'Adversarial verify',
+    buys: 'Confidence',
+    group: 'quality',
+    agents: '6', agentsSort: 6,
+    time: '16s', timeSort: 16,
+    cost: 2,
+    whenShort: 'being wrong is expensive and findings can be plausibly false (risk flags, security bugs, factual claims)',
+    idea: 'For each finding, spawn several independent skeptics whose job is to refute it; keep it only if it survives a majority.',
+    when: 'Being wrong is expensive and findings can be plausibly false (risk flags, security bugs, factual claims).',
+    dont: 'Trivially checkable or low-stakes.',
+    stat: null,
+    caption: 'Three blind skeptics; the finding survives a majority — or dies.'
+  },
+  {
+    id: 'judge',
+    num: '04',
+    name: 'Judge panel',
+    buys: 'Quality',
+    group: 'quality',
+    agents: '7', agentsSort: 7,
+    time: '79s', timeSort: 79,
+    cost: 3,
+    whenShort: 'open-ended, quality matters (drafting, design, naming, architecture)',
+    idea: 'Generate several attempts from different angles, a panel of judges picks the best, then synthesize a final that grafts in the best of the rest.',
+    when: 'Open-ended, quality matters (drafting, design, naming, architecture).',
+    dont: 'Single verifiable answer, or any reasonable answer is fine.',
+    stat: null,
+    caption: 'Diverge, judge, then graft the best of the rest into the winner.'
+  },
+  {
+    id: 'loopdry',
+    num: '05',
+    name: 'Loop-until-dry',
+    buys: 'Completeness',
+    group: 'coverage',
+    loop: true,
+    agents: '5 rounds', agentsSort: 5,
+    time: '—', timeSort: null,
+    cost: 2,
+    whenShort: 'result-set size is unknown (“find ALL the bugs”)',
+    idea: 'Keep spawning finders — each told what’s already found — until K rounds in a row turn up nothing new (with a safety cap).',
+    when: 'Result-set size is unknown (“find ALL the bugs”).',
+    dont: 'You already know the work-list (fan out) or one pass is enough.',
+    stat: 'Found 23 issues over 5 rounds',
+    caption: 'Each round finds less; two dry rounds in a row stop the loop.'
+  },
+  {
+    id: 'sweep',
+    num: '06',
+    name: 'Sweep + critic',
+    buys: 'Coverage',
+    group: 'coverage',
+    agents: '4', agentsSort: 4,
+    time: '—', timeSort: null,
+    cost: 2,
+    whenShort: 'completeness matters and the thing has multiple dimensions (contract review, security audit)',
+    idea: 'Run several finders in parallel, each through a different lens and blind to the others, then a critic reads everything and hunts for what fell between the searches.',
+    when: 'Completeness matters and the thing has multiple dimensions (contract review, security audit).',
+    dont: 'One-dimensional or “good enough” beats exhaustive.',
+    stat: 'The critic caught +8 issues the sweep missed',
+    caption: 'Three blind lenses, then a critic hunts between the searches.'
+  },
+  {
+    id: 'goalloop',
+    num: '07',
+    name: 'Goal loop',
+    buys: 'Convergence',
+    group: 'coverage',
+    loop: true,
+    agents: '2', agentsSort: 2,
+    time: '—', timeSort: null,
+    cost: 1,
+    whenShort: 'there’s a verifiable definition of done and the first try usually misses it (“fix until tests pass”)',
+    idea: 'Draft → an independent verifier that can say no checks it against a checkable goal → feed failures back into the next draft → repeat until it passes or a guard fires.',
+    when: 'There’s a verifiable definition of done and the first try usually misses it (“fix until tests pass”).',
+    dont: 'One pass is enough, or you can’t state a checkable goal.',
+    stat: 'Passed on iteration 1',
+    caption: 'The verifier can say no — failures feed the next draft.'
+  }
+];
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// SVG node: outer <g> positions (attribute transform), inner .n animates
+// (CSS transform) — kept separate so the pop doesn't clobber the position.
+function node(x, y, w, h, cls, delay, label, sub) {
+  const ly = sub ? -3 : 4;
+  const subLine = sub
+    ? '<text class="sub" y="12">' + escapeHtml(sub) + '</text>'
+    : '';
+  return '<g transform="translate(' + x + ' ' + y + ')">' +
+    '<g class="n" style="animation-delay:' + delay + 's">' +
+    '<rect class="box ' + cls + '" x="' + (-w / 2) + '" y="' + (-h / 2) +
+    '" width="' + w + '" height="' + h + '" rx="9"></rect>' +
+    '<text class="lbl" y="' + ly + '">' + escapeHtml(label) + '</text>' +
+    subLine + '</g></g>';
+}
+
+function edge(d, delay, extra) {
+  return '<path class="e" pathLength="1" d="' + d + '"' +
+    (extra ? ' style="animation-delay:' + delay + 's;' + extra + '"'
+           : ' style="animation-delay:' + delay + 's"') +
+    '></path>';
+}
+
+// Small rounded chip with centered text (width estimated from length)
+function chip(x, y, cls, delay, text) {
+  const w = text.length * 6.6 + 16;
+  return '<g transform="translate(' + x + ' ' + y + ')">' +
+    '<g class="f" style="animation-delay:' + delay + 's">' +
+    '<rect class="box ' + cls + '" x="' + (-w / 2) +
+    '" y="-11" width="' + w + '" height="22" rx="11"></rect>' +
+    '<text class="lbl" y="4" style="font-size:11.5px">' +
+    escapeHtml(text) + '</text></g></g>';
+}
+
+function fadeText(x, y, cls, delay, text) {
+  return '<text class="' + cls + ' f" x="' + x + '" y="' + y +
+    '" style="animation-delay:' + delay + 's">' + escapeHtml(text) +
+    '</text>';
+}
+
+/* ============================================================
+   Diagrams — one builder per pattern, returns an <svg> string
+   ============================================================ */
+const DIAGRAMS = {
+
+  // 01 — one source, 5 parallel workers, a join barrier, one result
+  fanout() {
+    const ys = [44, 97, 150, 203, 256];
+    let s = '<svg viewBox="0 0 660 300" role="img" aria-label="Fan-out: one task splits to five parallel agents, then a join barrier collects all results">';
+    s += node(64, 150, 88, 36, 'tint-speed', 0, 'task');
+    ys.forEach((y) => {
+      s += edge('M108 150 C170 150 190 ' + y + ' 252 ' + y, 0.35);
+    });
+    ys.forEach((y, i) => {
+      s += node(310, y, 116, 32, '', 0.85, 'agent ' + (i + 1));
+    });
+    ys.forEach((y) => {
+      s += edge('M368 ' + y + ' C430 ' + y + ' 452 150 500 150', 1.9);
+    });
+    // the barrier: nothing passes until all five arrive
+    s += '<line class="f" x1="512" y1="30" x2="512" y2="270" stroke="#7c8aa0" stroke-width="1.8" stroke-dasharray="5 5" style="animation-delay:2.3s"></line>';
+    s += fadeText(512, 290, 'note', 2.4, 'join waits for all');
+    s += edge('M516 150 L536 150', 2.65);
+    s += node(590, 150, 96, 36, 'tint-good', 2.9, 'results');
+    s += fadeText(180, 24, 'note', 0.5, 'spawn all at once');
+    s += '</svg>';
+    return s;
+  },
+
+  // 02 — items flow through 3 stages, staggered, no barrier
+  pipeline() {
+    const rows = [
+      { y: 100, name: 'item A', dur: 3.2, delay: 0.3, color: 'var(--speed)' },
+      { y: 155, name: 'item B', dur: 5.6, delay: 0.9, color: '#0891b2' },
+      { y: 210, name: 'item C', dur: 4.2, delay: 1.5, color: '#6366f1' }
+    ];
+    let s = '<svg viewBox="0 0 660 300" role="img" aria-label="Pipeline: items flow independently through three ordered stages with no barrier">';
+    // stage columns
+    [['Stage 1', 150], ['Stage 2', 310], ['Stage 3', 470]].forEach((st, i) => {
+      s += '<g class="f" style="animation-delay:' + (i * 0.15) + 's">' +
+        '<rect x="' + st[1] + '" y="42" width="140" height="200" rx="10" ' +
+        'fill="#eef2f8" stroke="#d7dee8"></rect>' +
+        '<text class="sub" x="' + (st[1] + 70) + '" y="60" style="font-weight:600">' +
+        escapeHtml(st[0]) + '</text></g>';
+    });
+    rows.forEach((r) => {
+      s += fadeText(72, r.y + 4, 'sub', 0.5, r.name);
+      s += '<line class="f" x1="108" y1="' + r.y + '" x2="632" y2="' + r.y +
+        '" stroke="#dde3ec" stroke-width="1.5" style="animation-delay:0.5s"></line>';
+      s += '<circle class="tok" cx="110" cy="' + r.y + '" r="7" fill="' +
+        r.color + '" style="animation-duration:' + r.dur +
+        's;animation-delay:' + r.delay + 's"></circle>';
+    });
+    s += fadeText(370, 282, 'note', 1.2,
+      'staggered — a fast item exits while a slow one is still mid-pipe (no barrier)');
+    s += '</svg>';
+    return s;
+  },
+
+  // 03 — a finding faces 3 blind skeptics, a majority gate decides
+  adversarial() {
+    const ys = [64, 150, 236];
+    let s = '<svg viewBox="0 0 660 300" role="img" aria-label="Adversarial verify: three independent skeptics try to refute a finding; a majority gate keeps or kills it">';
+    s += node(75, 150, 108, 40, 'tint-quality', 0, 'finding', 'risk flag');
+    ys.forEach((y) => {
+      s += edge('M129 150 C180 150 200 ' + y + ' 212 ' + y, 0.3);
+    });
+    ys.forEach((y, i) => {
+      s += node(270, y, 116, 42, '', 0.8, 'skeptic ' + (i + 1), 'refute?');
+    });
+    s += fadeText(270, 288, 'note', 1.0, 'independent — blind to each other');
+    // verdicts: two skeptics can't refute it, one thinks it did
+    s += chip(392, 64, 'tint-good', 1.6, 'stands ✓');
+    s += chip(392, 150, 'tint-good', 1.75, 'stands ✓');
+    s += chip(392, 236, 'tint-bad', 1.9, 'refuted ✗');
+    ys.forEach((y) => {
+      s += edge('M424 ' + y + ' C450 ' + y + ' 458 150 462 150', 2.1);
+    });
+    // majority gate
+    s += '<g transform="translate(495 150)"><g class="n" style="animation-delay:2.5s">' +
+      '<polygon points="0,-30 34,0 0,30 -34,0" class="box"></polygon>' +
+      '<text class="lbl" y="4" style="font-size:12px">2/3?</text></g></g>';
+    s += fadeText(495, 200, 'note', 2.6, 'majority gate');
+    s += edge('M523 128 C545 110 552 104 560 100', 2.9, 'stroke:var(--good)');
+    s += edge('M523 172 C545 190 552 196 560 200', 2.9, 'stroke:var(--bad);opacity:.45');
+    s += node(605, 92, 88, 34, 'tint-good', 3.15, 'kept ✓');
+    s += '<g class="dim">' + node(605, 208, 88, 34, 'tint-bad', 3.15, 'killed ✗') + '</g>';
+    s += '</svg>';
+    return s;
+  },
+
+  // 04 — diverge into 3 drafts, judges score, synthesis merges
+  judge() {
+    const drafts = [
+      { y: 72,  label: 'draft A', sub: 'angle: bold',    score: '7.2' },
+      { y: 160, label: 'draft B', sub: 'angle: safe',    score: '8.6' },
+      { y: 248, label: 'draft C', sub: 'angle: lateral', score: '6.9' }
+    ];
+    let s = '<svg viewBox="0 0 660 320" role="img" aria-label="Judge panel: three drafts from different angles, judges score them, a synthesis merges the winner with the best of the rest">';
+    s += node(66, 160, 92, 38, 'tint-quality', 0, 'task');
+    drafts.forEach((d) => {
+      s += edge('M112 160 C170 160 180 ' + d.y + ' 188 ' + d.y, 0.3);
+    });
+    drafts.forEach((d) => {
+      s += node(252, d.y, 128, 44, '', 0.8, d.label, d.sub);
+    });
+    drafts.forEach((d) => {
+      s += edge('M316 ' + d.y + ' C360 ' + d.y + ' 372 160 388 160', 1.3);
+    });
+    s += node(444, 160, 108, 60, '', 1.8, 'judges', 'panel of 3');
+    drafts.forEach((d, i) => {
+      s += chip(348, d.y - 26, d.score === '8.6' ? 'tint-quality' : '',
+        2.2 + i * 0.12, d.score);
+    });
+    // winner ring around draft B
+    s += '<g transform="translate(252 160)"><g class="f" style="animation-delay:2.7s">' +
+      '<rect x="-70" y="-28" width="140" height="56" rx="11" fill="none" ' +
+      'stroke="var(--quality)" stroke-width="2.5"></rect>' +
+      '<text class="sub" y="-36" style="fill:var(--quality);font-weight:700">winner</text>' +
+      '</g></g>';
+    s += edge('M498 160 L548 160', 3.0, 'stroke:var(--quality);stroke-width:2.4');
+    // best bits of the runners-up graft straight into the final
+    s += '<path class="e" pathLength="1" d="M316 72 C480 72 560 96 594 138" style="animation-delay:3.2s;stroke-width:1.2" stroke-dasharray="4 4"></path>';
+    s += '<path class="e" pathLength="1" d="M316 248 C480 248 560 224 594 182" style="animation-delay:3.2s;stroke-width:1.2" stroke-dasharray="4 4"></path>';
+    s += node(596, 160, 96, 44, 'tint-good', 3.5, 'final', 'synthesis');
+    s += fadeText(520, 268, 'note', 3.4, 'best of the rest grafted in');
+    s += '</svg>';
+    return s;
+  },
+
+  // 05 — shrinking rounds of finders, dry-streak counter, stop
+  loopdry() {
+    const rounds = [
+      { found: 9, streak: 0 },
+      { found: 8, streak: 0 },
+      { found: 6, streak: 0 },
+      { found: 0, streak: 1 },
+      { found: 0, streak: 2 }
+    ];
+    const base = 210;
+    let s = '<svg viewBox="0 0 700 300" role="img" aria-label="Loop-until-dry: rounds of finders return fewer new items each time until two dry rounds stop the loop">';
+    rounds.forEach((r, i) => {
+      const cx = 80 + i * 118;
+      const d = 0.2 + i * 0.55;
+      // burst of finders
+      [[-15, 62], [0, 50], [15, 62]].forEach((p) => {
+        s += '<circle class="f" cx="' + (cx + p[0]) + '" cy="' + p[1] +
+          '" r="5.5" fill="var(--coverage)" opacity="0.8" ' +
+          'style="animation-delay:' + d + 's"></circle>';
+      });
+      s += fadeText(cx, 84, 'sub', d, 'finders');
+      // "spawn next round" arc — amber marching dashes, the loop's pulse
+      if (i < rounds.length - 1) {
+        const ad = d + 0.55;
+        s += '<path class="e2" d="M' + (cx + 26) + ' 52 C' + (cx + 48) +
+          ' 30 ' + (cx + 70) + ' 30 ' + (cx + 92) +
+          ' 52" style="stroke-width:1.8;animation-delay:' + ad + 's,' +
+          ad + 's"></path>';
+      }
+      // bar of NEW items this round
+      const h = r.found > 0 ? r.found * 11 : 6;
+      const fill = r.found > 0 ? 'var(--coverage-bg)' : '#eceff4';
+      const stroke = r.found > 0 ? 'var(--coverage)' : '#c3ccd8';
+      s += '<rect class="bar" x="' + (cx - 17) + '" y="' + (base - h) +
+        '" width="34" height="' + h + '" rx="4" fill="' + fill +
+        '" stroke="' + stroke + '" style="animation-delay:' + (d + 0.15) +
+        's"></rect>';
+      s += fadeText(cx, base - h - 8, r.found > 0 ? 'lbl' : 'note',
+        d + 0.35, r.found > 0 ? '+' + r.found + ' new' : 'dry');
+      s += fadeText(cx, base + 22, 'sub', d + 0.1, 'round ' + (i + 1));
+      // dryness counter
+      s += chip(cx, base + 46,
+        r.streak === 0 ? '' : (r.streak === 1 ? 'tint-warn' : 'tint-bad'),
+        d + 0.4, 'dry × ' + r.streak);
+    });
+    s += node(650, base - 20, 66, 34, 'tint-bad', 3.4, 'STOP');
+    s += fadeText(650, base + 22, 'note', 3.5, '2 dry → done');
+    // the loop keeps running: a ring steps round → round, endlessly
+    s += '<rect class="scan" x="52" y="38" width="56" height="42" rx="12" ' +
+      'style="animation-delay:3.8s"></rect>';
+    s += fadeText(650, 60, 'note', 3.8, '↻ loop runs');
+    s += fadeText(650, 76, 'note', 3.8, 'round after round');
+    s += '</svg>';
+    return s;
+  },
+
+  // 06 — three blind lenses in parallel, a critic reads it all
+  sweep() {
+    const lenses = [
+      { y: 64,  label: 'money lens',   sub: 'pricing · fees',      found: '6 found' },
+      { y: 150, label: 'exit lens',    sub: 'term · termination',  found: '5 found' },
+      { y: 236, label: 'process lens', sub: 'notice · SLAs',       found: '4 found' }
+    ];
+    let s = '<svg viewBox="0 0 700 300" role="img" aria-label="Sweep plus critic: three parallel lenses each search blind, then a critic reads everything and surfaces missed items">';
+    s += node(72, 150, 104, 42, 'tint-coverage', 0, 'contract');
+    lenses.forEach((l) => {
+      s += edge('M124 150 C180 150 195 ' + l.y + ' 208 ' + l.y, 0.3);
+    });
+    lenses.forEach((l) => {
+      s += node(275, l.y, 132, 44, '', 0.8, l.label, l.sub);
+    });
+    s += fadeText(275, 288, 'note', 1.0, 'parallel — blind to each other');
+    lenses.forEach((l, i) => {
+      s += chip(392, l.y - 24, '', 1.6 + i * 0.12, l.found);
+    });
+    lenses.forEach((l) => {
+      s += edge('M341 ' + l.y + ' C400 ' + l.y + ' 420 150 442 150', 2.0);
+    });
+    s += node(512, 150, 136, 52, 'tint-quality', 2.5, 'critic', 'reads everything');
+    s += edge('M580 150 L606 150', 3.1, 'stroke:var(--good)');
+    s += node(650, 150, 82, 44, 'tint-good', 3.4, '+8', 'missed items');
+    s += fadeText(512, 200, 'note', 2.7, 'hunts between the searches');
+    s += '</svg>';
+    return s;
+  },
+
+  // 07 — draft, verifier that can say no, feedback loop, done
+  goalloop() {
+    let s = '<svg viewBox="0 0 660 260" role="img" aria-label="Goal loop: a draft is checked by an independent verifier; failures feed back into the next draft until it passes">';
+    s += node(165, 105, 110, 44, 'tint-coverage', 0, 'draft', 'attempt n');
+    s += edge('M220 105 L325 105', 0.4);
+    s += node(400, 105, 150, 48, '', 0.9, 'verify', 'independent · can say no');
+    // the feedback loop — the essence of the pattern
+    s += '<path class="e2" d="M385 131 C340 212 218 212 172 132" style="stroke-width:2.4;animation-delay:1.6s,1.6s"></path>';
+    s += '<polygon class="f" points="164,140 172,124 180,138" fill="var(--warn)" style="animation-delay:1.9s"></polygon>';
+    s += fadeText(280, 208, 'note', 1.9, 'failures feed back into the next draft');
+    s += fadeText(280, 226, 'note', 1.9, '(repeat until pass, or a guard fires)');
+    s += chip(400, 152, 'tint-bad', 1.7, '✗ fail → loop');
+    // an orbiter rides the cycle endlessly: draft → verify → back to draft
+    s += '<circle class="cyc" r="6" fill="var(--warn)" ' +
+      'style="animation-delay:2s">' +
+      '<animateMotion dur="3s" begin="2s" repeatCount="indefinite" ' +
+      'path="M 222 105 L 378 105 C 390 105 392 118 385 131 ' +
+      'C 340 212 218 212 172 132 C 166 118 190 105 222 105">' +
+      '</animateMotion></circle>';
+    s += edge('M477 105 L548 105', 2.6, 'stroke:var(--good)');
+    s += fadeText(512, 92, 'sub', 2.8, '✓ pass');
+    s += node(594, 105, 84, 40, 'tint-good', 3.0, 'done ✓');
+    s += '</svg>';
+    return s;
+  }
+};
+
+/* ============================================================
+   GAME DATA — content per pattern (+ the final challenge)
+   ============================================================ */
+const GAMES = {
+
+  // 01 — drag/click-to-build: the trap is skipping the join barrier
+  fanout: {
+    type: 'build',
+    kicker: 'Practice — build the flow',
+    prompt: 'Assemble fan-out for “review 3 files”: fill the worker slots, then choose what stands between the workers and the results. Click a piece, then click a slot (or drag a piece onto one). Click a filled slot to empty it.',
+    slots: [
+      { id: 'w1', label: 'worker?', accept: 'worker' },
+      { id: 'w2', label: 'worker?', accept: 'worker' },
+      { id: 'w3', label: 'worker?', accept: 'worker' },
+      { id: 'gate', label: 'then…?', accept: 'gate' }
+    ],
+    pieces: [
+      { id: 'a1', kind: 'worker', label: 'review file A' },
+      { id: 'a2', kind: 'worker', label: 'review file B' },
+      { id: 'a3', kind: 'worker', label: 'review file C' },
+      { id: 'gate-join', kind: 'gate', label: 'join — wait for all' },
+      { id: 'gate-none', kind: 'gate', label: 'no barrier — stream through',
+        trapWhy: 'Without a barrier, “results” would run before all the workers finish. Fan-out’s join waits for all — that barrier is the pattern.' },
+      { id: 'stage2', kind: 'worker', label: 'Stage 2',
+        trapWhy: 'Ordered stages are pipeline (02). Fan-out’s workers all do the same job side by side — nothing here is “stage 2” of anything.' }
+    ],
+    win(placed) {
+      const workers = ['w1', 'w2', 'w3'].map((sid) => placed[sid]);
+      return workers.every((pid) => ['a1', 'a2', 'a3'].includes(pid)) &&
+        new Set(workers).size === 3 && placed.gate === 'gate-join';
+    },
+    orderMsg: 'Close — each worker slot needs a different file’s reviewer.',
+    successMsg: 'Fan-out assembled: one burst of independent workers, one join that waits for all. Watch it run in the diagram above.',
+    canvas: [
+      { t: 'fixed', label: 'task' }, { t: 'arrow' },
+      { t: 'col', slots: ['w1', 'w2', 'w3'] }, { t: 'arrow' },
+      { t: 'slot', id: 'gate' }, { t: 'arrow' },
+      { t: 'fixed', label: 'results' }
+    ]
+  },
+
+  // 02 — drag/click-to-build: the traps are stage order and adding a barrier
+  pipeline: {
+    type: 'build',
+    kicker: 'Practice — build the flow',
+    prompt: 'Assemble the pipeline one item flows through: three ordered stages, then decide what sits at the exit. Click a piece, then a slot (or drag). Click a filled slot to empty it.',
+    slots: [
+      { id: 's1', label: 'stage 1?', accept: 'stage' },
+      { id: 's2', label: 'stage 2?', accept: 'stage' },
+      { id: 's3', label: 'stage 3?', accept: 'stage' },
+      { id: 'gate', label: 'exit…?', accept: 'gate' }
+    ],
+    pieces: [
+      { id: 'analyze', kind: 'stage', label: 'analyze' },
+      { id: 'fix', kind: 'stage', label: 'fix' },
+      { id: 'check', kind: 'stage', label: 'check' },
+      { id: 'gate-none', kind: 'gate', label: 'no barrier — exit as they finish' },
+      { id: 'gate-join', kind: 'gate', label: 'join — wait for all',
+        trapWhy: 'A barrier makes fast items wait for the slowest one. Pipeline’s whole point is NO barrier — items exit as they finish.' }
+    ],
+    win(placed) {
+      return placed.s1 === 'analyze' && placed.s2 === 'fix' &&
+        placed.s3 === 'check' && placed.gate === 'gate-none';
+    },
+    orderMsg: 'The stages are out of order: check can’t run before fix, and fix needs analyze’s output. That dependency chain is exactly what makes this a pipeline.',
+    successMsg: 'Pipeline assembled: analyze → fix → check, and no barrier at the exit. Watch the staggered items flow in the diagram above.',
+    canvas: [
+      { t: 'fixed', label: 'item' }, { t: 'arrow' },
+      { t: 'slot', id: 's1' }, { t: 'arrow' },
+      { t: 'slot', id: 's2' }, { t: 'arrow' },
+      { t: 'slot', id: 's3' }, { t: 'arrow' },
+      { t: 'slot', id: 'gate' }, { t: 'arrow' },
+      { t: 'fixed', label: 'out' }
+    ]
+  },
+
+  // 03 — scenario quiz: distractors exploit verify↔judge and one-checker traps
+  adversarial: {
+    type: 'quiz',
+    kicker: 'Practice — scenario quiz',
+    doneMsg: 'Practiced: skeptics are independent, blind, and paid to kill the finding — confidence is what survives them.',
+    questions: [
+      {
+        q: 'A contract scan produced 12 risk flags. Some are probably false alarms, and shipping a false flag to the client is embarrassing. What do you spawn?',
+        opts: [
+          { t: 'A panel of judges to score the 12 flags and pick the best one.',
+            why: 'Judge panel picks the best of several attempts. You don’t want the “best” flag — you want to know which flags are TRUE.' },
+          { t: 'Several skeptics per flag, each told to refute it; keep the flags that survive a majority.',
+            why: 'Exactly — adversarial verify: independent refuters plus a majority gate turn “plausible” into “confident”.' },
+          { t: 'One checker agent that reviews all 12 flags in a single pass.',
+            why: 'One checker is one opinion. Skeptics work because they’re independent and each one tries to kill the finding.' }
+        ],
+        correct: 1
+      },
+      {
+        q: 'One of your skeptics can see what the other two concluded before it votes. Why is that a problem?',
+        opts: [
+          { t: 'Agreement stops meaning anything — three agents anchoring on each other is one opinion with extra steps.',
+            why: 'Right. A majority only signals confidence when the votes are independent. Blind skeptics are the whole point.' },
+          { t: 'It slows the run down, because the skeptics have to wait for each other.',
+            why: 'Speed is a side issue. The real damage is to what the vote MEANS — anchored votes aren’t independent evidence.' },
+          { t: 'It uses more tokens to pass the other verdicts around.',
+            why: 'Token cost barely changes. The damage is that the majority no longer measures anything.' }
+        ],
+        correct: 0
+      },
+      {
+        q: 'When is adversarial verify the WRONG tool?',
+        opts: [
+          { t: 'When being wrong is expensive.',
+            why: 'That’s exactly when you DO want it — the cost of skeptics buys down the cost of a false finding.' },
+          { t: 'When findings might be plausible but false.',
+            why: 'Also exactly its home turf — plausible-but-false is what skeptics exist to catch.' },
+          { t: 'When a finding is cheap to check mechanically — a test or a grep settles it.',
+            why: 'Right. If it’s trivially checkable, check it. Spawning skeptics to debate what a script can verify is pure overhead.' }
+        ],
+        correct: 2
+      }
+    ]
+  },
+
+  // 04 — scenario quiz: distractors exploit judge↔verify and “just pick the winner”
+  judge: {
+    type: 'quiz',
+    kicker: 'Practice — scenario quiz',
+    doneMsg: 'Practiced: diverge, judge, synthesize — quality comes from merging the best of several genuinely different attempts.',
+    questions: [
+      {
+        q: 'You need a name for a new product. Twenty plausible names could work, but you want the best one. Which pattern?',
+        opts: [
+          { t: 'Adversarial verify — spawn skeptics to refute each candidate name.',
+            why: 'A name can’t be “false” — there’s nothing to refute, only better and worse. Skeptics kill claims, not rank options.' },
+          { t: 'Judge panel — drafts from different angles, judges score, synthesize the final.',
+            why: 'Right: open-ended and quality matters. Diverge, judge, then graft the best bits together.' },
+          { t: 'Fan-out — split the naming task into 20 independent pieces.',
+            why: 'Generating candidates is the easy half. Without judging and synthesis you just have 20 names and no decision.' }
+        ],
+        correct: 1
+      },
+      {
+        q: 'What makes the judge panel’s final output better than simply shipping the winning draft?',
+        opts: [
+          { t: 'The synthesis step grafts the best bits of the runners-up into the winner.',
+            why: 'Right — the runners-up usually got something right that the winner missed. Synthesis is where that value is recovered.' },
+          { t: 'The judges rewrite the winner themselves until it’s perfect.',
+            why: 'Judges score; the synthesizer merges. Keeping those jobs separate is deliberate — scoring and writing are different skills.' },
+          { t: 'The winning draft is regenerated at a higher temperature for extra polish.',
+            why: 'No — quality comes from combining divergent attempts, not from rerolling the dice on one of them.' }
+        ],
+        correct: 0
+      },
+      {
+        q: 'Adversarial verify (03) and judge panel (04) both point several agents at one thing. What’s the core difference?',
+        opts: [
+          { t: 'Verify is cheaper — that’s the whole difference.',
+            why: 'The costs differ, but the mechanics differ more: one kills-or-keeps a claim, the other ranks and merges attempts.' },
+          { t: 'Verify kills-or-keeps ONE claim; judge picks-and-merges the best of SEVERAL attempts.',
+            why: 'Exactly. Refute-a-claim versus score-and-synthesize — different questions, different machinery.' },
+          { t: 'Judge panel uses smarter models for the judges.',
+            why: 'Same models, different jobs. The pattern is in the wiring, not the weights.' }
+        ],
+        correct: 1
+      },
+      {
+        q: 'When is a judge panel overkill?',
+        opts: [
+          { t: 'When the task is drafting, design, or architecture.',
+            why: 'That’s its sweet spot — open-ended work where quality matters.' },
+          { t: 'When there’s a single verifiable answer, or any reasonable answer is fine.',
+            why: 'Right. If a check can settle it, or “fine” is fine, seven agents’ worth of judging buys you nothing.' },
+          { t: 'When quality matters a lot.',
+            why: 'Also its sweet spot — quality is exactly what the panel buys.' }
+        ],
+        correct: 1
+      }
+    ]
+  },
+
+  // 05 — stop/go sim: the player makes the stop call; the counter knows better
+  loopdry: {
+    type: 'simdry',
+    kicker: 'Practice — run the loop',
+    prompt: 'You’re the orchestrator on “find ALL the issues”. The true total is hidden — that’s the point. Spawn rounds of finders (each told what’s already found) and stop when you judge the well is dry. The loop’s own rule: stop after 2 dry rounds in a row, safety cap at 8 rounds.',
+    maxRounds: 8,
+    dryK: 2,
+    total: 23,
+    rounds: [9, 6, 4, 2, 2, 0, 0, 0]
+  },
+
+  // 06 — scenario quiz: distractors exploit sweep↔fanout and critic↔verifier
+  sweep: {
+    type: 'quiz',
+    kicker: 'Practice — scenario quiz',
+    doneMsg: 'Practiced: assigned lenses go deep on their own dimension, and the critic hunts the gaps between the searches.',
+    questions: [
+      {
+        q: 'Contract review: you care about money terms, exit rights, AND process obligations. Why three lens agents instead of one agent told to check all three?',
+        opts: [
+          { t: 'Three agents are three times faster than one.',
+            why: 'Parallelism helps, but speed isn’t why this pattern exists — depth per dimension is. Raw speed is fan-out’s job.' },
+          { t: 'One agent can’t read a whole contract.',
+            why: 'It can — it just reads it with one set of priorities, and anchors on whatever it finds first.' },
+          { t: 'One agent goes wide and shallow; a lens per dimension keeps each search deep.',
+            why: 'Right. An agent chasing everything anchors on its first finds. Assigned lenses force depth on every dimension.' }
+        ],
+        correct: 2
+      },
+      {
+        q: 'What does the critic add that simply adding a fourth lens wouldn’t?',
+        opts: [
+          { t: 'It double-checks that the lenses’ findings are real.',
+            why: 'That’s adversarial verify’s job (03). The critic hunts for what’s MISSING, not for what’s false.' },
+          { t: 'It reads ALL the lens outputs and hunts for what fell between the searches.',
+            why: 'Right — that cross-reading is where the +8 came from. A fourth lens would just be another silo.' },
+          { t: 'It summarizes the findings into a tidy report.',
+            why: 'Summarizing compresses information; the critic ADDS findings the sweep missed.' }
+        ],
+        correct: 1
+      },
+      {
+        q: 'How is sweep + critic different from fan-out with three identical finders?',
+        opts: [
+          { t: 'Sweep uses fewer agents, so it’s cheaper.',
+            why: 'Agent count isn’t the distinction — the assigned, deliberately different perspectives are.' },
+          { t: 'It isn’t — they’re the same pattern with different names.',
+            why: 'Blind + different lenses + a cross-reading critic is exactly what plain fan-out lacks. Identical finders cluster on the same obvious issues.' },
+          { t: 'Each sweeper gets a DIFFERENT lens on purpose; identical finders would cluster on the same obvious issues.',
+            why: 'Right — the deliberate difference in perspective is the pattern. The critic then covers the seams between them.' }
+        ],
+        correct: 2
+      },
+      {
+        q: 'When is sweep + critic the wrong call?',
+        opts: [
+          { t: 'When the thing has multiple distinct dimensions.',
+            why: 'That’s when you reach FOR it — one lens per dimension.' },
+          { t: 'When the thing is one-dimensional, or “good enough” beats exhaustive.',
+            why: 'Right. One dimension needs no lens split, and exhaustive coverage you don’t need is cost without payoff.' },
+          { t: 'When completeness matters.',
+            why: 'Also its home turf — coverage is exactly what it buys.' }
+        ],
+        correct: 1
+      }
+    ]
+  },
+
+  // 07 — stop/go sim: the player answers each verdict; shipping red is the trap
+  goalloop: {
+    type: 'simgoal',
+    kicker: 'Practice — run the loop',
+    prompt: 'You’re the orchestrator on “make the test suite pass”. Each iteration drafts a fix, then an independent verifier runs the suite — and it can say no. You make the call after every verdict.',
+    maxIters: 5,
+    tokensPerIter: '~43k',
+    iters: [
+      { fails: ['2 unit tests fail', 'lint: unused import', 'type error in parser'] },
+      { fails: ['1 unit test still fails'] },
+      { fails: [] }
+    ]
+  },
+
+  // Final challenge — 8 mixed routing questions, unlocked at 7/7
+  final: {
+    type: 'quiz',
+    kicker: 'Which pattern?',
+    doneMsg: '8/8 — you can route work to the right pattern. That’s the whole cookbook.',
+    questions: [
+      {
+        q: 'Classify 300 support tickets by urgency. No ticket depends on any other.',
+        opts: [
+          { t: 'Fan-out',
+            why: 'Right — independent pieces, known work-list: burst, then join.' },
+          { t: 'Pipeline',
+            why: 'Stages imply order between steps. These tickets have no ordered steps — just independent pieces.' },
+          { t: 'Loop-until-dry',
+            why: 'You already know the work-list: 300 tickets. There’s nothing to discover.' }
+        ],
+        correct: 0
+      },
+      {
+        q: 'Every changed file needs analyze → propose fix → verify fix, and files shouldn’t wait on each other.',
+        opts: [
+          { t: 'Fan-out',
+            why: 'The three steps per file are ordered — that’s a pipe, not a burst. Fan-out’s pieces have no internal sequence.' },
+          { t: 'Pipeline',
+            why: 'Right — ordered stages per item, items moving independently, no barrier.' },
+          { t: 'Goal loop',
+            why: 'There’s no retry-until-pass cycle here — just ordered stages each item flows through once.' }
+        ],
+        correct: 1
+      },
+      {
+        q: 'A scanner produced 40 “possible SQL injection” findings; false alarms will burn the team’s trust.',
+        opts: [
+          { t: 'Adversarial verify',
+            why: 'Right — expensive-if-wrong, plausibly-false findings: spawn skeptics, keep what survives.' },
+          { t: 'Judge panel',
+            why: 'You’re not picking the best finding — you’re killing the false ones. Refute, don’t rank.' },
+          { t: 'Sweep + critic',
+            why: 'The findings already exist; the job is to test them, not to find more.' }
+        ],
+        correct: 0
+      },
+      {
+        q: 'Write the launch announcement. Tone matters, and there’s no “correct” answer.',
+        opts: [
+          { t: 'Adversarial verify',
+            why: 'Prose can’t be refuted, only outdone. Nothing here is true or false.' },
+          { t: 'Goal loop',
+            why: 'There’s no checkable pass/fail for “great announcement” — a verifier would have nothing to verify.' },
+          { t: 'Judge panel',
+            why: 'Right — open-ended, quality-driven: diverge into drafts, judge, synthesize.' }
+        ],
+        correct: 2
+      },
+      {
+        q: 'Find ALL the dead links in the docs site — you have no idea how many there are.',
+        opts: [
+          { t: 'Fan-out',
+            why: 'There’s no fixed work-list to split — the size of the result set is unknown. That unknown is the tell.' },
+          { t: 'Loop-until-dry',
+            why: 'Right — unknown result-set size: keep spawning finders until rounds come back dry.' },
+          { t: 'Sweep + critic',
+            why: 'Lenses cover different dimensions. Dead links are one dimension with an unknown count.' }
+        ],
+        correct: 1
+      },
+      {
+        q: 'Audit an M&A contract where missing ANY category of issue — financial, legal, operational — is unacceptable.',
+        opts: [
+          { t: 'Sweep + critic',
+            why: 'Right — one lens per dimension, blind, then a critic hunts what fell between them.' },
+          { t: 'Loop-until-dry',
+            why: 'More rounds find more of the same kind. Distinct dimensions need assigned lenses, not repetition.' },
+          { t: 'Fan-out',
+            why: 'Identical finders cluster on the obvious. You need deliberate lenses plus a gap-hunting critic.' }
+        ],
+        correct: 0
+      },
+      {
+        q: 'Make the flaky test suite pass — verified by actually running it — retrying with feedback until green.',
+        opts: [
+          { t: 'Pipeline',
+            why: 'Stages don’t retry. The feedback loop back into the next draft is the whole point here.' },
+          { t: 'Loop-until-dry',
+            why: 'You’re not discovering an unknown set — you’re converging on one checkable goal.' },
+          { t: 'Goal loop',
+            why: 'Right — checkable definition of done, an independent verifier that can say no, failures fed back.' }
+        ],
+        correct: 2
+      },
+      {
+        q: 'A 5-step data job where step 3 must see ALL items’ outputs from step 2 before anyone proceeds.',
+        opts: [
+          { t: 'Pipeline',
+            why: 'Tempting — but a stage that needs ALL items at once is a barrier, and pipeline explicitly has none.' },
+          { t: 'Fan-out',
+            why: 'Right — the barrier is the tell: run each step as a fan-out burst with a join before the next.' },
+          { t: 'Goal loop',
+            why: 'Nothing here retries against a goal — the constraint is a barrier between steps, not convergence.' }
+        ],
+        correct: 1
+      }
+    ]
+  }
+};
+
+/* ============================================================
+   GAME ENGINE — state, mount, completion.
+   All progress is IN-MEMORY by design: it resets on reload
+   (user's explicit choice) — no localStorage anywhere.
+   Game DOM is a pure function of this state, so render()'s
+   innerHTML wipes never lose a half-played game.
+   ============================================================ */
+const gameState = {};
+const completedGames = new Set();
+
+function initGameState(id) {
+  const t = GAMES[id].type;
+  if (t === 'quiz') {
+    return { qi: 0, wrongs: [], lastPick: null, correctPicked: false, done: false };
+  }
+  if (t === 'build') return { placed: {}, sel: null, result: null };
+  if (t === 'simdry') {
+    return { round: 0, found: 0, streak: 0, log: [], out: null, ended: null };
+  }
+  return { iter: 0, phase: 'idle', log: [], out: null, ended: null }; // simgoal
+}
+
+// Mirrors injectDiagram(): fills the [data-game] container from state.
+function injectGame(id) {
+  const el = document.querySelector('[data-game="' + id + '"]');
+  if (!el || !GAMES[id]) return;
+  if (!gameState[id]) gameState[id] = initGameState(id);
+  el.innerHTML = GAME_UIS[GAMES[id].type].view(id);
+}
+
+// Re-render one game's container after an interaction, restoring focus
+// to the equivalent control so keyboard play survives the rebuild.
+function renderGame(id) {
+  const el = document.querySelector('[data-game="' + id + '"]');
+  if (!el) return;
+  const act = document.activeElement;
+  const key = act && el.contains(act) && act.dataset
+    ? (act.dataset.ga || '') + '|' +
+      (act.dataset.i || act.dataset.piece || act.dataset.slot || act.dataset.act || '')
+    : null;
+  el.innerHTML = GAME_UIS[GAMES[id].type].view(id);
+  if (key === null) return;
+  let target = null;
+  el.querySelectorAll('[data-ga]').forEach((b) => {
+    const sub = b.dataset.i || b.dataset.piece || b.dataset.slot || b.dataset.act || '';
+    if (!target && !b.disabled && (b.dataset.ga + '|' + sub) === key) target = b;
+  });
+  if (!target) target = el.querySelector('[data-ga]:not(:disabled)');
+  if (target) target.focus();
+}
+
+function completeGame(id) {
+  if (completedGames.has(id)) return;
+  completedGames.add(id);
+  // Patch the ✓ into the live row rather than calling render() —
+  // a full render would restart every open diagram's animation.
+  const cell = tbody.querySelector('tr.row[data-id="' + id + '"] td.name');
+  if (cell && !cell.querySelector('.done-tag')) {
+    cell.insertAdjacentHTML('beforeend', '<span class="done-tag">✓ practiced</span>');
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const n = PATTERNS.filter((p) => completedGames.has(p.id)).length;
+  const el = document.getElementById('progress-n');
+  if (el) el.textContent = n + '/' + PATTERNS.length + ' practiced';
+  if (PATTERNS.every((p) => completedGames.has(p.id))) {
+    const fc = document.getElementById('final-challenge');
+    if (fc && fc.hidden) {
+      fc.hidden = false;
+      injectGame('final');
+    }
+  }
+}
+
+/* ============================================================
+   GAME UIs — quiz / build / sim view + action pairs.
+   Views return HTML strings; actions mutate state then re-render
+   only their own container. Every content string is escaped.
+   ============================================================ */
+function gameHead(id) {
+  const g = GAMES[id];
+  return '<div class="g-head"><span class="g-kicker">' +
+    escapeHtml(g.kicker) + '</span></div>' +
+    (g.prompt ? '<p class="g-prompt">' + escapeHtml(g.prompt) + '</p>' : '');
+}
+
+// Shared by click-to-place and drag-and-drop.
+function placePiece(id, slotId, pieceId) {
+  const g = GAMES[id];
+  const st = gameState[id];
+  const slot = g.slots.find((s) => s.id === slotId);
+  const piece = g.pieces.find((p) => p.id === pieceId);
+  if (!slot || !piece) return;
+  if (piece.kind !== slot.accept) {
+    st.result = { kind: 'warn', msg: '“' + piece.label + '” doesn’t fit that slot — try another piece.' };
+    renderGame(id);
+    return;
+  }
+  // a piece lives in at most one slot; re-placing frees its old slot
+  Object.keys(st.placed).forEach((sid) => {
+    if (st.placed[sid] === pieceId) delete st.placed[sid];
+  });
+  st.placed[slotId] = pieceId;
+  st.sel = null;
+  st.result = null;
+  renderGame(id);
+}
+
+function checkBuild(id) {
+  const g = GAMES[id];
+  const st = gameState[id];
+  const placedPieces = Object.values(st.placed)
+    .map((pid) => g.pieces.find((p) => p.id === pid));
+  const trap = placedPieces.find((p) => p && p.trapWhy);
+  if (trap) {
+    st.result = { kind: 'bad', msg: trap.trapWhy };
+  } else if (Object.keys(st.placed).length < g.slots.length) {
+    st.result = { kind: 'warn', msg: 'Every slot needs a piece — pick one from the tray, then click a slot.' };
+  } else if (g.win(st.placed)) {
+    st.result = { kind: 'good', msg: g.successMsg };
+    injectDiagram(id); // the payoff: replay the real flow above
+    completeGame(id);
+  } else {
+    st.result = { kind: 'bad', msg: g.orderMsg };
+  }
+  renderGame(id);
+}
+
+// Status strip for the loop-until-dry sim (reuses .bar/.f primitives).
+function drySimStrip(g, st) {
+  let s = '<svg viewBox="0 0 660 130" role="img" aria-label="Simulation: ' +
+    st.round + ' of ' + g.maxRounds + ' rounds run">';
+  if (st.round === 0) {
+    s += fadeText(300, 66, 'note', 0, 'no rounds yet — spawn the first burst of finders');
+  }
+  for (let i = 0; i < st.round; i++) {
+    const cx = 40 + i * 64;
+    const n = g.rounds[i];
+    const h = n > 0 ? n * 8 + 6 : 6;
+    const cls = i === st.round - 1 ? 'bar' : '';
+    s += '<rect class="' + cls + '" x="' + (cx - 13) + '" y="' + (92 - h) +
+      '" width="26" height="' + h + '" rx="4" fill="' +
+      (n ? 'var(--coverage-bg)' : '#eceff4') + '" stroke="' +
+      (n ? 'var(--coverage)' : '#c3ccd8') + '"></rect>';
+    s += fadeText(cx, 92 - h - 6, n ? 'sub' : 'note', 0, n ? '+' + n : 'dry');
+    s += fadeText(cx, 108, 'sub', 0, 'R' + (i + 1));
+  }
+  const foundLbl = st.ended
+    ? 'found ' + st.found + ' of ' + g.total
+    : 'found ' + st.found + ' of ??';
+  s += chip(585, 30, st.ended === 'good' ? 'tint-good' : '', 0, foundLbl);
+  s += chip(585, 62,
+    st.streak === 0 ? '' : (st.streak >= g.dryK ? 'tint-good' : 'tint-warn'),
+    0, 'dry × ' + st.streak);
+  s += '</svg>';
+  return s;
+}
+
+// Status strip for the goal-loop sim (reuses node/edge/chip primitives).
+function goalSimStrip(g, st) {
+  let s = '<svg viewBox="0 0 660 100" role="img" aria-label="Simulation: ' +
+    st.iter + ' iterations run">';
+  s += node(80, 50, 96, 36, 'tint-coverage', 0, 'draft');
+  s += edge('M128 50 L195 50', 0);
+  s += node(250, 50, 110, 36, '', 0, 'verify');
+  for (let i = 0; i < st.iter; i++) {
+    const pass = g.iters[i].fails.length === 0;
+    s += chip(365 + i * 95, 50, pass ? 'tint-good' : 'tint-bad', 0,
+      'iter ' + (i + 1) + (pass ? ' ✓' : ' ✗'));
+  }
+  s += '</svg>';
+  return s;
+}
+
+function simLogHtml(log) {
+  if (!log.length) return '';
+  return '<ul class="sim-log">' + log.map((l) =>
+    '<li' + (l.dry ? ' class="dry"' : '') + '>' + escapeHtml(l.text) + '</li>'
+  ).join('') + '</ul>';
+}
+
+function simOutHtml(out) {
+  return out
+    ? '<div class="g-out ' + out.kind + '" aria-live="polite">' +
+      escapeHtml(out.msg) + '</div>'
+    : '';
+}
+
+const GAME_UIS = {
+
+  quiz: {
+    view(id) {
+      const g = GAMES[id];
+      const st = gameState[id];
+      let s = gameHead(id);
+      if (st.done) {
+        return s + '<div class="g-out good">' + escapeHtml(g.doneMsg) + '</div>';
+      }
+      const q = g.questions[st.qi];
+      s += '<div class="q-meta"><span>Question ' + (st.qi + 1) + ' of ' +
+        g.questions.length + '</span><span class="q-dots">' +
+        g.questions.map((_, i) =>
+          '<span class="q-dot' + (i < st.qi ? ' on' : i === st.qi ? ' cur' : '') +
+          '"></span>'
+        ).join('') + '</span></div>';
+      s += '<p class="q-text">' + escapeHtml(q.q) + '</p>';
+      s += '<div class="q-opts">' + q.opts.map((o, i) => {
+        const wrong = st.wrongs.includes(i);
+        const correct = st.correctPicked && i === q.correct;
+        const dis = st.correctPicked || wrong;
+        return '<button type="button" class="q-opt' +
+          (correct ? ' correct' : wrong ? ' wrong' : '') +
+          '" data-ga="answer" data-i="' + i + '"' + (dis ? ' disabled' : '') +
+          '>' + escapeHtml(o.t) + '</button>';
+      }).join('') + '</div>';
+      s += '<div class="g-why' + (st.lastPick === null ? '' :
+        st.lastPick === q.correct ? ' good' : ' bad') + '" aria-live="polite">' +
+        (st.lastPick === null ? '' : escapeHtml(q.opts[st.lastPick].why)) +
+        '</div>';
+      if (st.correctPicked) {
+        s += '<button type="button" class="g-btn primary" data-ga="next">' +
+          (st.qi === g.questions.length - 1 ? 'Finish' : 'Next question') +
+          '</button>';
+      }
+      return s;
+    },
+    action(id, ga, ds) {
+      const g = GAMES[id];
+      const st = gameState[id];
+      if (st.done) return;
+      if (ga === 'answer') {
+        const i = Number(ds.i);
+        if (st.correctPicked || st.wrongs.includes(i)) return;
+        st.lastPick = i;
+        if (i === g.questions[st.qi].correct) st.correctPicked = true;
+        else st.wrongs.push(i);
+        renderGame(id);
+      } else if (ga === 'next') {
+        if (!st.correctPicked) return;
+        st.qi += 1;
+        st.wrongs = [];
+        st.lastPick = null;
+        st.correctPicked = false;
+        if (st.qi >= g.questions.length) {
+          st.done = true;
+          completeGame(id);
+        }
+        renderGame(id);
+      }
+    }
+  },
+
+  build: {
+    view(id) {
+      const g = GAMES[id];
+      const st = gameState[id];
+      const byId = {};
+      g.pieces.forEach((p) => { byId[p.id] = p; });
+      const used = new Set(Object.values(st.placed));
+      const slotBtn = (sid) => {
+        const slot = g.slots.find((sl) => sl.id === sid);
+        const pid = st.placed[sid];
+        const lbl = pid ? byId[pid].label : slot.label;
+        return '<button type="button" class="b-slot' + (pid ? ' filled' : '') +
+          '" data-ga="slot" data-slot="' + escapeHtml(sid) + '" aria-label="' +
+          escapeHtml(pid
+            ? slot.label + ' slot: ' + lbl + ' — click to remove'
+            : slot.label + ' slot, empty') + '">' +
+          escapeHtml(lbl) + '</button>';
+      };
+      let canvas = '';
+      g.canvas.forEach((c) => {
+        if (c.t === 'fixed') {
+          canvas += '<span class="b-fixed">' + escapeHtml(c.label) + '</span>';
+        } else if (c.t === 'arrow') {
+          canvas += '<span class="b-arrow" aria-hidden="true">→</span>';
+        } else if (c.t === 'slot') {
+          canvas += slotBtn(c.id);
+        } else {
+          canvas += '<span class="b-col">' + c.slots.map(slotBtn).join('') + '</span>';
+        }
+      });
+      let s = gameHead(id);
+      s += '<div class="b-canvas">' + canvas + '</div>';
+      s += '<div class="b-tray">' + g.pieces.map((p) => {
+        const dis = used.has(p.id);
+        return '<button type="button" class="b-piece' +
+          (st.sel === p.id ? ' sel' : '') + '" data-ga="pick" data-piece="' +
+          escapeHtml(p.id) + '"' + (dis ? ' disabled' : ' draggable="true"') +
+          '>' + escapeHtml(p.label) + '</button>';
+      }).join('') + '</div>';
+      s += '<div class="b-actions">' +
+        '<button type="button" class="g-btn primary" data-ga="check">Check my flow</button>' +
+        '<button type="button" class="g-btn" data-ga="clear">Clear</button></div>';
+      if (st.result) {
+        s += '<div class="g-out ' + st.result.kind + '" aria-live="polite">' +
+          escapeHtml(st.result.msg) + '</div>';
+      }
+      return s;
+    },
+    action(id, ga, ds) {
+      const st = gameState[id];
+      if (ga === 'pick') {
+        if (new Set(Object.values(st.placed)).has(ds.piece)) return;
+        st.sel = st.sel === ds.piece ? null : ds.piece;
+        st.result = null;
+        renderGame(id);
+      } else if (ga === 'slot') {
+        if (st.sel) {
+          placePiece(id, ds.slot, st.sel);
+        } else if (st.placed[ds.slot]) {
+          delete st.placed[ds.slot];
+          st.result = null;
+          renderGame(id);
+        }
+      } else if (ga === 'check') {
+        checkBuild(id);
+      } else if (ga === 'clear') {
+        st.placed = {};
+        st.sel = null;
+        st.result = null;
+        renderGame(id);
+      }
+    }
+  },
+
+  simdry: {
+    view(id) {
+      const g = GAMES[id];
+      const st = gameState[id];
+      let s = gameHead(id);
+      s += '<div class="sim-strip">' + drySimStrip(g, st) + '</div>';
+      s += simLogHtml(st.log);
+      s += simOutHtml(st.out);
+      if (st.ended === 'good' && st.round >= g.maxRounds) {
+        s += '<div class="g-out warn">Safety cap hit (' + g.maxRounds +
+          ' rounds). A capped run is a budget stop, not proof you’re done.</div>';
+      }
+      s += '<div class="sim-controls">';
+      if (st.ended === 'bad') {
+        s += '<button type="button" class="g-btn primary" data-ga="sim" data-act="again">Try again</button>';
+      } else if (st.ended === 'good') {
+        if (st.round < g.maxRounds) {
+          s += '<button type="button" class="g-btn" data-ga="sim" data-act="spawn">Run one more round anyway</button>';
+        }
+      } else {
+        s += '<button type="button" class="g-btn primary" data-ga="sim" data-act="spawn">Spawn a round of finders</button>' +
+          '<button type="button" class="g-btn" data-ga="sim" data-act="stop">Stop here — call it done</button>';
+      }
+      s += '</div>';
+      return s;
+    },
+    action(id, ga, ds) {
+      if (ga !== 'sim') return;
+      const g = GAMES[id];
+      const st = gameState[id];
+      if (ds.act === 'again') {
+        gameState[id] = initGameState(id);
+      } else if (ds.act === 'spawn') {
+        if (st.ended === 'bad' || st.round >= g.maxRounds) return;
+        st.round += 1;
+        const n = g.rounds[st.round - 1];
+        st.found += n;
+        st.streak = n === 0 ? st.streak + 1 : 0;
+        if (st.ended === 'good') {
+          st.log.push({
+            text: 'Round ' + st.round + ': +0 new — a wasted round; the counter already said stop.',
+            dry: true
+          });
+        } else {
+          st.log.push({
+            text: 'Round ' + st.round + ': +' + n + ' new · found so far ' +
+              st.found + ' · dry streak ' + st.streak,
+            dry: n === 0
+          });
+          if (st.streak >= g.dryK) {
+            st.ended = 'good';
+            st.out = {
+              kind: 'good',
+              msg: 'Dry × ' + g.dryK + ' — the loop stops itself. Final count: ' +
+                g.total + ' issues, and you never needed to know that number in advance. The dryness counter knew for you.'
+            };
+            completeGame(id);
+          }
+        }
+      } else if (ds.act === 'stop') {
+        if (st.ended) return;
+        st.ended = 'bad';
+        const left = g.total - st.found;
+        st.out = left > 0
+          ? {
+              kind: 'bad',
+              msg: 'You stopped at ' + st.found + ' of ' + g.total + ' — ' + left +
+                ' issue' + (left === 1 ? ' was' : 's were') +
+                ' still in the well. The dry-streak counter is the signal: it read ' +
+                st.streak + ', not ' + g.dryK + '.'
+            }
+          : {
+              kind: 'bad',
+              msg: 'All ' + g.total + ' were found — but you couldn’t have known that: the dry streak was only ' +
+                st.streak + '. Without ' + g.dryK +
+                ' dry rounds in a row, “done” is a guess that happened to pay off.'
+            };
+      }
+      renderGame(id);
+    }
+  },
+
+  simgoal: {
+    view(id) {
+      const g = GAMES[id];
+      const st = gameState[id];
+      let s = gameHead(id);
+      s += '<div class="sim-strip">' + goalSimStrip(g, st) + '</div>';
+      s += simLogHtml(st.log);
+      s += simOutHtml(st.out);
+      s += '<div class="sim-controls">';
+      if (st.phase === 'idle') {
+        s += '<button type="button" class="g-btn primary" data-ga="sim" data-act="spawn">Run draft → verify</button>';
+      } else if (st.phase === 'fail') {
+        s += '<button type="button" class="g-btn primary" data-ga="sim" data-act="retry">Retry — feed the failures back</button>' +
+          '<button type="button" class="g-btn" data-ga="sim" data-act="ship">Ship it unverified</button>' +
+          '<button type="button" class="g-btn" data-ga="sim" data-act="quit">Give up</button>';
+      } else if (st.phase === 'pass') {
+        s += '<button type="button" class="g-btn primary" data-ga="sim" data-act="shipgood">Ship it ✓</button>';
+      } else if (st.ended === 'bad') {
+        s += '<button type="button" class="g-btn primary" data-ga="sim" data-act="again">Try again</button>';
+      }
+      s += '</div>';
+      return s;
+    },
+    action(id, ga, ds) {
+      if (ga !== 'sim') return;
+      const g = GAMES[id];
+      const st = gameState[id];
+      const runIteration = () => {
+        if (st.iter >= g.iters.length || st.iter >= g.maxIters) return;
+        st.iter += 1;
+        const it = g.iters[st.iter - 1];
+        if (it.fails.length) {
+          st.phase = 'fail';
+          st.log.push({
+            text: 'Iteration ' + st.iter + ' (' + g.tokensPerIter +
+              ' tokens): verify says NO — ' + it.fails.join('; '),
+            dry: true
+          });
+        } else {
+          st.phase = 'pass';
+          st.log.push({
+            text: 'Iteration ' + st.iter + ' (' + g.tokensPerIter +
+              ' tokens): verify says PASS ✓',
+            dry: false
+          });
+        }
+      };
+      if (ds.act === 'again') {
+        gameState[id] = initGameState(id);
+      } else if (ds.act === 'spawn') {
+        if (st.phase !== 'idle') return;
+        runIteration();
+      } else if (ds.act === 'retry') {
+        if (st.phase !== 'fail') return;
+        const prev = g.iters[st.iter - 1].fails.length;
+        st.log.push({
+          text: 'Feeding ' + prev + ' failure' + (prev === 1 ? '' : 's') +
+            ' into attempt ' + (st.iter + 1) + '…',
+          dry: false
+        });
+        runIteration();
+      } else if (ds.act === 'ship') {
+        if (st.phase !== 'fail') return;
+        st.phase = 'done';
+        st.ended = 'bad';
+        st.out = {
+          kind: 'bad',
+          msg: 'Shipped red. A pass you didn’t verify is just the drafter agreeing with itself — the verifier that can say no IS the pattern.'
+        };
+      } else if (ds.act === 'quit') {
+        if (st.phase !== 'fail') return;
+        st.phase = 'done';
+        st.ended = 'bad';
+        const away = g.iters.length - st.iter;
+        st.out = {
+          kind: 'warn',
+          msg: 'You were ' + away + ' iteration' + (away === 1 ? '' : 's') +
+            ' from green. The loop converges because failures feed forward — quitting throws that away.'
+        };
+      } else if (ds.act === 'shipgood') {
+        if (st.phase !== 'pass') return;
+        st.phase = 'done';
+        st.ended = 'good';
+        st.out = {
+          kind: 'good',
+          msg: 'Converged on iteration ' + st.iter +
+            '. Each retry shrank the failure list because the verifier’s “no” came with reasons — that feedback is the loop.'
+        };
+        completeGame(id);
+      }
+      renderGame(id);
+    }
+  }
+};
+
+/* ============================================================
+   Table rendering, sorting, expansion
+   ============================================================ */
+const tbody = document.getElementById('tbody');
+const expanded = new Set();
+let sortKey = null;
+let sortDir = 1;
+
+function costBadge(n) {
+  return '<span class="cost">' + escapeHtml('$'.repeat(n)) + '</span>';
+}
+
+function sortedPatterns() {
+  const list = PATTERNS.slice();
+  if (!sortKey) return list;
+  list.sort((a, b) => {
+    let va, vb;
+    if (sortKey === 'name') { va = a.name; vb = b.name; }
+    else if (sortKey === 'agents') { va = a.agentsSort; vb = b.agentsSort; }
+    else if (sortKey === 'time') { va = a.timeSort; vb = b.timeSort; }
+    else { va = a.cost; vb = b.cost; }
+    // nulls (—) always sink to the bottom, whatever the direction
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
+    return (va - vb) * sortDir;
+  });
+  return list;
+}
+
+function detailHtml(p) {
+  const stat = p.stat
+    ? '<span class="stat">' + escapeHtml(p.stat) + '</span>'
+    : '';
+  return '<div class="panel">' +
+    '<p class="idea">“' + escapeHtml(p.idea) + '”</p>' +
+    '<div class="panel-grid">' +
+      '<div class="diagram-wrap">' +
+        '<div class="diagram" data-diagram="' + escapeHtml(p.id) + '"></div>' +
+        '<div class="d-foot">' +
+          '<button type="button" class="replay" data-replay="' +
+            escapeHtml(p.id) + '">▶ Replay</button>' +
+          '<span class="d-caption">' + escapeHtml(p.caption) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="guide">' +
+        '<div class="g-when"><h4>Reach for it when</h4><p>' +
+          escapeHtml(p.when) + '</p></div>' +
+        '<div class="g-dont"><h4>Don’t when</h4><p>' +
+          escapeHtml(p.dont) + '</p></div>' +
+        stat +
+      '</div>' +
+    '</div>' +
+    '<div class="game ' + escapeHtml(p.group) + '" data-game="' +
+      escapeHtml(p.id) + '"></div>' +
+  '</div>';
+}
+
+function render() {
+  const rows = sortedPatterns().map((p) => {
+    const open = expanded.has(p.id);
+    const loopCls = p.loop ? ' is-loop' : '';
+    const loopTag = p.loop ? '<span class="loop-tag">↻ Loop</span>' : '';
+    const doneTag = completedGames.has(p.id)
+      ? '<span class="done-tag">✓ practiced</span>' : '';
+    return '<tr class="row' + (open ? ' open' : '') + loopCls + '" data-id="' +
+        escapeHtml(p.id) + '" tabindex="0" role="button" aria-expanded="' +
+        (open ? 'true' : 'false') + '" aria-controls="detail-' +
+        escapeHtml(p.id) + '">' +
+      '<td class="num">' + escapeHtml(p.num) + '</td>' +
+      '<td class="name"><span class="chev">▶</span>' +
+        escapeHtml(p.name) + loopTag + doneTag + '</td>' +
+      '<td><span class="pill ' + escapeHtml(p.group) + '">' +
+        escapeHtml(p.buys) + '</span></td>' +
+      '<td class="agents">' + escapeHtml(p.agents) + '</td>' +
+      '<td class="time">' + (p.timeSort === null
+        ? '<span class="na">—</span>' : escapeHtml(p.time)) + '</td>' +
+      '<td>' + costBadge(p.cost) + '</td>' +
+      '<td class="when">' + escapeHtml(p.whenShort) + '</td>' +
+    '</tr>' +
+    '<tr class="detail' + loopCls + '" id="detail-' + escapeHtml(p.id) + '"' +
+      (open ? '' : ' hidden') + '><td colspan="7">' + detailHtml(p) +
+    '</td></tr>';
+  }).join('');
+  tbody.innerHTML = rows;
+  expanded.forEach((id) => {
+    injectDiagram(id);
+    injectGame(id); // game state lives in JS, so mid-play survives re-renders
+  });
+  updateSortArrows();
+}
+
+function injectDiagram(id) {
+  const el = tbody.querySelector('[data-diagram="' + id + '"]');
+  if (el && DIAGRAMS[id]) el.innerHTML = DIAGRAMS[id]();
+}
+
+function toggle(id) {
+  const row = tbody.querySelector('tr.row[data-id="' + id + '"]');
+  const detail = document.getElementById('detail-' + id);
+  if (!row || !detail) return;
+  const opening = detail.hidden;
+  detail.hidden = !opening;
+  row.classList.toggle('open', opening);
+  row.setAttribute('aria-expanded', opening ? 'true' : 'false');
+  if (opening) {
+    expanded.add(id);
+    injectDiagram(id); // (re)build so the animation plays from the top
+    injectGame(id);
+  } else {
+    expanded.delete(id);
+  }
+}
+
+function updateSortArrows() {
+  document.querySelectorAll('thead th.sortable').forEach((th) => {
+    const arrow = th.querySelector('.arrow');
+    if (th.dataset.key === sortKey) {
+      arrow.textContent = sortDir === 1 ? '▲' : '▼';
+      th.setAttribute('aria-sort', sortDir === 1 ? 'ascending' : 'descending');
+    } else {
+      arrow.textContent = '';
+      th.removeAttribute('aria-sort');
+    }
+  });
+}
+
+function setSort(key) {
+  if (sortKey === key) {
+    sortDir = -sortDir;
+  } else {
+    sortKey = key;
+    sortDir = 1;
+  }
+  render();
+}
+
+/* ============================================================
+   Events (delegated)
+   ============================================================ */
+tbody.addEventListener('click', (e) => {
+  const replay = e.target.closest('[data-replay]');
+  if (replay) {
+    injectDiagram(replay.dataset.replay);
+    return;
+  }
+  const row = e.target.closest('tr.row');
+  if (row) toggle(row.dataset.id);
+});
+
+tbody.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const row = e.target.closest('tr.row');
+  if (row) {
+    e.preventDefault();
+    toggle(row.dataset.id);
+  }
+});
+
+document.querySelectorAll('thead th.sortable').forEach((th) => {
+  th.addEventListener('click', () => setSort(th.dataset.key));
+  th.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSort(th.dataset.key);
+    }
+  });
+});
+
+// Game interactions: one delegated click for every [data-ga] button
+// (covers games in tr.detail AND the final challenge outside the table).
+// No bleed into row toggling: game buttons live in tr.detail, where the
+// tbody handler's closest('tr.row') is null.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-ga]');
+  if (!btn || btn.disabled) return;
+  const wrap = btn.closest('[data-game]');
+  if (!wrap || !GAMES[wrap.dataset.game]) return;
+  const id = wrap.dataset.game;
+  if (!gameState[id]) gameState[id] = initGameState(id);
+  GAME_UIS[GAMES[id].type].action(id, btn.dataset.ga, btn.dataset);
+});
+
+// Drag-and-drop sugar for the build games — click-to-place is primary.
+// The dragged piece id lives in a module var: Safari restricts reading
+// dataTransfer during dragover/drop.
+let dragPieceId = null;
+tbody.addEventListener('dragstart', (e) => {
+  const p = e.target.closest('.b-piece');
+  if (!p || p.disabled) return;
+  dragPieceId = p.dataset.piece;
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', dragPieceId); } catch (err) { /* older engines */ }
+});
+tbody.addEventListener('dragover', (e) => {
+  const s = e.target.closest('.b-slot');
+  if (s && dragPieceId) {
+    e.preventDefault();
+    s.classList.add('over');
+  }
+});
+tbody.addEventListener('dragleave', (e) => {
+  const s = e.target.closest('.b-slot');
+  if (s) s.classList.remove('over');
+});
+tbody.addEventListener('drop', (e) => {
+  const s = e.target.closest('.b-slot');
+  if (!s || !dragPieceId) return;
+  e.preventDefault();
+  const wrap = s.closest('[data-game]');
+  if (wrap && GAMES[wrap.dataset.game]) {
+    if (!gameState[wrap.dataset.game]) {
+      gameState[wrap.dataset.game] = initGameState(wrap.dataset.game);
+    }
+    placePiece(wrap.dataset.game, s.dataset.slot, dragPieceId);
+  }
+  dragPieceId = null;
+});
+tbody.addEventListener('dragend', () => { dragPieceId = null; });
+
+render();
+updateProgress();
+</script>
+</body>
+</html>
