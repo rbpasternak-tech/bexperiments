@@ -42,26 +42,33 @@ The first time you run the script, it will open a browser window for Gmail OAuth
 python main.py --dry-run
 ```
 
-### 5. Cron Job (Automated Schedule)
+### 5. Scheduled Runs (launchd)
 
-To run automatically on Wednesdays and Fridays at 8am:
+The digest runs at 8:00 on Wednesdays and Fridays as a macOS launchd user
+agent. Install or reinstall it with:
 
 ```bash
-crontab -e
+./install-launchd.sh
 ```
 
-Add this line:
+Why not cron, and why the pieces live where they do: this repo sits in
+iCloud-synced `~/Documents` with "Optimize Mac Storage" on, which evicts idle
+files to dataless placeholders. A launchd- or cron-spawned process cannot
+read those back (`OSError: [Errno 11] Resource deadlock avoided`), so the
+installer keeps the venv, the runner script and the log under `~/Library`,
+which iCloud does not sync, and the runner calls `brctl download` on the
+project before Python starts.
 
-```
-0 8 * * 3,5 cd /Users/rebeccapasternak/bexperiments/newsletter-digest && /Users/rebeccapasternak/bexperiments/newsletter-digest/venv/bin/python main.py >> /tmp/newsletter-digest.log 2>&1
+The Anthropic key is read from the login Keychain, never stored in the plist.
+Create or rotate it with:
+
+```bash
+security add-generic-password -a "$USER" -s newsletter-digest-anthropic \
+    -l "newsletter-digest Anthropic API key" -w "<your key>" -U
 ```
 
-Make sure your `ANTHROPIC_API_KEY` is available to cron. You can add it to the crontab:
-
-```
-ANTHROPIC_API_KEY=your-key-here
-0 8 * * 3,5 cd /Users/rebeccapasternak/bexperiments/newsletter-digest && /Users/rebeccapasternak/bexperiments/newsletter-digest/venv/bin/python main.py >> /tmp/newsletter-digest.log 2>&1
-```
+Log: `~/Library/Logs/newsletter-digest/digest.log`. Manual run through the
+same wrapper: `~/Library/Application\ Support/newsletter-digest/run.sh --dry-run`.
 
 ## Usage
 
