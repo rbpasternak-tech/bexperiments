@@ -85,7 +85,9 @@ def summarize(newsletters, rss_articles, model, max_tokens=4096):
     if len(user_message) > 80000:
         user_message = user_message[:80000] + "\n\n[Content truncated due to length]"
 
-    client = anthropic.Anthropic()
+    # The SDK retries rate limits, 5xx responses, and connection errors with
+    # exponential backoff; raise the count so a cron run survives a blip.
+    client = anthropic.Anthropic(max_retries=5)
     response = client.messages.create(
         model=model,
         max_tokens=max_tokens,
@@ -93,4 +95,20 @@ def summarize(newsletters, rss_articles, model, max_tokens=4096):
         messages=[{"role": "user", "content": user_message}],
     )
 
-    return response.content[0].text
+    return extract_response_text(response)
+
+
+def extract_response_text(response):
+    """Return the concatenated text blocks of a Messages API response.
+
+    Raises RuntimeError if the response contains no text (for example a
+    refusal), and warns when the digest was cut off by max_tokens.
+    """
+    text = "".join(block.text for block in response.content if block.type == "text")
+    if not text.strip():
+        raise RuntimeError(
+            f"Claude returned no text (stop_reason={response.stop_reason})."
+        )
+    if response.stop_reason == "max_tokens":
+        print("  Warning: digest was truncated by max_tokens; consider raising summarizer.max_tokens")
+    return text

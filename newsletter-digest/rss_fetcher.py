@@ -1,9 +1,12 @@
 """Fetch and filter articles from RSS feeds."""
 
+import calendar
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
 import feedparser
+from bs4 import BeautifulSoup
 from dateutil import parser as dateparser
 
 
@@ -63,8 +66,8 @@ def _fetch_single_feed(name, url, cutoff_timestamp):
 
         # Strip HTML tags from summary
         if summary:
-            from bs4 import BeautifulSoup
             summary = BeautifulSoup(summary, "html.parser").get_text(separator=" ")
+            summary = " ".join(summary.split())
             # Truncate long summaries
             if len(summary) > 500:
                 summary = summary[:500] + "..."
@@ -83,16 +86,29 @@ def _fetch_single_feed(name, url, cutoff_timestamp):
 
 
 def _parse_date(entry):
-    """Try to parse the publication date from an RSS entry."""
-    for field in ("published", "updated", "created"):
-        val = getattr(entry, field, None) or entry.get(f"{field}_parsed")
-        if val is None:
-            continue
+    """Try to parse the publication date from an RSS entry.
 
-        if isinstance(val, str):
+    Returns a timezone-aware UTC datetime, or None if no usable date is found.
+    Feeds mix naive and offset-bearing timestamps, so everything is normalized
+    to UTC to keep cutoff comparisons and sorting consistent.
+    """
+    for field in ("published", "updated", "created"):
+        parsed = entry.get(f"{field}_parsed")
+        if isinstance(parsed, time.struct_time):
+            return datetime.fromtimestamp(calendar.timegm(parsed), tz=timezone.utc)
+
+        raw = entry.get(field)
+        if isinstance(raw, str) and raw.strip():
             try:
-                return dateparser.parse(val)
-            except (ValueError, OverflowError):
+                return _to_utc(dateparser.parse(raw))
+            except (ValueError, OverflowError, TypeError):
                 continue
 
     return None
+
+
+def _to_utc(dt):
+    """Normalize a datetime to timezone-aware UTC (naive values are assumed UTC)."""
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)

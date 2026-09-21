@@ -72,6 +72,12 @@ python main.py
 # Dry run — prints digest to terminal, no email sent
 python main.py --dry-run
 
+# Only refresh dashboard data (no email sent)
+python main.py --trends-only
+
+# Send the email digest without touching dashboard data
+python main.py --skip-trends
+
 # Backfill a past week's trends (no email sent)
 python main.py --backfill 2025-04-15
 
@@ -79,12 +85,25 @@ python main.py --backfill 2025-04-15
 python main.py --config /path/to/config.yaml
 ```
 
+A full run also extracts structured trend data into `../trends-dashboard/data/`
+and commits and pushes it so GitHub Pages stays current. `--dry-run` still
+writes the data files locally but never commits or pushes.
+
+## Tests
+
+The unit tests run offline (no Gmail, RSS, or Claude API access):
+
+```bash
+cd newsletter-digest
+python -m unittest discover -s tests -t .
+```
+
 ## Configuration
 
 Edit `config.yaml` to customize:
 
 - **recipient_email**: Where to send the digest
-- **lookback_days**: How many days back to scan (default: 4)
+- **lookback_days**: How many days back to scan (default: 4, `config.yaml` sets 3)
 - **sender_whitelist**: Newsletter sender patterns to always include
 - **keywords**: Tech/legal-tech keywords to match
 - **rss_feeds**: RSS feed URLs to pull from
@@ -103,3 +122,5 @@ Edit `config.yaml` to customize:
 | `rss_fetcher.py` | Fetches articles from RSS feeds |
 | `summarizer.py` | Claude API summarization |
 | `digest_formatter.py` | Builds HTML email template |
+| `trend_extractor.py` | Extracts structured trend JSON for the dashboard |
+| `tests/` | Offline unit tests |

@@ -5,8 +5,11 @@ Fetches tech and legal tech newsletters from Gmail, scrapes RSS feeds,
 summarizes everything with Claude, and sends a formatted digest email.
 
 Usage:
-    python main.py              # Full run: fetch, summarize, send email
-    python main.py --dry-run    # Print digest to terminal instead of emailing
+    python main.py                  # Full run: fetch, summarize, send email, push trends
+    python main.py --dry-run        # Print digest to terminal; no email, no git push
+    python main.py --trends-only    # Only refresh dashboard data
+    python main.py --skip-trends    # Email digest without touching dashboard data
+    python main.py --backfill DATE  # Re-extract trends for the week ending DATE
 """
 
 import argparse
@@ -130,7 +133,10 @@ def main():
 
     # Push dashboard data to GitHub so Pages stays current
     if not args.skip_trends:
-        push_dashboard_data()
+        if args.dry_run:
+            print("  Dry run: dashboard data written locally but not committed or pushed.")
+        else:
+            push_dashboard_data()
 
     if args.trends_only:
         print("Trends extraction complete (--trends-only mode).")

@@ -8,6 +8,7 @@ from datetime import datetime
 import anthropic
 
 from email_parser import extract_text
+from summarizer import extract_response_text
 
 CANONICAL_TOPICS = """\
 Use these canonical topic names whenever content matches. Only create a new topic name if none of these fit:
@@ -134,7 +135,7 @@ def extract_trends(newsletters, rss_articles, date_start, date_end, model, outpu
     else:
         raise RuntimeError(f"Claude API failed after 3 attempts: {last_error}") from last_error
 
-    raw_text = response.content[0].text.strip()
+    raw_text = extract_response_text(response).strip()
     # Handle potential markdown code fences
     if raw_text.startswith("```"):
         raw_text = raw_text.split("\n", 1)[1]
@@ -230,19 +231,54 @@ def _build_content(newsletters, rss_articles):
 def _repair_truncated_json(raw_text):
     """Attempt to recover a truncated JSON response.
 
-    Tries increasingly aggressive truncation to find the longest valid prefix.
-    Returns parsed dict on success, None on failure.
+    Walks backwards through the positions of closing brackets, cutting the
+    text there and appending whatever closers are still open, until a
+    candidate parses. Items cut off mid-way are dropped; complete ones are
+    kept. Returns the parsed dict on success, None on failure.
     """
-    # Try stripping from the last closing brace/bracket backwards
-    for end_char in ('}', ']'):
-        pos = raw_text.rfind(end_char)
-        while pos > 0:
-            candidate = raw_text[:pos + 1]
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                pos = raw_text.rfind(end_char, 0, pos)
+    positions = [i for i, ch in enumerate(raw_text) if ch in "}]"]
+    for pos in reversed(positions):
+        candidate = raw_text[:pos + 1]
+        closers = _unclosed_brackets(candidate)
+        if closers is None:
+            continue
+        try:
+            parsed = json.loads(candidate + closers)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
     return None
+
+
+def _unclosed_brackets(text):
+    """Return the closing brackets needed to balance text, or None if unbalanced.
+
+    String literals are skipped so brackets inside values are ignored.
+    """
+    stack = []
+    in_string = False
+    escaped = False
+    for ch in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch in "{[":
+            stack.append(ch)
+        elif ch in "}]":
+            if not stack or (ch == "}") != (stack[-1] == "{"):
+                return None
+            stack.pop()
+    if in_string:
+        return None
+    return "".join("}" if ch == "{" else "]" for ch in reversed(stack))
 
 
 def _make_digest_id(date_end):
