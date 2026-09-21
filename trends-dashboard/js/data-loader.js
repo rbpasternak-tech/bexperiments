@@ -51,7 +51,13 @@ export async function loadAllData(dataBasePath = 'data') {
   } catch { /* cache miss */ }
 
   /* ---- 2. Determine digest files to fetch ---- */
-  const digestFiles = (index.digests || index.files || []).slice(0, 24);
+  // index.json lists digests oldest-first, so sort newest-first before
+  // capping at 24. Slicing the raw list froze the dashboard at the 24th
+  // digest (July 2026) once the index outgrew it.
+  const entryKey = (e) => String((e && e.run_date) || (e && e.file) || e || '');
+  const digestFiles = [...(index.digests || index.files || [])]
+    .sort((a, b) => entryKey(b).localeCompare(entryKey(a)))
+    .slice(0, 24);
   if (digestFiles.length === 0) {
     console.warn('Index contains no digest file entries.');
     return emptyResult(index);
