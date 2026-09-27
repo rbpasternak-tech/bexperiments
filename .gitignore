@@ -6,7 +6,6 @@ Thumbs.db
 .claude/settings.local.json
 .claude/telegram-state/
 .claude/worktrees/
-.claude/launch.json
 
 # Python
 __pycache__/
