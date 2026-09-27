@@ -77,7 +77,8 @@ def default_rubric_is_valid():
     """The bundled rubric loads and yields one question per dimension."""
     rubric = load_rubric(evaluate.DEFAULT_RUBRIC)
     questions = build_questions(rubric)
-    assert len(questions) == len(rubric["dimensions"]) >= 10
+    assert len(questions) == len(rubric["dimensions"]) + 1 >= 11
+    assert next(iter(questions)) == rubric["gate"]["id"]
     assert {q["type"] for q in questions.values()} == {"noul", "choice", "score"}
 
 
@@ -196,6 +197,27 @@ def cli_end_to_end():
     assert all(0 <= d["overall_risk"] <= 1 and len(d["dimensions"]) >= 10 for d in docs)
     assert "Summary" in stdout.getvalue() and "Limitation of liability" in stdout.getvalue()
     assert calls[0]["payload"]["state"]["contract_text"]
+
+
+@check
+def non_contracts_are_not_ranked():
+    """A document the gate rejects is labelled and left out of the ranking."""
+    def transport(url, headers, payload, timeout):
+        answers = {qid: fake_answer(q) for qid, q in payload["questions"].items()}
+        answers["is_contract"] = {"type": "noul", "noul": 0.1}
+        return 200, json.dumps({"model": "m", "answers": answers,
+                                "usage": {"input_tokens": 1, "output_tokens": 1}})
+    client = TypeSafeClient(api_key="k", transport=transport)
+    with tempfile.TemporaryDirectory() as tmp:
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(io.StringIO()):
+            evaluate.main([os.path.join(FIXTURES, "test-msa.docx"),
+                           "--output", os.path.join(tmp, "r.json")], client=client)
+        with open(os.path.join(tmp, "r.json"), encoding="utf-8") as handle:
+            doc = json.load(handle)["documents"][0]
+    assert doc["is_contract"] is False and abs(doc["contract_probability"] - 0.1) < 1e-9
+    assert all(d["id"] != "is_contract" for d in doc["dimensions"])
+    assert "NOT A CONTRACT" in stdout.getvalue() and "Not contracts, not ranked" in stdout.getvalue()
 
 
 @check

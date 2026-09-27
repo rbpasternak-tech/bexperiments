@@ -36,32 +36,51 @@ def load_rubric(path):
     if not isinstance(dimensions, list) or not dimensions:
         raise ValueError(f"{path}: rubric needs a non-empty 'dimensions' list")
     seen = set()
+    gate = rubric.get("gate")
+    if gate is not None:
+        validate_dimension(path, gate, seen)
+        if gate["type"] != "noul":
+            raise ValueError(f"{gate['id']}: the gate must be a noul question")
     for dim in dimensions:
-        dim_id = dim.get("id")
-        if not isinstance(dim_id, str) or not ID_PATTERN.match(dim_id):
-            raise ValueError(f"{path}: dimension id {dim_id!r} must use letters, digits, '_', '.', or '-'")
-        if dim_id in seen:
-            raise ValueError(f"{path}: duplicate dimension id {dim_id!r}")
-        seen.add(dim_id)
-        if dim.get("type") not in TYPES:
-            raise ValueError(f"{dim_id}: type must be one of {', '.join(TYPES)}")
-        if not dim.get("instructions"):
-            raise ValueError(f"{dim_id}: instructions are required")
-        criteria = dim.get("criteria")
-        if dim["type"] == "score" and not (isinstance(criteria, list) and 2 <= len(criteria) <= 10):
-            raise ValueError(f"{dim_id}: score criteria must list 2 to 10 levels")
-        if dim["type"] == "choice":
-            if not (isinstance(criteria, dict) and 1 <= len(criteria) <= 255):
-                raise ValueError(f"{dim_id}: choice criteria must map 1 to 255 options to descriptions")
-            risk = dim.get("risk")
-            if not isinstance(risk, dict) or set(risk) != set(criteria):
-                raise ValueError(f"{dim_id}: choice needs a 'risk' weight for every option")
-            if not all(isinstance(w, (int, float)) and 0 <= w <= 1 for w in risk.values()):
-                raise ValueError(f"{dim_id}: risk weights must be numbers from 0 to 1")
-        if dim["type"] == "noul" and criteria is not None:
-            if not (isinstance(criteria, dict) and set(criteria) <= {"true", "false"}):
-                raise ValueError(f"{dim_id}: noul criteria may only have 'true' and 'false' keys")
+        validate_dimension(path, dim, seen)
     return rubric
+
+
+def validate_dimension(path, dim, seen):
+    """Check one rubric question and record its id.
+
+    Args:
+        path: Rubric path, for error messages.
+        dim: The dimension or gate dict.
+        seen: Ids already used; this id is added.
+
+    Raises:
+        ValueError: If the question is malformed or its id is a duplicate.
+    """
+    dim_id = dim.get("id")
+    if not isinstance(dim_id, str) or not ID_PATTERN.match(dim_id):
+        raise ValueError(f"{path}: dimension id {dim_id!r} must use letters, digits, '_', '.', or '-'")
+    if dim_id in seen:
+        raise ValueError(f"{path}: duplicate dimension id {dim_id!r}")
+    seen.add(dim_id)
+    if dim.get("type") not in TYPES:
+        raise ValueError(f"{dim_id}: type must be one of {', '.join(TYPES)}")
+    if not dim.get("instructions"):
+        raise ValueError(f"{dim_id}: instructions are required")
+    criteria = dim.get("criteria")
+    if dim["type"] == "score" and not (isinstance(criteria, list) and 2 <= len(criteria) <= 10):
+        raise ValueError(f"{dim_id}: score criteria must list 2 to 10 levels")
+    if dim["type"] == "choice":
+        if not (isinstance(criteria, dict) and 1 <= len(criteria) <= 255):
+            raise ValueError(f"{dim_id}: choice criteria must map 1 to 255 options to descriptions")
+        risk = dim.get("risk")
+        if not isinstance(risk, dict) or set(risk) != set(criteria):
+            raise ValueError(f"{dim_id}: choice needs a 'risk' weight for every option")
+        if not all(isinstance(w, (int, float)) and 0 <= w <= 1 for w in risk.values()):
+            raise ValueError(f"{dim_id}: risk weights must be numbers from 0 to 1")
+    if dim["type"] == "noul" and criteria is not None:
+        if not (isinstance(criteria, dict) and set(criteria) <= {"true", "false"}):
+            raise ValueError(f"{dim_id}: noul criteria may only have 'true' and 'false' keys")
 
 
 def build_questions(rubric):
@@ -71,10 +90,11 @@ def build_questions(rubric):
         rubric: A rubric dict from ``load_rubric``.
 
     Returns:
-        Dimension id to question payload, in rubric order.
+        Question id to payload: the gate, if any, then dimensions in order.
     """
     questions = {}
-    for dim in rubric["dimensions"]:
+    gate = rubric.get("gate")
+    for dim in ([gate] if gate else []) + rubric["dimensions"]:
         question = {"type": dim["type"], "instructions": dim["instructions"]}
         if dim.get("criteria") is not None:
             question["criteria"] = dim["criteria"]

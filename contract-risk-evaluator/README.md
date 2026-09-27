@@ -63,6 +63,10 @@ errors such as a missing key.
 
 Risk is judged from the perspective of the party receiving the draft.
 
+The same request also asks whether each file is a contract at all. Files that
+are not (memos, handbooks, logs, READMEs) are labelled `NOT A CONTRACT` and
+left out of the summary ranking, so a whole folder can be pointed at safely.
+
 ## How answers become risk
 
 - **noul** (yes/no): the probability of "yes". Phrase every noul so that yes
@@ -81,7 +85,13 @@ it is the distance of the probability from 0.5.
 Copy `rubrics/contract-risk.json` and edit the dimensions. Each entry needs
 `id`, `label`, `type` (`noul`, `choice`, or `score`), `instructions`, and,
 for choice and score, `criteria`. A choice also needs a `risk` weight from 0
-to 1 for every option. The rubric is validated before any API call.
+to 1 for every option. An optional top-level `gate` noul decides whether a
+document is in scope. The rubric is validated before any API call.
+
+Jev reads questions literally. When a dimension misses something, name the
+specific cases in its instructions and criteria: rewording the IP question to
+list off-hours, unrelated, and pre-existing inventions raised the offer
+letter's "all inventions" clause from 36 to 69 risk.
 
 ## Files
 

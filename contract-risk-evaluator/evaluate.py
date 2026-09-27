@@ -81,6 +81,11 @@ def evaluate_document(client, rubric, questions, path, max_chars):
         raw = result["answers"][dim["id"]]
         dimensions.append({"id": dim["id"], "label": dim.get("label", dim["id"]),
                            **interpret(dim, raw), "raw": raw})
+    gate = rubric.get("gate")
+    if gate:
+        probability = float(result["answers"][gate["id"]]["noul"])
+        entry["contract_probability"] = probability
+        entry["is_contract"] = probability >= 0.5
     entry.update({
         "model": result.get("model"),
         "usage": result["usage"],
@@ -111,6 +116,9 @@ def print_report(entries, threshold):
         note = f", truncated to {entry['truncated_to']:,}" if "truncated_to" in entry else ""
         print(f"  {entry['characters']:,} chars{note} · model {entry['model']} · "
               f"{entry['usage'].get('input_tokens', '?')} input tokens")
+        if entry.get("is_contract") is False:
+            print(f"  NOT A CONTRACT (p={entry['contract_probability']:.2f}); "
+                  "scores below are not meaningful and it is left out of the ranking")
         print(f"  {'Dimension':<24} {'Answer':<44} {'Risk':>4} {'':10} {'Conf':>4}")
         print(f"  {'-' * 24} {'-' * 44} {'-' * 4} {'-' * 10} {'-' * 4}")
         for dim in entry["dimensions"]:
@@ -120,12 +128,17 @@ def print_report(entries, threshold):
                   f"{round(dim['confidence'] * 100):>4}{flag}")
 
     scored = [e for e in entries if "error" not in e]
+    ranked = [e for e in scored if e.get("is_contract", True)]
+    skipped = [e for e in scored if not e.get("is_contract", True)]
     print("\nSummary (risk 0-100, ! = at or above flag threshold)")
     print(f"  {'Document':<40} {'Risk':>4}  Flagged dimensions")
-    for entry in sorted(scored, key=lambda e: e["overall_risk"], reverse=True):
+    for entry in sorted(ranked, key=lambda e: e["overall_risk"], reverse=True):
         flagged = [d["label"] for d in entry["dimensions"] if d["risk"] >= threshold]
         print(f"  {truncate(os.path.basename(entry['document']), 40):<40} "
               f"{round(entry['overall_risk'] * 100):>4}  {', '.join(flagged) or '-'}")
+    if skipped:
+        names = ", ".join(os.path.basename(e["document"]) for e in skipped)
+        print(f"  Not contracts, not ranked: {names}")
     failed = len(entries) - len(scored)
     if failed:
         print(f"  {failed} document(s) failed; see errors above.")
