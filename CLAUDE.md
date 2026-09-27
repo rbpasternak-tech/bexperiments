@@ -54,8 +54,9 @@ Project support:
 - `legal-test-docs/` contains shared legal-document test fixtures.
 - `clause-remediation-app-plan.md` is the Clause Remediation App implementation
   plan.
-- `telegram_bot.py` is the earlier standalone Telegram bot retained for
-  reference; current development lives in `agent-team/`.
+- `telegram_bot.py` is the earlier standalone Telegram bot, kept only in the
+  local checkout (gitignored because it holds credentials); current
+  development lives in `agent-team/`.
 
 ## Key commands
 
