@@ -7,7 +7,6 @@ Handles find/replace, redline generation, and term extraction.
 import copy
 import re
 from datetime import datetime, timezone
-from pathlib import Path
 
 from docx import Document
 from lxml import etree

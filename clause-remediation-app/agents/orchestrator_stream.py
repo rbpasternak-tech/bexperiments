@@ -235,7 +235,7 @@ def run_remediation_stream(clause_type, old_standard, new_standard, category_fil
                 "doc_id": doc_record["id"],
                 "title": doc_record["title"],
                 "status": "skipped",
-                "message": f"SKIP: No find/replace pair in draft",
+                "message": "SKIP: No find/replace pair in draft",
             }
             continue
 

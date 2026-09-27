@@ -37,7 +37,8 @@ create policy "Users can insert own documents"
 
 create policy "Users can update own documents"
   on documents for update
-  using (auth.uid() = user_id);
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 
 create policy "Users can delete own documents"
   on documents for delete
@@ -55,6 +56,7 @@ returns table (
 )
 language sql
 security definer
+set search_path = public, pg_temp
 as $$
   select
     d.id,

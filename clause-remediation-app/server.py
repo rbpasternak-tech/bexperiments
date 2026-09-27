@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent / "agents"))
 
 from agents.orchestrator_stream import run_remediation_stream
-from tools.supabase_tools import get_document_stats, search_documents
+from tools.supabase_tools import get_document_stats
 
 app = Flask(__name__, static_folder="static")
 CORS(app)

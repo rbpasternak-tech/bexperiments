@@ -134,7 +134,7 @@ def run_remediation(clause_type, old_standard, new_standard, category_filter=Non
                     f"(risk: {assessment.get('risk_level', 'unknown')})")
             documents_needing_update.append(doc_record)
         else:
-            narrate("LEGAL", f"    Already current - no update needed")
+            narrate("LEGAL", "    Already current - no update needed")
 
     narrate("LEGAL", f"Analysis complete. {len(documents_needing_update)} documents need updates.")
 
@@ -183,7 +183,7 @@ def run_remediation(clause_type, old_standard, new_standard, category_filter=Non
         find_text = doc_record["draft"].get("find", "")
         replace_text = doc_record["draft"].get("replace", "")
         if not find_text or not replace_text:
-            narrate("PROCESSING", f"    SKIP: No find/replace pair in draft")
+            narrate("PROCESSING", "    SKIP: No find/replace pair in draft")
             continue
 
         replacements = [{"find": find_text, "replace": replace_text}]

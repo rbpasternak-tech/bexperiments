@@ -151,14 +151,16 @@ function showAuth() {
 }
 
 async function init() {
-  const { data, error: sessionError } = await supabase.auth.getSession();
+  const { data } = await supabase.auth.getSession();
   if (data?.session) {
     showApp(data.session);
   } else {
     showAuth();
   }
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+  supabase.auth.onAuthStateChange((event, session) => {
+    // init() already rendered the initial state; token refreshes need no re-render.
+    if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
     if (session) {
       showApp(session);
     } else {
@@ -167,7 +169,6 @@ async function init() {
   });
 
   window.addEventListener('hashchange', () => {
-    const { data } = supabase.auth.getSession();
     if (authContainer.hidden) route();
   });
 }

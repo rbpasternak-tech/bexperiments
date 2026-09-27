@@ -5,7 +5,6 @@ Claude for Legal plugin patterns.
 """
 
 import json
-import os
 
 import anthropic
 
