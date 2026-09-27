@@ -166,8 +166,8 @@ def main(argv=None, client=None):
 
     client = client or TypeSafeClient(model=args.model)
     if not client.api_key:
-        print("error: set TYPESAFE_API_KEY (see README.md)", file=sys.stderr)
-        return 2
+        print("note: TYPESAFE_API_KEY is not set; relying on a proxy to authenticate",
+              file=sys.stderr)
 
     print(f"Evaluating {len(paths)} document(s) on {len(questions)} dimensions with {args.model}…",
           file=sys.stderr)

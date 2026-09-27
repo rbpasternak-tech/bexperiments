@@ -17,7 +17,9 @@ pip install -r requirements.txt       # only needed for .docx and .pdf inputs
 export TYPESAFE_API_KEY=ts_...        # from your TypeSafe dashboard; never commit it
 ```
 
-`TYPESAFE_API_BASE` optionally overrides `https://api.typesafe.ai`.
+`TYPESAFE_API_BASE` optionally overrides `https://api.typesafe.ai`. Without
+`TYPESAFE_API_KEY` the client sends no `Authorization` header, which suits
+Claude Code cloud sessions whose egress proxy injects the key.
 
 ## Usage
 

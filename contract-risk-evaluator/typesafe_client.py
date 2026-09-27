@@ -100,17 +100,15 @@ class TypeSafeClient:
             The response dict with ``model``, ``answers``, and ``usage``.
 
         Raises:
-            TypeSafeError: If the key is missing, the API returns an error
-                after retries, or the response lacks an answer.
+            TypeSafeError: If the API returns an error after retries or the
+                response lacks an answer.
         """
-        if not self.api_key:
-            raise TypeSafeError("TYPESAFE_API_KEY is not set")
         payload = {"model": self.model, "state": state, "questions": questions}
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
+        headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        # Without a key, send no header so a credential-injecting proxy can
+        # supply it; otherwise TypeSafe answers 401.
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
         url = f"{self.api_base}/v1/systemone"
 
         for attempt in range(self.max_retries + 1):
