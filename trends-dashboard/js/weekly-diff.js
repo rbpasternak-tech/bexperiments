@@ -4,6 +4,7 @@
  */
 
 import { esc } from './chart-utils.js';
+import { normalizeTopic } from './data-loader.js';
 
 /**
  * @param {HTMLElement} container
@@ -90,7 +91,7 @@ function diffItem(name, label, cls) {
 function topicMap(digest) {
   const map = new Map();
   for (const t of digest.topics || []) {
-    const name = t.name || t.topic || 'Unknown';
+    const name = normalizeTopic(t.name || t.topic || 'Unknown');
     map.set(name, (map.get(name) || 0) + (t.mention_count ?? t.count ?? 1));
   }
   return map;

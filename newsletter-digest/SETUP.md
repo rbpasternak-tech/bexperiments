@@ -21,7 +21,7 @@ launchd (Wed/Fri 08:00)
             ├─ summarizer.py          Claude -> digest markdown
             ├─ digest_formatter.py    markdown -> HTML email -> Gmail send
             ├─ trend_extractor.py     Claude -> trends-dashboard/data/digest-<week>.json
-            └─ push_dashboard_data()  git add/commit/push trends-dashboard/data/
+            └─ dashboard_publisher.py commit data onto origin/main and push
                                         │
 GitHub Pages (from main) ───────────────┘
   https://rbpasternak-tech.github.io/bexperiments/trends-dashboard/
@@ -104,19 +104,48 @@ The agent-team bot uses the same pattern, and its installer was the template.
 | Check the job is loaded | `launchctl print gui/$(id -u)/com.bexperiments.newsletter-digest \| grep -E 'state\|last exit'` |
 | Run it now, exactly as scheduled | `launchctl kickstart gui/$(id -u)/com.bexperiments.newsletter-digest` |
 | Watch the log | `tail -f ~/Library/Logs/newsletter-digest/digest.log` |
-| Preview without emailing or pushing | `~/Library/Application\ Support/newsletter-digest/run.sh --dry-run --skip-trends` |
-| Backfill a past week's trend data | `... run.sh --backfill <see main.py --help>` |
+| Preview without emailing or pushing | `~/Library/Application\ Support/newsletter-digest/run.sh --dry-run` |
+| Backfill a past week's trend data | `... run.sh --backfill YYYY-MM-DD` (window ending that day) |
+| Retry publishing dashboard data by hand | `cd ~/Documents/GitHub/bexperiments/newsletter-digest && ~/Library/Application\ Support/newsletter-digest/.venv/bin/python dashboard_publisher.py` |
 | Uninstall | `launchctl bootout gui/$(id -u)/com.bexperiments.newsletter-digest && rm ~/Library/LaunchAgents/com.bexperiments.newsletter-digest.plist` |
 
-`--dry-run` alone still extracts trends and pushes them to GitHub. Add
-`--skip-trends` when you want zero side effects.
+`--dry-run` has no side effects: it prints the digest, sends no email, writes
+no dashboard data and pushes nothing. `--skip-trends` sends the email but
+skips the dashboard data and the push.
+
+## How the dashboard data is published
+
+`dashboard_publisher.py` gets the data onto `origin/main` (what Pages
+serves) without touching whatever you are working on in the checkout:
+
+- It fetches `origin/main` and builds one commit on top of it containing only
+  `trends-dashboard/data/*.json` files that are new or changed locally, or
+  that were committed locally but never pushed. Nothing else is ever pushed:
+  not your other staged or uncommitted work, not other local commits.
+- The checked-out branch, your index and your working tree are left alone,
+  so a feature branch or a dirty tree no longer sends data to the wrong
+  place. If `main` is checked out and has no local-only commits, it is
+  fast-forwarded afterwards to match what was published.
+- `index.json` is merged entry by entry from each digest's own metadata, so
+  a stale or half-written local index cannot drop digests from the live
+  dashboard. Data files are written atomically.
+- The push is never forced. If the remote moved, it rebuilds on the new
+  `origin/main` and retries (3 attempts). Git never waits for a password
+  prompt under launchd.
+- If publishing fails (no network, credentials unavailable), the log says
+  so, the email is unaffected, and the run exits non-zero. The data stays on
+  disk and is retried automatically on the next run, even if that run fails
+  early, or by hand with the command in the table above.
+- A lock prevents two runs (for example a manual run and the scheduled one)
+  from overlapping.
 
 ## Things that bit us
 
-- **The job pushes to whatever branch is checked out.** `push_dashboard_data()`
-  runs plain `git push` in the repo. Pages builds from `main`, so if the repo
-  is sitting on a feature branch, the data lands there and the live dashboard
-  never sees it. Keep `main` checked out, or merge before Wed/Fri 08:00.
+- **The job used to push to whatever branch was checked out.** The old
+  `push_dashboard_data()` ran plain `git push`, so on a feature branch the
+  data never reached `main` and Pages. Fixed on 2026-09-27: the publisher
+  always targets `origin/main` (see above). When the checkout is not on
+  `main`, the log says so; check out `main` and pull when convenient.
 - **The dashboard was frozen at July 10 for two months.** `index.json` lists
   digests oldest first and `data-loader.js` kept the first 24, so once there
   were more than 24 digests the newest were dropped. Fixed on 2026-09-21 to
@@ -126,9 +155,10 @@ The agent-team bot uses the same pattern, and its installer was the template.
   the key anywhere; it is read from Keychain at run time.
 - **`/tmp` logs disappear.** macOS deletes files in `/tmp` after a few days
   idle, which hid the earlier failure. Logs now live in `~/Library/Logs`.
-- **Two harmless `getcwd: Operation not permitted` lines** appear at the top
-  of each log. launchd starts the shell inside the iCloud folder before the
-  runner does its own `cd`. Ignore them.
+- **Two harmless `getcwd: Operation not permitted` lines** appeared at the
+  top of each log when launchd started the shell inside the iCloud folder.
+  The current installer starts the job in `~/Library/Application Support`,
+  so they should be gone after re-running it; ignore them if not.
 - **Stale browser view.** The dashboard caches loaded data in `localStorage`
   keyed on `index.json`'s `last_updated`. A normal reload after a new run is
   enough; if not, Cmd+Shift+R, or in the console

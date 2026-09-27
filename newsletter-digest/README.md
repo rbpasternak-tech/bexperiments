@@ -73,10 +73,10 @@ ANTHROPIC_API_KEY=your-key-here
 # Full run — fetches, summarizes, sends email
 python main.py
 
-# Dry run — prints digest to terminal, no email sent
+# Dry run — prints digest to terminal; no email, no dashboard data, no push
 python main.py --dry-run
 
-# Skip dashboard trend extraction (and the git push that follows it)
+# Skip dashboard trend extraction (and the git publish that follows it)
 python main.py --skip-trends
 
 # Only extract dashboard trends, no email
@@ -114,3 +114,6 @@ Edit `config.yaml` to customize:
 | `summarizer.py` | Claude API summarization |
 | `digest_formatter.py` | Builds HTML email template |
 | `trend_extractor.py` | Claude structured extraction → `trends-dashboard/data/` JSON + `index.json` |
+| `dashboard_publisher.py` | Commits dashboard data onto `origin/main` and pushes it (see SETUP.md) |
+| `install-launchd.sh` | Installs the scheduled launchd job (see SETUP.md) |
+| `selfcheck.py` | Offline self-check: publisher against temp git repos, parsers, dry-run |

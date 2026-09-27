@@ -30,7 +30,8 @@ export async function loadAllData(dataBasePath = 'data') {
   const indexUrl = `${dataBasePath}/index.json`;
   let index;
   try {
-    const res = await fetch(indexUrl);
+    // Revalidate so a new run shows up without a hard refresh.
+    const res = await fetch(indexUrl, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     index = await res.json();
   } catch (err) {
@@ -77,7 +78,9 @@ export async function loadAllData(dataBasePath = 'data') {
     }
   });
 
-  const rawDigests = (await Promise.all(digestPromises)).filter(Boolean);
+  const settled = await Promise.all(digestPromises);
+  const rawDigests = settled.filter((d) => d && typeof d === 'object');
+  const complete = rawDigests.length === settled.length;
   if (rawDigests.length === 0) {
     console.warn('No digest files loaded successfully.');
     return emptyResult(index);
@@ -114,9 +117,12 @@ export async function loadAllData(dataBasePath = 'data') {
   };
 
   /* ---- 6. Cache result ---- */
+  // Only cache a complete load: the cache is keyed on index.last_updated, so
+  // caching after a transient 404 would hide that digest until the next run.
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(result));
-  } catch { /* storage full — ignore */ }
+    if (complete) localStorage.setItem(CACHE_KEY, JSON.stringify(result));
+    else localStorage.removeItem(CACHE_KEY);
+  } catch { /* storage full or unavailable — ignore */ }
 
   return result;
 }
@@ -294,15 +300,29 @@ const TOPIC_ALIASES = {
   'AI Computing Hardware': 'AI Infrastructure',
 };
 
-function normalizeTopic(name) {
-  return TOPIC_ALIASES[name] || name;
+/**
+ * Map a topic name variant onto its canonical name (see TOPIC_ALIASES).
+ * Every place that groups or compares topics must use this so counts line up.
+ *
+ * @param {string} name
+ * @returns {string}
+ */
+export function normalizeTopic(name) {
+  const trimmed = String(name || '').trim();
+  return TOPIC_ALIASES[trimmed] || trimmed;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Internal Helpers                                                   */
 /* ------------------------------------------------------------------ */
 
-function digestDate(d) {
+/**
+ * The date key used for a digest everywhere (series, _digestDate tags).
+ *
+ * @param {Object} d — a digest object
+ * @returns {string}
+ */
+export function digestDate(d) {
   return (
     d?.meta?.date_range_end ||
     d?.meta?.date ||

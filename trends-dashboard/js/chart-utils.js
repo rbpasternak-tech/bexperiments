@@ -153,6 +153,47 @@ export function esc(str) {
 }
 
 /**
+ * Return ``url`` if it is an absolute http(s) URL, otherwise ''.
+ * Use before putting any data-supplied URL in an href, so javascript:,
+ * data: and other schemes never become clickable links.
+ */
+export function safeUrl(url) {
+  if (typeof url !== 'string' || !url.trim()) return '';
+  try {
+    const parsed = new URL(url.trim());
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Hostname of a URL without "www.", or '' if it cannot be parsed.
+ */
+export function domainFromUrl(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Render a data item's source as a safe link (http(s) only) or plain text.
+ * Reads source_url/url/link for the URL and source/source_name for the label.
+ */
+export function renderSourceLink(item) {
+  const url = safeUrl(item.source_url || item.url || item.link || '');
+  const name = item.source || item.source_name || '';
+  if (url) {
+    const label = name || domainFromUrl(url) || url;
+    return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" class="source-link">${esc(label)}</a>`;
+  }
+  if (name) return `<span class="source-name">${esc(name)}</span>`;
+  return '';
+}
+
+/**
  * Format a date string as "Mon D" (e.g., "May 6").
  */
 export function formatShortDate(dateStr) {

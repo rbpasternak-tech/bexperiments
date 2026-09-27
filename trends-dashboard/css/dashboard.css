@@ -668,6 +668,11 @@ a:hover {
   color: var(--accent);
   text-decoration: underline;
 }
+.heatmap-row-selected .heatmap-topic-name {
+  color: var(--accent);
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
 
 .heatmap-cell {
   text-align: center;

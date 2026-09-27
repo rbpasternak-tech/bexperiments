@@ -2,11 +2,15 @@
 
 import base64
 import os
+import re
+import socket
+import sys
 import time
 from datetime import timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -23,29 +27,62 @@ CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), "credentials.json")
 
 
 def _get_service():
-    """Authenticate and return a Gmail API service instance."""
+    """Authenticate and return a Gmail API service instance.
+
+    Raises:
+        FileNotFoundError: credentials.json is missing and a new consent is needed.
+        RuntimeError: a new browser consent is needed but there is no terminal
+            (for example under launchd), where it would hang forever.
+    """
     creds = None
 
     if os.path.exists(TOKEN_PATH):
-        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+        try:
+            creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+        except (ValueError, OSError) as e:
+            print(f"  Warning: could not read {TOKEN_PATH} ({e}); a new consent is needed.")
+            creds = None
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            if not os.path.exists(CREDENTIALS_PATH):
-                raise FileNotFoundError(
-                    f"Missing {CREDENTIALS_PATH}. Download OAuth credentials from "
-                    "Google Cloud Console and place them in the project directory. "
-                    "See README.md for setup instructions."
-                )
-            flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
-            creds = flow.run_local_server(port=8090)
+            try:
+                creds.refresh(Request())
+            except RefreshError as e:
+                print(f"  Warning: Gmail token refresh failed ({e}); a new consent is needed.")
+                creds = None
+        if not creds or not creds.valid:
+            creds = _run_consent_flow()
 
-        with open(TOKEN_PATH, "w") as token_file:
-            token_file.write(creds.to_json())
+        _write_token(creds.to_json())
 
-    return build("gmail", "v1", credentials=creds)
+    return build("gmail", "v1", credentials=creds, cache_discovery=False)
+
+
+def _run_consent_flow():
+    """Run the interactive browser OAuth consent and return credentials."""
+    if not os.path.exists(CREDENTIALS_PATH):
+        raise FileNotFoundError(
+            f"Missing {CREDENTIALS_PATH}. Download OAuth credentials from "
+            "Google Cloud Console and place them in the project directory. "
+            "See SETUP.md for setup instructions."
+        )
+    if not sys.stdin.isatty():
+        raise RuntimeError(
+            "Gmail needs a new OAuth consent, which requires a browser and a "
+            "terminal. Run the wrapper once from Terminal: "
+            "~/Library/Application\\ Support/newsletter-digest/run.sh --dry-run --skip-trends"
+        )
+    flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
+    return flow.run_local_server(port=8090)
+
+
+def _write_token(token_json):
+    """Write token.json atomically with owner-only permissions."""
+    tmp_path = TOKEN_PATH + ".tmp"
+    fd = os.open(tmp_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as token_file:
+        token_file.write(token_json)
+    os.replace(tmp_path, TOKEN_PATH)
 
 
 def fetch_emails(lookback_days, max_emails=200, after_date=None, before_date=None):
@@ -104,7 +141,7 @@ def fetch_emails(lookback_days, max_emails=200, after_date=None, before_date=Non
 
 
 def _fetch_message_with_retry(service, message_id, max_attempts=3):
-    """Fetch a single Gmail message with exponential backoff on 5xx errors."""
+    """Fetch a single Gmail message, backing off on 429/5xx and network errors."""
     for attempt in range(max_attempts):
         try:
             return (
@@ -114,10 +151,18 @@ def _fetch_message_with_retry(service, message_id, max_attempts=3):
                 .execute()
             )
         except HttpError as e:
-            if e.resp.status >= 500 and attempt < max_attempts - 1:
+            status = e.resp.status
+            if (status == 429 or status >= 500) and attempt < max_attempts - 1:
                 wait = 2 ** attempt
-                print(f"  Gmail API error {e.resp.status} for message {message_id} "
+                print(f"  Gmail API error {status} for message {message_id} "
                       f"(attempt {attempt + 1}/{max_attempts}), retrying in {wait}s")
+                time.sleep(wait)
+            else:
+                raise
+        except (socket.timeout, ConnectionError) as e:
+            if attempt < max_attempts - 1:
+                wait = 2 ** attempt
+                print(f"  Network error for message {message_id} ({e}), retrying in {wait}s")
                 time.sleep(wait)
             else:
                 raise
@@ -143,11 +188,15 @@ def _parse_message(msg):
     body_html = "".join(parts_result["html"])
     body_text = "".join(parts_result["text"])
 
+    def first(name):
+        value = header_dict.get(name, "")
+        return value[0] if isinstance(value, list) else value
+
     return {
         "id": msg["id"],
-        "sender": header_dict.get("from", ""),
-        "subject": header_dict.get("subject", ""),
-        "date": header_dict.get("date", ""),
+        "sender": first("from"),
+        "subject": first("subject"),
+        "date": first("date"),
         "headers": header_dict,
         "body_html": body_html,
         "body_text": body_text,
@@ -158,17 +207,33 @@ def _extract_body(payload, body_parts):
     """Recursively extract body text and HTML from message payload."""
     mime_type = payload.get("mimeType", "")
 
-    if mime_type == "text/html":
+    if mime_type in ("text/html", "text/plain"):
         data = payload.get("body", {}).get("data", "")
         if data:
-            body_parts["html"].append(base64.urlsafe_b64decode(data).decode("utf-8", errors="replace"))
-    elif mime_type == "text/plain":
-        data = payload.get("body", {}).get("data", "")
-        if data:
-            body_parts["text"].append(base64.urlsafe_b64decode(data).decode("utf-8", errors="replace"))
+            key = "html" if mime_type == "text/html" else "text"
+            body_parts[key].append(_decode_part(data, _part_charset(payload)))
 
     for part in payload.get("parts", []):
         _extract_body(part, body_parts)
+
+
+def _part_charset(payload):
+    """Return the charset declared in a MIME part's Content-Type, or utf-8."""
+    for header in payload.get("headers", []):
+        if header.get("name", "").lower() == "content-type":
+            match = re.search(r'charset="?([\w.:-]+)"?', header.get("value", ""), re.I)
+            if match:
+                return match.group(1)
+    return "utf-8"
+
+
+def _decode_part(data, charset):
+    """Decode a base64url Gmail body, falling back to utf-8 for unknown charsets."""
+    raw = base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))
+    try:
+        return raw.decode(charset, errors="replace")
+    except LookupError:
+        return raw.decode("utf-8", errors="replace")
 
 
 def send_email(recipient, subject, html_body):

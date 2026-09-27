@@ -5,9 +5,24 @@ import os
 import time
 from datetime import datetime
 
-import anthropic
+from dashboard_publisher import (
+    atomic_write_json,
+    index_entry_from_meta,
+    read_json_file,
+    rebuild_index_from_dir,
+    sort_index_entries,
+)
 
-from email_parser import extract_text
+# Keys the dashboard reads; missing or malformed ones are normalized so one
+# bad extraction cannot break the page.
+LIST_KEYS = (
+    "topics",
+    "ai_economy_events",
+    "regulatory_events",
+    "legal_tech_signals",
+    "source_contributions",
+)
+MAX_OUTPUT_TOKENS = 16000
 
 CANONICAL_TOPICS = """\
 Use these canonical topic names whenever content matches. Only create a new topic name if none of these fit:
@@ -105,6 +120,8 @@ def extract_trends(newsletters, rss_articles, date_start, date_end, model, outpu
         model: Claude model ID.
         output_dir: Path to write JSON data files.
     """
+    import anthropic  # lazy: the index helpers below work without the SDK
+
     content_parts = _build_content(newsletters, rss_articles)
 
     if not content_parts:
@@ -120,7 +137,7 @@ def extract_trends(newsletters, rss_articles, date_start, date_end, model, outpu
         try:
             response = client.messages.create(
                 model=model,
-                max_tokens=16000,
+                max_tokens=MAX_OUTPUT_TOKENS,
                 system=EXTRACTION_PROMPT,
                 messages=[{"role": "user", "content": prompt}],
             )
@@ -134,56 +151,96 @@ def extract_trends(newsletters, rss_articles, date_start, date_end, model, outpu
     else:
         raise RuntimeError(f"Claude API failed after 3 attempts: {last_error}") from last_error
 
-    raw_text = response.content[0].text.strip()
-    # Handle potential markdown code fences
-    if raw_text.startswith("```"):
-        raw_text = raw_text.split("\n", 1)[1]
-        if raw_text.endswith("```"):
-            raw_text = raw_text[:-3].strip()
-        elif "```" in raw_text:
-            raw_text = raw_text[:raw_text.rfind("```")].strip()
+    raw_text = "".join(
+        getattr(block, "text", "") for block in (response.content or [])
+    )
+    if response.stop_reason == "max_tokens":
+        print(f"  Warning: extraction hit max_tokens ({MAX_OUTPUT_TOKENS}); "
+              "recovering what parsed.")
+    extracted = parse_extraction_response(raw_text)
+    if extracted is None:
+        raise RuntimeError(
+            f"Could not parse Claude's response as JSON (stop_reason={response.stop_reason}). "
+            "Try reducing content volume or check max_tokens."
+        )
 
-    try:
-        extracted = json.loads(raw_text)
-    except json.JSONDecodeError:
-        # Response was truncated — trim to last complete top-level value
-        extracted = _repair_truncated_json(raw_text)
-        if extracted is None:
-            raise RuntimeError(
-                f"Could not parse Claude's response as JSON (stop_reason={response.stop_reason}). "
-                "Try reducing content volume or check max_tokens."
-            )
-
-    # Build digest ID from date
     digest_id = _make_digest_id(date_end)
-    source_names = list(set(
+    source_names = sorted(set(
         [a.source for a in rss_articles]
         + [e.get("sender", "").split("<")[0].strip() for e in newsletters if e.get("sender")]
     ))
 
-    output = {
-        "meta": {
-            "id": digest_id,
-            "run_date": datetime.now().isoformat(),
-            "date_range_start": date_start.strftime("%Y-%m-%d"),
-            "date_range_end": date_end.strftime("%Y-%m-%d"),
-            "newsletter_count": len(newsletters),
-            "rss_article_count": len(rss_articles),
-            "sources_analyzed": source_names,
-        },
-        **extracted,
+    meta = {
+        "id": digest_id,
+        "run_date": datetime.now().isoformat(),
+        "date_range_start": date_start.strftime("%Y-%m-%d"),
+        "date_range_end": date_end.strftime("%Y-%m-%d"),
+        "newsletter_count": len(newsletters),
+        "rss_article_count": len(rss_articles),
+        "sources_analyzed": source_names,
     }
+    # normalize_extraction drops any "meta" key the model invented.
+    output = {"meta": meta, **normalize_extraction(extracted)}
 
-    # Write per-digest file
-    os.makedirs(output_dir, exist_ok=True)
     filename = f"digest-{digest_id}.json"
     filepath = os.path.join(output_dir, filename)
-    with open(filepath, "w") as f:
-        json.dump(output, f, indent=2)
+    atomic_write_json(filepath, output)
     print(f"  Wrote {filepath}")
 
-    # Update index.json
-    _update_index(output_dir, output["meta"], filename)
+    _update_index(output_dir, meta, filename)
+
+
+def parse_extraction_response(raw_text):
+    """Parse the model's JSON reply, tolerating fences, prose and truncation.
+
+    Args:
+        raw_text: Raw text returned by Claude.
+
+    Returns:
+        The parsed dict, or None if no JSON object could be recovered.
+    """
+    text = (raw_text or "").strip()
+    start = text.find("{")
+    if start == -1:
+        return None
+    text = text[start:]
+    try:
+        obj, _end = json.JSONDecoder().raw_decode(text)
+        if isinstance(obj, dict):
+            return obj
+    except json.JSONDecodeError:
+        pass
+    # Drop a trailing code fence before attempting truncation repair.
+    fence = text.rfind("```")
+    if fence != -1:
+        text = text[:fence].rstrip()
+    return _repair_truncated_json(text)
+
+
+def normalize_extraction(extracted):
+    """Coerce the extracted data into the shape the dashboard expects.
+
+    List sections that are missing or not lists become empty lists, and
+    non-object items are dropped. ``weekly_snapshot`` becomes a dict.
+
+    Args:
+        extracted: Parsed dict from the model.
+
+    Returns:
+        A new, normalized dict.
+    """
+    result = dict(extracted)
+    result.pop("meta", None)
+    for key in LIST_KEYS:
+        value = result.get(key)
+        result[key] = [item for item in value if isinstance(item, dict)] \
+            if isinstance(value, list) else []
+    result["topics"] = [t for t in result["topics"] if isinstance(t.get("name"), str)]
+    if not isinstance(result.get("weekly_snapshot"), dict):
+        result["weekly_snapshot"] = {}
+    if not isinstance(result.get("weekly_narrative"), str):
+        result.pop("weekly_narrative", None)
+    return result
 
 
 def _build_content(newsletters, rss_articles):
@@ -192,6 +249,8 @@ def _build_content(newsletters, rss_articles):
     Caps newsletter body at 2500 chars and RSS articles at 80 to keep
     the total input within a safe token budget.
     """
+    from email_parser import extract_text
+
     MAX_NEWSLETTER_CHARS = 2500
     MAX_RSS_ARTICLES = 80
 
@@ -227,21 +286,52 @@ def _build_content(newsletters, rss_articles):
     return parts
 
 
-def _repair_truncated_json(raw_text):
-    """Attempt to recover a truncated JSON response.
+def _repair_truncated_json(raw_text, max_attempts=400):
+    """Recover the longest valid prefix of a truncated JSON object.
 
-    Tries increasingly aggressive truncation to find the longest valid prefix.
-    Returns parsed dict on success, None on failure.
+    Scans once, tracking string state and open brackets, and records every
+    point where a value just ended (after a closing bracket, or before a
+    comma). Working backwards from the end, each prefix is closed with the
+    brackets still open at that point and parsed.
+
+    Args:
+        raw_text: JSON text starting with ``{`` that may be cut off.
+        max_attempts: Maximum number of cut points to try.
+
+    Returns:
+        The parsed dict on success, or None.
     """
-    # Try stripping from the last closing brace/bracket backwards
-    for end_char in ('}', ']'):
-        pos = raw_text.rfind(end_char)
-        while pos > 0:
-            candidate = raw_text[:pos + 1]
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                pos = raw_text.rfind(end_char, 0, pos)
+    stack = []
+    in_string = False
+    escaped = False
+    cuts = []
+    for i, ch in enumerate(raw_text):
+        if in_string:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch in "{[":
+            stack.append("}" if ch == "{" else "]")
+        elif ch in "}]":
+            if stack:
+                stack.pop()
+            cuts.append((i + 1, "".join(reversed(stack))))
+        elif ch == ",":
+            cuts.append((i, "".join(reversed(stack))))
+
+    for end, closers in reversed(cuts[-max_attempts:]):
+        try:
+            result = json.loads(raw_text[:end] + closers)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(result, dict):
+            return result
     return None
 
 
@@ -253,32 +343,31 @@ def _make_digest_id(date_end):
 
 
 def _update_index(output_dir, meta, filename):
-    """Update or create index.json with the new digest entry."""
+    """Add or replace this digest's entry in index.json, atomically.
+
+    A missing or corrupt index.json is rebuilt from the digest files in
+    ``output_dir`` instead of crashing the run.
+
+    Args:
+        output_dir: Dashboard data directory.
+        meta: The digest's ``meta`` dict.
+        filename: The digest's file name.
+    """
     index_path = os.path.join(output_dir, "index.json")
 
-    if os.path.exists(index_path):
-        with open(index_path, "r") as f:
-            index = json.load(f)
-    else:
-        index = {"last_updated": None, "digests": []}
+    index = read_json_file(index_path)
+    if not isinstance(index, dict) or not isinstance(index.get("digests"), list):
+        if os.path.exists(index_path):
+            print(f"  Warning: {index_path} is corrupt; rebuilding from digest files.")
+        index = {"last_updated": None, "digests": rebuild_index_from_dir(output_dir)}
 
     # Remove existing entry with same ID if re-running
-    index["digests"] = [d for d in index["digests"] if d.get("id") != meta["id"]]
+    entries = [d for d in index["digests"]
+               if isinstance(d, dict) and d.get("id") != meta["id"]]
+    entries.append(index_entry_from_meta(meta, filename))
 
-    index["digests"].append({
-        "id": meta["id"],
-        "run_date": meta["date_range_end"],
-        "date_range_start": meta["date_range_start"],
-        "date_range_end": meta["date_range_end"],
-        "file": filename,
-        "newsletter_count": meta["newsletter_count"],
-        "rss_article_count": meta["rss_article_count"],
-    })
-
-    # Sort by run date
-    index["digests"].sort(key=lambda d: d["run_date"])
+    index["digests"] = sort_index_entries(entries)
     index["last_updated"] = datetime.now().isoformat()
 
-    with open(index_path, "w") as f:
-        json.dump(index, f, indent=2)
+    atomic_write_json(index_path, index)
     print(f"  Updated {index_path}")

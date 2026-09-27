@@ -4,7 +4,9 @@
  * and scrollable event list.
  */
 
-import { EVENT_COLORS, formatCurrency, formatNumber, esc, formatShortDate, emptyState } from './chart-utils.js';
+import {
+  EVENT_COLORS, formatCurrency, formatNumber, esc, formatShortDate, emptyState, renderSourceLink,
+} from './chart-utils.js';
 
 /* ---- Module-level chart reference ---- */
 let fundingChartInstance = null;
@@ -163,22 +165,6 @@ function eventItem(ev) {
       <span class="event-headline">${headline}</span>
       ${source}
     </div>`;
-}
-
-function renderSourceLink(ev) {
-  const url = ev.source_url || ev.url || ev.link || '';
-  const name = ev.source || ev.source_name || '';
-  if (url) {
-    const label = name || domainFromUrl(url);
-    return `<a href="${esc(url)}" target="_blank" rel="noopener" class="source-link">${esc(label)}</a>`;
-  }
-  if (name) return `<span class="source-name">${esc(name)}</span>`;
-  return '';
-}
-
-function domainFromUrl(url) {
-  try { return new URL(url).hostname.replace(/^www\./, ''); }
-  catch { return url; }
 }
 
 function statCard(label, value) {

@@ -14,6 +14,7 @@ const DEFAULT_ROWS = 10;
  */
 export function renderTopicHeatmap(container, data) {
   const timeSeries = data.topicTimeSeries || [];
+  const selectedTopic = data.selectedTopic || null;
   if (timeSeries.length === 0) {
     container.innerHTML = emptyState('Topic Heatmap');
     return;
@@ -41,7 +42,9 @@ export function renderTopicHeatmap(container, data) {
     }
   }
 
-  let expanded = false;
+  // Keep a selected topic visible even if it is outside the top rows.
+  let expanded = Boolean(selectedTopic)
+    && rows.findIndex((r) => r.topic === selectedTopic) >= DEFAULT_ROWS;
 
   function render() {
     const visible = expanded ? rows : rows.slice(0, DEFAULT_ROWS);
@@ -61,13 +64,14 @@ export function renderTopicHeatmap(container, data) {
 
     html += '<tbody>';
     for (const row of visible) {
-      html += '<tr>';
-      html += `<td class="heatmap-topic-name" data-topic="${esc(row.topic)}">${esc(row.topic)}</td>`;
+      const isSelected = row.topic === selectedTopic;
+      html += isSelected ? '<tr class="heatmap-row-selected">' : '<tr>';
+      html += `<td class="heatmap-topic-name" data-topic="${esc(row.topic)}" title="${isSelected ? 'Clear topic filter' : 'Filter sections by this topic'}">${esc(row.topic)}</td>`;
 
       for (const d of dates) {
         const count = row.countByDate.get(d) || 0;
         const bg = heatmapColor(count, globalMax);
-        const textColor = count / globalMax > 0.5 ? '#fff' : lightText;
+        const textColor = globalMax && count / globalMax > 0.5 ? '#fff' : lightText;
         html += `<td class="heatmap-cell" style="background:${bg};color:${textColor}" title="${esc(row.topic)} \u2014 ${esc(d)}: ${count}">${count || ''}</td>`;
       }
 
@@ -98,7 +102,8 @@ export function renderTopicHeatmap(container, data) {
       el.style.cursor = 'pointer';
       el.addEventListener('click', () => {
         if (typeof window.filterByTopic === 'function') {
-          window.filterByTopic(el.dataset.topic);
+          // Clicking the selected topic again clears the filter.
+          window.filterByTopic(el.dataset.topic === selectedTopic ? null : el.dataset.topic);
         }
       });
     });

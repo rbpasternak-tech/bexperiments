@@ -64,6 +64,8 @@ Project support:
 - Newsletter dry run: `cd newsletter-digest && python main.py --dry-run`
 - Trends only: `cd newsletter-digest && python main.py --trends-only`
 - Backfill digest: `cd newsletter-digest && python main.py --backfill YYYY-MM-DD`
+- Publish pending dashboard data by hand: `cd newsletter-digest && python dashboard_publisher.py`
+- Newsletter offline self-check: `cd newsletter-digest && python selfcheck.py`
 - Agent Team: `cd agent-team && python main.py`
 - Legal-doc seed: `cd legal-doc-catalog/seed && pip install -r requirements.txt && python seed_documents.py`
 - Static local server: `python -m http.server 8000`
