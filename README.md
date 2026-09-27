@@ -24,6 +24,13 @@ nudge, set reminders, and read newsletter-digest data.
 A Flask prototype for reviewing and remediating contract clauses with a fixed,
 multi-step AI workflow.
 
+### Contract Risk Evaluator
+
+[`contract-risk-evaluator/`](contract-risk-evaluator/)
+
+A Python CLI that scores contracts on risk and compliance dimensions with
+TypeSafe's System One API and writes a table and JSON report.
+
 ### Doc Find & Replace
 
 [`doc-find-replace/`](doc-find-replace/) ·

@@ -29,6 +29,9 @@ Projects use the same alphabetical order and display names as `README.md`.
   personas. Entry: `agent-team/main.py`.
 - **Clause Remediation App** — `clause-remediation-app/`: Flask prototype for
   clause review and remediation. Entry: `clause-remediation-app/server.py`.
+- **Contract Risk Evaluator** — `contract-risk-evaluator/`: TypeSafe-powered
+  CLI that scores contracts on risk and compliance dimensions. Entry:
+  `contract-risk-evaluator/evaluate.py`.
 - **Doc Find & Replace** — `doc-find-replace/`: browser-based bulk `.docx` and
   `.pdf` editor. Entry: `doc-find-replace/index.html`.
 - **Dynamic Workflows Cookbook** — `dynamic-workflows-cookbook/`: coordinated
@@ -67,6 +70,8 @@ Project support:
 - Publish pending dashboard data by hand: `cd newsletter-digest && python dashboard_publisher.py`
 - Newsletter offline self-check: `cd newsletter-digest && python selfcheck.py`
 - Agent Team: `cd agent-team && python main.py`
+- Contract risk evaluation: `cd contract-risk-evaluator && python evaluate.py <files-or-folders>`
+- Contract risk offline self-check: `cd contract-risk-evaluator && python selfcheck.py`
 - Legal-doc seed: `cd legal-doc-catalog/seed && pip install -r requirements.txt && python seed_documents.py`
 - Static local server: `python -m http.server 8000`
 - Tmux workspace: `./tmux-bexperiments.sh`
@@ -102,6 +107,7 @@ Project support:
 - Gmail OAuth files: `newsletter-digest/credentials.json` and
   `newsletter-digest/token.json`.
 - Agent Team requires `TELEGRAM_BOT_TOKEN` and `ANTHROPIC_API_KEY`.
+- Contract Risk Evaluator requires `TYPESAFE_API_KEY`.
 - Legal Doc Catalog credentials belong in `legal-doc-catalog/config.js`; use
   `config.example.js` as the committed template.
 - Legal Doc Catalog seed credentials belong in
