@@ -308,7 +308,12 @@ async function copyToClipboard(text, statusMessage) {
 // --- Draft persistence ---
 
 function saveDraft() {
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+  } catch (err) {
+    // Private browsing or full storage — the form still works, just without a saved draft.
+    console.warn('Could not save draft:', err);
+  }
 }
 
 function loadDraft() {
@@ -344,7 +349,12 @@ function addToLog(data, encoded) {
     avg: Number(averageRating(data.ratings).toFixed(1)),
   });
   log.sort((a, b) => (a.date < b.date ? 1 : -1));
-  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  try {
+    localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  } catch (err) {
+    // Private browsing or full storage — show this review, but it won't be remembered.
+    console.warn('Could not save review log:', err);
+  }
   return log;
 }
 
@@ -429,7 +439,13 @@ function renderTrend(log) {
 // --- CSV export of the full log ---
 
 function csvField(value) {
-  return `"${String(value ?? '').replace(/"/g, '""')}"`;
+  let text = String(value ?? '');
+  // Neutralize spreadsheet formula injection: text cells starting with
+  // = + - @ (or tab / carriage return) are prefixed with a single quote.
+  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(text)) {
+    text = `'${text}`;
+  }
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 function buildCsv(log) {
@@ -459,7 +475,8 @@ function downloadCsv(log) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(link.href);
+  // Revoke later: some browsers start the download asynchronously after click().
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   const status = document.getElementById('csv-status');
   status.textContent = `Saved "wife-review-log.csv" (${log.length} review${log.length === 1 ? '' : 's'}) to this device's downloads — check your Downloads folder, or the Files app on a phone.`;
 }

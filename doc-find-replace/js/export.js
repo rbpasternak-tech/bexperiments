@@ -5,7 +5,7 @@
 
 /* global JSZip */
 
-import { getDocument, getAllDocuments, getAllReplacements } from './storage.js';
+import { getAllDocuments, getAllReplacements, getOriginalData } from './storage.js';
 import { applyDocxCleanReplacements, applyDocxRedlineReplacements } from './docx-processor.js';
 import { applyPdfCleanReplacements, applyPdfRedlineReplacements } from './pdf-processor.js';
 
@@ -66,7 +66,8 @@ function downloadFile(data, filename, mimeType) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  // Revoking immediately can cancel the download in some browsers (Safari).
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /**
@@ -94,19 +95,24 @@ function addSuffix(name, suffix) {
 }
 
 /**
- * Processes a single document with clean replacements.
+ * Processes a single document with clean replacements, always starting
+ * from the originally uploaded bytes so Apply All is not applied twice.
  * @param {Object} doc - Document record from IndexedDB.
  * @param {Array} replacements - Array of replacement configs for this doc.
  * @returns {Promise<ArrayBuffer>} The processed document data.
  */
 async function processClean(doc, replacements) {
+  const original = getOriginalData(doc);
   if (!replacements || replacements.length === 0) {
-    return doc.data;
+    return original;
   }
-  if (doc.type === 'docx') {
-    return applyDocxCleanReplacements(doc.data, replacements);
-  } else {
-    return applyPdfCleanReplacements(doc.data, replacements);
+  try {
+    if (doc.type === 'docx') {
+      return await applyDocxCleanReplacements(original, replacements);
+    }
+    return await applyPdfCleanReplacements(original, replacements);
+  } catch (err) {
+    throw new Error(`${doc.name}: ${err.message}`);
   }
 }
 
@@ -117,13 +123,17 @@ async function processClean(doc, replacements) {
  * @returns {Promise<ArrayBuffer>} The processed document data.
  */
 async function processRedline(doc, replacements) {
+  const original = getOriginalData(doc);
   if (!replacements || replacements.length === 0) {
-    return doc.data;
+    return original;
   }
-  if (doc.type === 'docx') {
-    return applyDocxRedlineReplacements(doc.data, replacements);
-  } else {
-    return applyPdfRedlineReplacements(doc.data, replacements);
+  try {
+    if (doc.type === 'docx') {
+      return await applyDocxRedlineReplacements(original, replacements);
+    }
+    return await applyPdfRedlineReplacements(original, replacements);
+  } catch (err) {
+    throw new Error(`${doc.name}: ${err.message}`);
   }
 }
 

@@ -10,6 +10,7 @@ const state = {
   currentMonthKey: null,
   currentDay: null,
   currentView: 'daily',
+  today: null,
 };
 
 function init() {
@@ -19,6 +20,7 @@ function init() {
   state.currentMonthKey = today.monthKey;
   state.currentDay = today.day;
   state.currentView = config.currentView || 'daily';
+  state.today = today;
 
   // Ensure current month data exists
   getOrCreateMonth(state.currentMonthKey);
@@ -30,6 +32,26 @@ function init() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js').catch(() => {});
   }
+}
+
+/**
+ * Re-renders if the calendar date changed while the app was open (e.g. a PWA
+ * left open past midnight). If the user was looking at the old "today", move
+ * them to the new one; otherwise keep their place and just refresh
+ * today-dependent highlighting.
+ */
+function refreshToday() {
+  const today = todayInfo();
+  const prev = state.today;
+  if (prev && prev.monthKey === today.monthKey && prev.day === today.day) return;
+
+  if (!prev || (state.currentMonthKey === prev.monthKey && state.currentDay === prev.day)) {
+    state.currentMonthKey = today.monthKey;
+    state.currentDay = today.day;
+  }
+  state.today = today;
+  getOrCreateMonth(today.monthKey);
+  render();
 }
 
 function render() {
@@ -113,6 +135,12 @@ function bindEvents() {
     getOrCreateMonth(state.currentMonthKey);
     render();
   });
+
+  // Date rollover while the app stays open (PWA resumed after midnight)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshToday();
+  });
+  window.addEventListener('focus', refreshToday);
 
   // Edit habits
   document.getElementById('btn-edit-habits').addEventListener('click', () => {

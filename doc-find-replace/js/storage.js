@@ -40,6 +40,19 @@ export function openDb() {
 }
 
 /**
+ * Returns the bytes of a document as originally uploaded.
+ * Apply All stores the applied result in `data` and keeps the upload in
+ * `originalData`; records saved before that field existed only have `data`.
+ * Every replacement (preview, re-apply, export) must start from these bytes
+ * so that replacements are applied exactly once.
+ * @param {Object} doc - Document record from IndexedDB.
+ * @returns {ArrayBuffer} The original document bytes.
+ */
+export function getOriginalData(doc) {
+  return doc.originalData || doc.data;
+}
+
+/**
  * Adds a document record to IndexedDB.
  * @param {Object} doc - { name, type, data: ArrayBuffer, size, dateAdded }
  * @returns {Promise<number>} The auto-generated id.

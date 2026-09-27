@@ -27,7 +27,7 @@ export const meta = {
   ],
 }
 
-const DIR = '/Users/rebeccapasternak/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
+const DIR = '/Users/rebeccapasternak/Documents/GitHub/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
 
 const FACTS_SCHEMA = {
   type: 'object',

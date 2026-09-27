@@ -11,7 +11,7 @@ export const meta = {
   phases: [{ title: 'Discover', detail: 'finder rounds until 2 dry in a row' }],
 }
 
-const DIR = '/Users/rebeccapasternak/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
+const DIR = '/Users/rebeccapasternak/Documents/GitHub/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
 const CLAUSES = [
   '01-liability.txt',
   '02-governing-law.txt',

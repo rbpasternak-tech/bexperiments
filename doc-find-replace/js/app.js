@@ -6,11 +6,12 @@
 
 import {
   openDb, addDocument, getAllDocuments, getDocument, deleteDocument,
+  updateDocument, getOriginalData,
   addReplacement, getAllReplacements, updateReplacement, deleteReplacement,
   deleteReplacementsByDocId
 } from './storage.js';
 import { readDocxText, applyDocxCleanReplacements } from './docx-processor.js';
-import { readPdfText } from './pdf-processor.js';
+import { readPdfText, applyPdfCleanReplacements } from './pdf-processor.js';
 import { extractAllTerms } from './term-extractor.js';
 import { escapeRegex, applyReplacement, applyAllReplacements } from './replacer.js';
 import {
@@ -364,12 +365,15 @@ async function showPreview(tr) {
   const contextRadius = 80;
 
   for (const doc of docs) {
+    // Rows describe the original upload, so preview against it (not the
+    // Apply All result, where the matches have already been replaced).
+    const source = getOriginalData(doc);
     let text;
     try {
       if (doc.type === 'docx') {
-        text = await readDocxText(doc.data);
+        text = await readDocxText(source);
       } else {
-        text = await readPdfText(doc.data);
+        text = await readPdfText(source);
       }
     } catch (_) {
       continue;
@@ -562,7 +566,7 @@ async function handleExtractAll() {
     for (let i = 0; i < docs.length; i++) {
       const doc = docs[i];
       setProgress(true, `Extracting from ${doc.name} (${i + 1}/${docs.length})...`);
-      await extractAndStoreForDoc(doc.id, doc.name, doc.type, doc.data);
+      await extractAndStoreForDoc(doc.id, doc.name, doc.type, getOriginalData(doc));
     }
     await refreshTable();
     showToast('Term extraction complete.', 'success');
@@ -578,6 +582,9 @@ async function handleExtractAll() {
 
 /**
  * Applies all checked replacements to their respective documents in IndexedDB.
+ * The result is always computed from the originally uploaded bytes, which are
+ * kept in `originalData`, so running Apply All again (or exporting afterwards)
+ * never applies a replacement twice.
  */
 async function handleApplyAll() {
   const replacements = await getAllReplacements();
@@ -629,20 +636,21 @@ async function handleApplyAll() {
 
       setProgress(true, `Applying to ${doc.name} (${count}/${total})...`);
 
+      const original = getOriginalData(doc);
       let newData;
-      if (doc.type === 'docx') {
-        newData = await applyDocxCleanReplacements(doc.data, reps);
-      } else {
-        // For PDF, we import dynamically
-        const { applyPdfCleanReplacements } = await import('./pdf-processor.js');
-        newData = await applyPdfCleanReplacements(doc.data, reps);
+      try {
+        if (doc.type === 'docx') {
+          newData = await applyDocxCleanReplacements(original, reps);
+        } else {
+          newData = await applyPdfCleanReplacements(original, reps);
+        }
+      } catch (err) {
+        throw new Error(`${doc.name}: ${err.message}`);
       }
 
+      doc.originalData = original;
       doc.data = newData;
       doc.size = newData.byteLength;
-
-      // Use updateDocument from storage
-      const { updateDocument } = await import('./storage.js');
       await updateDocument(doc);
     }
 

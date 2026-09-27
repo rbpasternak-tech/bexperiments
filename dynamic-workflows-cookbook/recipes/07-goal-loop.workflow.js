@@ -15,7 +15,7 @@ export const meta = {
   phases: [{ title: 'Converge', detail: 'draft/verify iterations until the gate passes' }],
 }
 
-const DIR = '/Users/rebeccapasternak/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
+const DIR = '/Users/rebeccapasternak/Documents/GitHub/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
 const TARGET = '01-liability.txt' // the unlimited-liability clause — bad for the customer
 
 // The GOAL, stated as checkable acceptance criteria. The verifier holds these; the loop
