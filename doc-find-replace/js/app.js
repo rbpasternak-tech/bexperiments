@@ -60,6 +60,15 @@ function escapeHtml(str) {
 }
 
 /**
+ * Escapes a string for use inside a double-quoted HTML attribute.
+ * @param {string} str - The string to escape.
+ * @returns {string} Escaped attribute-safe string.
+ */
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/"/g, '&quot;');
+}
+
+/**
  * Formats byte size to human-readable string.
  * @param {number} bytes - Size in bytes.
  * @returns {string} Formatted size string.
@@ -125,7 +134,7 @@ async function refreshDocList() {
     totalSize += doc.size || 0;
     const li = document.createElement('li');
     li.innerHTML = `
-      <span class="doc-name" title="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</span>
+      <span class="doc-name" title="${escapeAttr(doc.name)}">${escapeHtml(doc.name)}</span>
       <span class="doc-size">${formatSize(doc.size || 0)}</span>
       <button class="doc-delete" data-id="${doc.id}" title="Delete document">&times;</button>
     `;
@@ -271,9 +280,9 @@ async function refreshTable() {
       : escapeHtml(r.docName);
     const sourceLabel = r.source === 'auto' ? 'bracket' : r.source;
     tr.innerHTML = `
-      <td title="${escapeHtml(r.docName || 'All Documents')}">${docCell}</td>
-      <td><input type="text" value="${escapeHtml(r.find)}" data-field="find"></td>
-      <td><input type="text" value="${escapeHtml(r.replace || '')}" data-field="replace" placeholder="Enter replacement..."></td>
+      <td title="${escapeAttr(r.docName || 'All Documents')}">${docCell}</td>
+      <td><input type="text" value="${escapeAttr(r.find)}" data-field="find"></td>
+      <td><input type="text" value="${escapeAttr(r.replace || '')}" data-field="replace" placeholder="Enter replacement..."></td>
       <td><span class="source-badge source-${r.source}">${sourceLabel}</span></td>
       <td class="td-check"><input type="checkbox" ${r.active ? 'checked' : ''} data-field="active"></td>
       <td class="td-actions"><button class="row-delete" title="Delete row">&times;</button></td>
@@ -550,12 +559,10 @@ async function handleExtractAll() {
   setProgress(true, 'Extracting defined terms...');
 
   try {
-    let totalNew = 0;
     for (let i = 0; i < docs.length; i++) {
       const doc = docs[i];
       setProgress(true, `Extracting from ${doc.name} (${i + 1}/${docs.length})...`);
       await extractAndStoreForDoc(doc.id, doc.name, doc.type, doc.data);
-      // Count new extractions by comparing before/after
     }
     await refreshTable();
     showToast('Term extraction complete.', 'success');

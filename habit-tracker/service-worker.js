@@ -1,4 +1,4 @@
-const CACHE_NAME = 'habit-tracker-v2';
+const CACHE_NAME = 'habit-tracker-v3';
 const BASE = self.registration.scope;
 const ASSETS = [
   '',
@@ -8,6 +8,7 @@ const ASSETS = [
   'js/data.js',
   'js/daily-view.js',
   'js/grid-view.js',
+  'js/stats-view.js',
   'js/habit-editor.js',
   'manifest.json',
   'icons/icon-192.png',

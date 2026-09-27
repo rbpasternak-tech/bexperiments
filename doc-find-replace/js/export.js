@@ -20,7 +20,7 @@ async function getActiveReplacementsByDoc() {
 
   for (const r of allReplacements) {
     if (!r.active) continue;
-    if (!r.replace && r.replace !== '') continue;
+    if (!r.replace) continue; // blank replacement = not filled in yet (matches Apply All)
 
     const rep = {
       find: r.find,

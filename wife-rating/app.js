@@ -104,6 +104,28 @@ export function decodeResults(encoded) {
   }
 }
 
+// Shared links are untrusted input: keep only well-formed fields so a
+// hand-edited link renders safely instead of throwing mid-render.
+function normalizeResults(data) {
+  if (!data || typeof data !== 'object' || !data.ratings || typeof data.ratings !== 'object') return null;
+  const text = (value) => (typeof value === 'string' ? value : '');
+  const ratings = {};
+  CATEGORIES.forEach((cat) => {
+    const n = Number(data.ratings[cat.id]);
+    if (Number.isInteger(n) && n >= 1 && n <= 5) ratings[cat.id] = n;
+  });
+  return {
+    ...data,
+    date: text(data.date),
+    ratings,
+    chips: Array.isArray(data.chips) ? data.chips.filter((chip) => typeof chip === 'string') : [],
+    again: text(data.again) || null,
+    keep: text(data.keep),
+    suggestion: text(data.suggestion),
+    comments: text(data.comments),
+  };
+}
+
 function buildResultsData() {
   return {
     v: 1,
@@ -417,7 +439,7 @@ function buildCsv(log) {
     'Would marry again', 'Highlights', 'Keep doing', 'Gentle suggestion', 'Comments',
   ];
   const rows = [...log].reverse().map((entry) => {
-    const data = decodeResults(entry.encoded) || {};
+    const data = normalizeResults(decodeResults(entry.encoded)) || {};
     const ratings = data.ratings || {};
     return [
       entry.date, entry.avg,
@@ -603,8 +625,8 @@ function init() {
   window.addEventListener('hashchange', () => location.reload());
 
   const match = location.hash.match(/^#r=(.+)$/);
-  const shared = match && decodeResults(match[1]);
-  if (shared && shared.ratings) {
+  const shared = match && normalizeResults(decodeResults(match[1]));
+  if (shared) {
     renderResults(shared, { fromLink: true });
     renderLog(addToLog(shared, match[1]), match[1]);
     return;

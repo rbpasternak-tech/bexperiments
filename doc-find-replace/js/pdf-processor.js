@@ -78,7 +78,7 @@ export async function applyPdfCleanReplacements(data, replacements) {
       text = text.replace(pattern, r.replace);
     }
 
-    const page = pdfDoc.addPage([612, 792]); // US Letter
+    let page = pdfDoc.addPage([612, 792]); // US Letter
     const { width, height } = page.getSize();
     const maxWidth = width - margin * 2;
     const lines = wrapText(text, font, fontSize, maxWidth);
@@ -86,25 +86,17 @@ export async function applyPdfCleanReplacements(data, replacements) {
     let y = height - margin;
     for (const line of lines) {
       if (y < margin) {
-        // Overflow: add a new page
-        const newPage = pdfDoc.addPage([612, 792]);
-        y = newPage.getSize().height - margin;
-        newPage.drawText(line, {
-          x: margin,
-          y,
-          size: fontSize,
-          font,
-          color: PDFLib.rgb(0, 0, 0)
-        });
-      } else {
-        page.drawText(line, {
-          x: margin,
-          y,
-          size: fontSize,
-          font,
-          color: PDFLib.rgb(0, 0, 0)
-        });
+        // Overflow: continue on a new page
+        page = pdfDoc.addPage([612, 792]);
+        y = height - margin;
       }
+      page.drawText(line, {
+        x: margin,
+        y,
+        size: fontSize,
+        font,
+        color: PDFLib.rgb(0, 0, 0)
+      });
       y -= lineHeight;
     }
   }
@@ -133,7 +125,7 @@ export async function applyPdfRedlineReplacements(data, replacements) {
     // Find all matches and build segments
     const segments = buildRedlineSegments(originalText, replacements);
 
-    const page = pdfDoc.addPage([612, 792]);
+    let page = pdfDoc.addPage([612, 792]);
     const { width, height } = page.getSize();
     const maxWidth = width - margin * 2;
     let x = margin;
@@ -145,8 +137,8 @@ export async function applyPdfRedlineReplacements(data, replacements) {
         const lines = wrapText(seg.text, font, fontSize, maxWidth - (x - margin));
         for (let li = 0; li < lines.length; li++) {
           if (y < margin) {
-            const newPage = pdfDoc.addPage([612, 792]);
-            y = newPage.getSize().height - margin;
+            page = pdfDoc.addPage([612, 792]);
+            y = height - margin;
             x = margin;
           }
           if (li > 0) { x = margin; y -= lineHeight; }
@@ -164,8 +156,8 @@ export async function applyPdfRedlineReplacements(data, replacements) {
           x = margin;
         }
         if (y < margin) {
-          pdfDoc.addPage([612, 792]);
-          y = 792 - margin;
+          page = pdfDoc.addPage([612, 792]);
+          y = height - margin;
           x = margin;
         }
         page.drawText(seg.text, {
@@ -188,8 +180,8 @@ export async function applyPdfRedlineReplacements(data, replacements) {
           x = margin;
         }
         if (y < margin) {
-          pdfDoc.addPage([612, 792]);
-          y = 792 - margin;
+          page = pdfDoc.addPage([612, 792]);
+          y = height - margin;
           x = margin;
         }
         page.drawText(seg.text, {

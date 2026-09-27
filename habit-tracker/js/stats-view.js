@@ -89,6 +89,8 @@ function computeHabitStats(habit, allKeys, today) {
   const timeline = []; // ordered oldest → newest: {checked: bool}
 
   for (const key of allKeys) {
+    // Future months exist once you navigate ahead; they have no elapsed days.
+    if (key > today.monthKey) continue;
     const data = getMonthData(key);
     if (!data) continue;
     if (!data.habits.find(h => h.id === habit.id)) continue;

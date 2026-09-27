@@ -38,6 +38,7 @@ standalone Node. The simplest way: ask Claude "run recipe 01 from the cookbook."
 ```
 README.md       you are here — the map + recipe index
 CONCEPTS.md     the mental model (read first)
+index.html      interactive pattern board (open in a browser)
 recipes/        one .md (explanation) + one .workflow.js (script) per pattern
 corpus/         tiny invented sample data the recipes run against (no real data)
 logs/           a short log of what happened each time we ran a recipe live

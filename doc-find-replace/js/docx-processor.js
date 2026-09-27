@@ -132,7 +132,7 @@ export async function applyDocxRedlineReplacements(data, replacements) {
       const pattern = new RegExp(patternStr, 'gi');
       let m;
       while ((m = pattern.exec(fullText)) !== null) {
-        const hasPossessive = /['']s$/i.test(m[0]);
+        const hasPossessive = /['\u2019]s$/i.test(m[0]);
         const core = hasPossessive ? m[0].slice(0, -2) : m[0];
         const inner = r.isBracket ? core.slice(1, -1) : core;
         const caseType = detectCase(inner);
