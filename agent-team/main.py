@@ -1,7 +1,8 @@
-"""Telegram agent team: a cast of sitcom personas that help run your life.
+"""Telegram agent team: a cast of literary personas that help run your life.
 
-One bot, four Parks and Recreation personas. Address a teammate by name
-("Ron, remind me to lift at 6") or just talk — a router picks who answers.
+One bot, four classic-literature personas (see personas.yaml). Address a
+teammate by name ("Jeeves, remind me to lift at 6") or just talk — a router
+picks who answers.
 Personas share one chat transcript, can set/cancel reminders, and can pull
 the latest newsletter-digest trends.
 
@@ -110,7 +111,7 @@ HELP_TEXT = """Your team:
 {roster}
 
 Talk normally and the right teammate answers, or address one directly:
-  "Leslie, plan my morning"  ·  "@ron remind me to lift at 6pm"
+  "Jeeves, plan my morning"  ·  "@bartleby remind me to lift at 6pm"
 
 Commands:
   /team — who's on the team

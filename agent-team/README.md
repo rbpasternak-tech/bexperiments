@@ -81,5 +81,5 @@ in the voice of whichever persona set them.
 - `health_export.py` — parses Health Auto Export JSON (steps/calories/weight)
 - `schedules.py` — recurring duties (7am triage, 9pm check-in, Sunday recap)
 - `personas.yaml` — the cast: voices, roles, aliases (edit to recast the show)
-- `state.py` — JSON persistence in `.claude/telegram-state/` (gitignored)
+- `state.py` — JSON persistence in `~/Library/Application Support/agent-team/` (outside the repo and iCloud)
 - `telegram_api.py` — minimal Telegram Bot API wrapper (no SDK)

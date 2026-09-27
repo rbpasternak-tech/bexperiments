@@ -195,7 +195,7 @@ function renderSourceLinks(sources) {
         // Could be a URL or plain name
         if (s.startsWith('http')) {
           const domain = domainFromUrl(s);
-          return `<a href="${esc(s)}" target="_blank" rel="noopener" class="source-link">${domain}</a>`;
+          return `<a href="${esc(s)}" target="_blank" rel="noopener" class="source-link">${esc(domain)}</a>`;
         }
         return `<span class="source-name">${esc(s)}</span>`;
       }

@@ -138,9 +138,6 @@ def _parse_message(msg):
         else:
             header_dict[name] = h["value"]
 
-    body_html = ""
-    body_text = ""
-    _extract_body(msg.get("payload", {}), body_parts={"html": [], "text": []})
     parts_result = {"html": [], "text": []}
     _extract_body(msg.get("payload", {}), parts_result)
     body_html = "".join(parts_result["html"])

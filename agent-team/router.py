@@ -1,6 +1,6 @@
 """Decides which persona should answer a message.
 
-Direct address wins ("Ron, remind me..." / "@april what's left today").
+Direct address wins ("Jeeves, remind me..." / "@lizzy what's left today").
 Otherwise a small, cheap Claude call picks the best-fit teammate, falling
 back to the default persona on any error.
 """

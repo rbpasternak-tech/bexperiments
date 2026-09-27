@@ -68,7 +68,7 @@ export function renderTopicHeatmap(container, data) {
         const count = row.countByDate.get(d) || 0;
         const bg = heatmapColor(count, globalMax);
         const textColor = count / globalMax > 0.5 ? '#fff' : lightText;
-        html += `<td class="heatmap-cell" style="background:${bg};color:${textColor}" title="${esc(row.topic)} \u2014 ${d}: ${count}">${count || ''}</td>`;
+        html += `<td class="heatmap-cell" style="background:${bg};color:${textColor}" title="${esc(row.topic)} \u2014 ${esc(d)}: ${count}">${count || ''}</td>`;
       }
 
       html += `<td class="heatmap-trend">${sparkline(row.counts)}</td>`;

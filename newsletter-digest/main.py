@@ -12,7 +12,6 @@ Usage:
 import argparse
 import os
 import subprocess
-import sys
 from datetime import datetime, timedelta
 
 from config_loader import load_config
@@ -162,7 +161,6 @@ def main():
 def push_dashboard_data():
     """Commit and push any new dashboard data files to GitHub."""
     repo_dir = os.path.join(os.path.dirname(__file__), "..")
-    data_dir = os.path.join(repo_dir, "trends-dashboard", "data")
 
     try:
         # Check if there are changes in the data directory
@@ -178,7 +176,8 @@ def push_dashboard_data():
         subprocess.run(["git", "add", "trends-dashboard/data/"], cwd=repo_dir, check=True)
         date_str = datetime.now().strftime("%Y-%m-%d")
         subprocess.run(
-            ["git", "commit", "-m", f"Update trends dashboard data — {date_str}"],
+            ["git", "commit", "-m", f"Update trends dashboard data — {date_str}",
+             "--", "trends-dashboard/data/"],
             cwd=repo_dir, check=True,
         )
         subprocess.run(["git", "push"], cwd=repo_dir, check=True)

@@ -142,13 +142,14 @@ export function colorForCategory(key) {
 /* ------------------------------------------------------------------ */
 
 /**
- * HTML-escape a string for safe DOM insertion.
+ * HTML-escape a string for safe DOM insertion, including inside
+ * double- or single-quoted attribute values.
  */
 export function esc(str) {
   if (!str) return '';
   const div = document.createElement('div');
   div.textContent = String(str);
-  return div.innerHTML;
+  return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 /**

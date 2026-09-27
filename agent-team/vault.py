@@ -1,10 +1,11 @@
 """Read/write helpers for the Obsidian vault (plain markdown files on disk).
 
 The vault is iCloud-synced but locally it's just a folder, so the bot reads
-and writes files directly. One-writer rule: this module only touches the
-habit grid (Tracking/Habits/), the reading queue Inbox, and task checkboxes
-in Tasks/Master.md — daily notes and review sections belong to the Cowork
-scheduled tasks.
+and writes files directly. Writes are append-only: the habit grid
+(Tracking/Habits/), the reading queue Inbox, task checkboxes in
+Tasks/Master.md, and single lines appended under a section heading
+(append_under_section, e.g. daily-note captures). Auto-generated review
+sections belong to the Cowork scheduled tasks and are never rewritten.
 """
 
 import calendar
@@ -60,7 +61,8 @@ class Vault:
     def _resolve(self, relative):
         """Resolve a vault-relative path, refusing anything outside the root."""
         path = (self.root / relative).resolve()
-        if not str(path).startswith(str(self.root.resolve())):
+        root = self.root.resolve()
+        if path != root and root not in path.parents:
             raise ValueError(f"Path escapes vault: {relative}")
         return path
 

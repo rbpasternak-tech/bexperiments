@@ -91,8 +91,13 @@ def _parse_date(entry):
 
         if isinstance(val, str):
             try:
-                return dateparser.parse(val)
+                parsed = dateparser.parse(val)
             except (ValueError, OverflowError):
                 continue
+            # Assume UTC for feeds that omit an offset, so naive and aware
+            # dates can be compared when sorting.
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed
 
     return None

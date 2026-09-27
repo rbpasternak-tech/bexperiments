@@ -1,7 +1,6 @@
 """Format the markdown digest summary into a clean HTML email."""
 
 import re
-from datetime import datetime
 
 
 def format_digest_html(markdown_content, date_range_start, date_range_end):

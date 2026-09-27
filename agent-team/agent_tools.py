@@ -323,9 +323,14 @@ def handle_tool_call(name, tool_input, ctx):
     if name == "set_reminder":
         due = tool_input.get("due", "")
         try:
-            datetime.fromisoformat(due)
+            due_dt = datetime.fromisoformat(due)
         except ValueError:
             return f"Error: due time '{due}' is not valid ISO 8601."
+        if due_dt.tzinfo is not None:
+            # Store local naive time: pop_due_reminders compares against
+            # naive datetime.now(), and an aware value would raise TypeError
+            # on every poll, stalling reminders and scheduled duties.
+            due = due_dt.astimezone().replace(tzinfo=None).isoformat()
         reminder_id = state.add_reminder(chat_id, persona_key, due, tool_input["text"])
         return f"Reminder {reminder_id} set for {due}."
     if name == "list_reminders":

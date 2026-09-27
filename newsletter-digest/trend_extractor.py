@@ -247,9 +247,9 @@ def _repair_truncated_json(raw_text):
 
 def _make_digest_id(date_end):
     """Generate a digest ID like '2026-W09-fri'."""
-    week_num = date_end.isocalendar()[1]
+    iso_year, week_num, _ = date_end.isocalendar()
     day_name = date_end.strftime("%a").lower()
-    return f"{date_end.year}-W{week_num:02d}-{day_name}"
+    return f"{iso_year}-W{week_num:02d}-{day_name}"
 
 
 def _update_index(output_dir, meta, filename):

@@ -8,7 +8,7 @@ set -uo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(dirname "$PROJECT_DIR")"
-LOG_FILE="$REPO_DIR/.claude/telegram-state/bot.log"
+LOG_FILE="$HOME/Library/Logs/agent-team/bot.log"  # written by install-launchd.sh
 LABEL="com.bexperiments.agent-team"
 PYTHON="$PROJECT_DIR/.venv/bin/python"
 [ -x "$PYTHON" ] || PYTHON="$(command -v python3)"
