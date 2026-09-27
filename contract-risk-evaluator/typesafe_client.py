@@ -27,7 +27,7 @@ import urllib.request
 
 DEFAULT_API_BASE = "https://api.typesafe.ai"
 DEFAULT_MODEL = "jev-latest"
-RETRY_STATUSES = {429, 500, 502, 503, 504}
+RETRY_STATUSES = {429, 500, 502, 503, 504, 529}
 
 
 class TypeSafeError(Exception):

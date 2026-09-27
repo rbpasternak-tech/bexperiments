@@ -48,11 +48,11 @@ def load_rubric(path):
         if not dim.get("instructions"):
             raise ValueError(f"{dim_id}: instructions are required")
         criteria = dim.get("criteria")
-        if dim["type"] == "score" and not (isinstance(criteria, list) and len(criteria) >= 2):
-            raise ValueError(f"{dim_id}: score criteria must list at least two levels")
+        if dim["type"] == "score" and not (isinstance(criteria, list) and 2 <= len(criteria) <= 10):
+            raise ValueError(f"{dim_id}: score criteria must list 2 to 10 levels")
         if dim["type"] == "choice":
-            if not (isinstance(criteria, dict) and criteria):
-                raise ValueError(f"{dim_id}: choice criteria must map options to descriptions")
+            if not (isinstance(criteria, dict) and 1 <= len(criteria) <= 255):
+                raise ValueError(f"{dim_id}: choice criteria must map 1 to 255 options to descriptions")
             risk = dim.get("risk")
             if not isinstance(risk, dict) or set(risk) != set(criteria):
                 raise ValueError(f"{dim_id}: choice needs a 'risk' weight for every option")

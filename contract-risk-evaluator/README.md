@@ -92,8 +92,12 @@ to 1 for every option. The rubric is validated before any API call.
 
 ## Limits
 
-- The whole document is one state. Very long contracts may exceed TypeSafe's
-  input limit; the API error is shown per document, and `--max-chars` is the
-  workaround.
+- The whole document is one state. Jev 1.13 allows 32k tokens for the state
+  plus the longest question (roughly 100k characters of contract text); a
+  longer contract fails with the API error shown for that document, and
+  `--max-chars` is the workaround. Accuracy also drops as irrelevant text
+  grows, so clause-level evaluation is a likely next step.
+- Jev reads questions literally; if a dimension misfires, tighten its
+  instructions and criteria in the rubric rather than the code.
 - Scanned PDFs with no text layer need OCR first.
 - The scores are a triage signal, not legal advice.
