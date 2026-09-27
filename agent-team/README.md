@@ -22,7 +22,17 @@ folder (`health_export_dir`), and the Rings column auto-judged against
 your `ring_goals` when the automation also exports Active Energy,
 Exercise Time, and Stand Hours. On the first write of a new month the bot
 creates `Tracking/Habits/YYYY-MM.md` itself, copying the previous month's
-table columns, so the grid rolls over without manual setup. Scheduled duties run on the polling loop:
+table columns, so the grid rolls over without manual setup.
+
+Health numbers fill in automatically: a background import runs hourly
+(`health_import_every_minutes`) and again before the 9pm check-in, writing
+each recent past day's steps, calories, weight, and rings as soon as the
+phone's AutoSync push lands. A day whose final totals haven't arrived yet
+is written with its partial numbers and upgraded later. The import never
+overwrites a cell you edited by hand, and a read failure for yesterday is
+reported in Telegram at the check-in. `doctor.sh` shows its last run.
+
+Scheduled duties run on the polling loop:
 Jeeves' 7am task triage, Bartleby's 9pm habit check-in, Gatsby's Sunday
 recap (times configurable under `schedules`).
 
@@ -78,8 +88,9 @@ in the voice of whichever persona set them.
 - `persona_agent.py` — Claude call with tool-use loop per persona turn
 - `agent_tools.py` — reminder, digest, vault, and health tools
 - `vault.py` — Obsidian vault read/write (queue, tasks, habit grid)
-- `health_export.py` — parses Health Auto Export JSON (steps/calories/weight)
+- `health_export.py` — reads Health Auto Export data (AutoSync `.hae` files and JSON exports)
+- `health_import.py` — hourly background import of health numbers into the habit grid
 - `schedules.py` — recurring duties (7am triage, 9pm check-in, Sunday recap)
 - `personas.yaml` — the cast: voices, roles, aliases (edit to recast the show)
-- `state.py` — JSON persistence in `.claude/telegram-state/` (gitignored)
+- `state.py` — JSON persistence in `~/Library/Application Support/agent-team/` (outside the repo and iCloud)
 - `telegram_api.py` — minimal Telegram Bot API wrapper (no SDK)

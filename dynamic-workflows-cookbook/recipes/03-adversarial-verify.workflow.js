@@ -11,7 +11,7 @@ export const meta = {
   phases: [{ title: 'Verify', detail: '3 independent skeptics per finding' }],
 }
 
-const DIR = '/Users/rebeccapasternak/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
+const DIR = '/Users/rebeccapasternak/Documents/GitHub/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
 
 // Two candidate findings. One is true; one is a deliberately planted FALSE positive,
 // so we can watch verification actually catch a bad finding.

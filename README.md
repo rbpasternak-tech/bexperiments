@@ -96,8 +96,9 @@ local history, trend charts, and CSV export.
   projects consistently.
 - [`tmux-bexperiments.sh`](tmux-bexperiments.sh) opens a tmux workspace for the
   monorepo; [`watchtower.py`](watchtower.py) monitors its Claude sessions.
-- `telegram_bot.py` is the earlier standalone Telegram bot retained for
-  reference; current bot development lives in `agent-team/`.
+- `telegram_bot.py` is the earlier standalone Telegram bot, kept only in the
+  local checkout (it is gitignored because it holds credentials); current bot
+  development lives in `agent-team/`.
 
 ## Filing rules
 

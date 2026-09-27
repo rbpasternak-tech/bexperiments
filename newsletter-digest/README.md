@@ -44,6 +44,10 @@ python main.py --dry-run
 
 ### 5. Cron Job (Automated Schedule)
 
+> **Superseded:** the live job runs under launchd with the API key in the
+> login Keychain and logs in `~/Library/Logs`. See [SETUP.md](SETUP.md) for
+> the current setup; the cron recipe below is kept for reference only.
+
 To run automatically on Wednesdays and Fridays at 8am:
 
 ```bash
@@ -69,8 +73,14 @@ ANTHROPIC_API_KEY=your-key-here
 # Full run — fetches, summarizes, sends email
 python main.py
 
-# Dry run — prints digest to terminal, no email sent
+# Dry run — prints digest to terminal; no email, no dashboard data, no push
 python main.py --dry-run
+
+# Skip dashboard trend extraction (and the git publish that follows it)
+python main.py --skip-trends
+
+# Only extract dashboard trends, no email
+python main.py --trends-only
 
 # Backfill a past week's trends (no email sent)
 python main.py --backfill 2025-04-15
@@ -103,3 +113,7 @@ Edit `config.yaml` to customize:
 | `rss_fetcher.py` | Fetches articles from RSS feeds |
 | `summarizer.py` | Claude API summarization |
 | `digest_formatter.py` | Builds HTML email template |
+| `trend_extractor.py` | Claude structured extraction → `trends-dashboard/data/` JSON + `index.json` |
+| `dashboard_publisher.py` | Commits dashboard data onto `origin/main` and pushes it (see SETUP.md) |
+| `install-launchd.sh` | Installs the scheduled launchd job (see SETUP.md) |
+| `selfcheck.py` | Offline self-check: publisher against temp git repos, parsers, dry-run |

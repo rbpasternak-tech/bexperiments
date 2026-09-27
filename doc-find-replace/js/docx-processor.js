@@ -132,7 +132,7 @@ export async function applyDocxRedlineReplacements(data, replacements) {
       const pattern = new RegExp(patternStr, 'gi');
       let m;
       while ((m = pattern.exec(fullText)) !== null) {
-        const hasPossessive = /['']s$/i.test(m[0]);
+        const hasPossessive = /['\u2019]s$/i.test(m[0]);
         const core = hasPossessive ? m[0].slice(0, -2) : m[0];
         const inner = r.isBracket ? core.slice(1, -1) : core;
         const caseType = detectCase(inner);
@@ -151,8 +151,16 @@ export async function applyDocxRedlineReplacements(data, replacements) {
 
     if (allMatches.length === 0) continue;
 
-    // Sort matches by start position; non-overlapping assumed
-    allMatches.sort((a, b) => a.start - b.start);
+    // Sort by start position (longest first on ties) and drop matches that
+    // overlap an earlier one, as the PDF redline does; different rows can
+    // match the same text (e.g. "Company" and "Company Inc").
+    allMatches.sort((a, b) => a.start - b.start || b.end - a.end);
+    let lastEnd = 0;
+    const matches = allMatches.filter((match) => {
+      if (match.start < lastEnd) return false;
+      lastEnd = match.end;
+      return true;
+    });
 
     // Build new paragraph children
     // Remove all w:r elements from paragraph
@@ -167,7 +175,7 @@ export async function applyDocxRedlineReplacements(data, replacements) {
 
     // Build segments: text before/between/after matches, plus del/ins for each match
     let cursor = 0;
-    for (const match of allMatches) {
+    for (const match of matches) {
       // Text before this match
       if (cursor < match.start) {
         const beforeText = fullText.substring(cursor, match.start);

@@ -6,10 +6,71 @@
 
 import { escapeRegex } from './replacer.js';
 
-/* global pdfjsLib, PDFLib */
+const PDFJS_WORKER_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+/**
+ * Returns the PDF.js global, configuring its worker on first use.
+ * Accessed lazily so that a failed CDN load only breaks PDF features,
+ * not the whole app (this module is imported at startup).
+ * @returns {Object} The pdfjsLib global.
+ * @throws {Error} If PDF.js did not load.
+ */
+function getPdfjs() {
+  const lib = globalThis.pdfjsLib;
+  if (!lib) {
+    throw new Error('PDF support is unavailable: the PDF.js library failed to load. Check your connection and reload the page.');
+  }
+  if (lib.GlobalWorkerOptions.workerSrc !== PDFJS_WORKER_SRC) {
+    lib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
+  }
+  return lib;
+}
+
+/**
+ * Returns the pdf-lib global.
+ * @returns {Object} The PDFLib global.
+ * @throws {Error} If pdf-lib did not load.
+ */
+function getPdfLib() {
+  const lib = globalThis.PDFLib;
+  if (!lib) {
+    throw new Error('PDF export is unavailable: the pdf-lib library failed to load. Check your connection and reload the page.');
+  }
+  return lib;
+}
+
+/**
+ * Ensures every character in the given texts can be drawn with the standard
+ * Helvetica font (WinAnsi encoding, i.e. Latin text only). pdf-lib otherwise
+ * throws a cryptic error midway through building the PDF.
+ * @param {Object} font - The embedded pdf-lib font.
+ * @param {Array<string>} texts - All text that will be drawn.
+ * @throws {Error} A user-facing error listing the unsupported characters.
+ */
+function assertEncodable(font, texts) {
+  const unsupported = new Set();
+  const checked = new Set();
+  for (const text of texts) {
+    for (const ch of text || '') {
+      if (checked.has(ch) || /\s/.test(ch)) continue;
+      checked.add(ch);
+      try {
+        font.encodeText(ch);
+      } catch (_) {
+        unsupported.add(ch);
+      }
+    }
+  }
+  if (unsupported.size > 0) {
+    const sample = Array.from(unsupported).slice(0, 10).join(' ');
+    const more = unsupported.size > 10 ? ` and ${unsupported.size - 10} more` : '';
+    throw new Error(
+      `PDF output only supports Latin (Western European) characters. ` +
+      `Unsupported characters found: ${sample}${more}. ` +
+      `Remove them from the replacement text, or use a .docx version of this document.`
+    );
+  }
+}
 
 /**
  * Reads a PDF ArrayBuffer and extracts all text content.
@@ -17,7 +78,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
  * @returns {Promise<string>} The extracted plain text.
  */
 export async function readPdfText(data) {
-  const pdf = await pdfjsLib.getDocument({ data }).promise;
+  // PDF.js transfers (detaches) the buffer it is given, so pass a copy to
+  // keep the caller's bytes (e.g. a stored document) usable afterwards.
+  const pdf = await getPdfjs().getDocument({ data: new Uint8Array(data).slice() }).promise;
   const textParts = [];
 
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -36,7 +99,9 @@ export async function readPdfText(data) {
  * @returns {Promise<Array<string>>} Array of text strings, one per page.
  */
 export async function readPdfTextByPage(data) {
-  const pdf = await pdfjsLib.getDocument({ data }).promise;
+  // PDF.js transfers (detaches) the buffer it is given, so pass a copy to
+  // keep the caller's bytes (e.g. a stored document) usable afterwards.
+  const pdf = await getPdfjs().getDocument({ data: new Uint8Array(data).slice() }).promise;
   const pages = [];
 
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -57,6 +122,7 @@ export async function readPdfTextByPage(data) {
  * @returns {Promise<ArrayBuffer>} The modified PDF as ArrayBuffer.
  */
 export async function applyPdfCleanReplacements(data, replacements) {
+  const PDFLib = getPdfLib();
   const pageTexts = await readPdfTextByPage(data);
   const pdfDoc = await PDFLib.PDFDocument.create();
   const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
@@ -64,9 +130,8 @@ export async function applyPdfCleanReplacements(data, replacements) {
   const margin = 50;
   const lineHeight = fontSize * 1.4;
 
-  for (let i = 0; i < pageTexts.length; i++) {
-    let text = pageTexts[i];
-
+  const newTexts = pageTexts.map((pageText) => {
+    let text = pageText;
     for (const r of replacements) {
       if (r.replace === undefined || r.replace === null) continue;
       let pattern;
@@ -77,8 +142,12 @@ export async function applyPdfCleanReplacements(data, replacements) {
       }
       text = text.replace(pattern, r.replace);
     }
+    return text;
+  });
+  assertEncodable(font, newTexts);
 
-    const page = pdfDoc.addPage([612, 792]); // US Letter
+  for (const text of newTexts) {
+    let page = pdfDoc.addPage([612, 792]); // US Letter
     const { width, height } = page.getSize();
     const maxWidth = width - margin * 2;
     const lines = wrapText(text, font, fontSize, maxWidth);
@@ -86,25 +155,17 @@ export async function applyPdfCleanReplacements(data, replacements) {
     let y = height - margin;
     for (const line of lines) {
       if (y < margin) {
-        // Overflow: add a new page
-        const newPage = pdfDoc.addPage([612, 792]);
-        y = newPage.getSize().height - margin;
-        newPage.drawText(line, {
-          x: margin,
-          y,
-          size: fontSize,
-          font,
-          color: PDFLib.rgb(0, 0, 0)
-        });
-      } else {
-        page.drawText(line, {
-          x: margin,
-          y,
-          size: fontSize,
-          font,
-          color: PDFLib.rgb(0, 0, 0)
-        });
+        // Overflow: continue on a new page
+        page = pdfDoc.addPage([612, 792]);
+        y = height - margin;
       }
+      page.drawText(line, {
+        x: margin,
+        y,
+        size: fontSize,
+        font,
+        color: PDFLib.rgb(0, 0, 0)
+      });
       y -= lineHeight;
     }
   }
@@ -120,6 +181,7 @@ export async function applyPdfCleanReplacements(data, replacements) {
  * @returns {Promise<ArrayBuffer>} The redline PDF as ArrayBuffer.
  */
 export async function applyPdfRedlineReplacements(data, replacements) {
+  const PDFLib = getPdfLib();
   const pageTexts = await readPdfTextByPage(data);
   const pdfDoc = await PDFLib.PDFDocument.create();
   const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
@@ -127,13 +189,12 @@ export async function applyPdfRedlineReplacements(data, replacements) {
   const margin = 50;
   const lineHeight = fontSize * 1.6;
 
-  for (let i = 0; i < pageTexts.length; i++) {
-    const originalText = pageTexts[i];
+  // Find all matches and build segments for every page
+  const pageSegments = pageTexts.map((text) => buildRedlineSegments(text, replacements));
+  assertEncodable(font, pageSegments.flat().map((seg) => seg.text));
 
-    // Find all matches and build segments
-    const segments = buildRedlineSegments(originalText, replacements);
-
-    const page = pdfDoc.addPage([612, 792]);
+  for (const segments of pageSegments) {
+    let page = pdfDoc.addPage([612, 792]);
     const { width, height } = page.getSize();
     const maxWidth = width - margin * 2;
     let x = margin;
@@ -145,8 +206,8 @@ export async function applyPdfRedlineReplacements(data, replacements) {
         const lines = wrapText(seg.text, font, fontSize, maxWidth - (x - margin));
         for (let li = 0; li < lines.length; li++) {
           if (y < margin) {
-            const newPage = pdfDoc.addPage([612, 792]);
-            y = newPage.getSize().height - margin;
+            page = pdfDoc.addPage([612, 792]);
+            y = height - margin;
             x = margin;
           }
           if (li > 0) { x = margin; y -= lineHeight; }
@@ -164,8 +225,8 @@ export async function applyPdfRedlineReplacements(data, replacements) {
           x = margin;
         }
         if (y < margin) {
-          pdfDoc.addPage([612, 792]);
-          y = 792 - margin;
+          page = pdfDoc.addPage([612, 792]);
+          y = height - margin;
           x = margin;
         }
         page.drawText(seg.text, {
@@ -188,8 +249,8 @@ export async function applyPdfRedlineReplacements(data, replacements) {
           x = margin;
         }
         if (y < margin) {
-          pdfDoc.addPage([612, 792]);
-          y = 792 - margin;
+          page = pdfDoc.addPage([612, 792]);
+          y = height - margin;
           x = margin;
         }
         page.drawText(seg.text, {

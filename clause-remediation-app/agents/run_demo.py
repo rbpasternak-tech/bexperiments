@@ -4,7 +4,6 @@ Loads environment, then runs the orchestrator with a sample
 arbitration clause update scenario.
 """
 
-import sys
 from pathlib import Path
 
 from dotenv import load_dotenv

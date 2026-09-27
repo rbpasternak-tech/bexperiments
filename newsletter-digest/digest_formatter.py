@@ -1,7 +1,10 @@
 """Format the markdown digest summary into a clean HTML email."""
 
+import html
 import re
-from datetime import datetime
+
+_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
+_SAFE_SCHEMES = ("http://", "https://")
 
 
 def format_digest_html(markdown_content, date_range_start, date_range_end):
@@ -164,11 +167,35 @@ def _markdown_to_html(md):
 
 
 def _inline_format(text):
-    """Apply inline markdown formatting (bold, italic, links)."""
-    # Links: [text](url)
-    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
-    # Bold: **text**
+    """Apply inline markdown formatting (bold, italic, links) safely.
+
+    The model's text is HTML-escaped first, so any markup it contains is
+    shown literally rather than injected into the email. Only http(s) links
+    become anchors; other schemes (javascript:, data:, ...) keep just their
+    link text.
+
+    Args:
+        text: One line of markdown from the summarizer.
+
+    Returns:
+        An HTML fragment.
+    """
+    text = html.escape(text.replace("\x00", ""), quote=True)
+    links = []
+
+    def _link(match):
+        label, url = _emphasis(match.group(1)), match.group(2)
+        if not html.unescape(url).strip().lower().startswith(_SAFE_SCHEMES):
+            return label
+        links.append(f'<a href="{url}">{label}</a>')
+        return f"\x00{len(links) - 1}\x00"
+
+    # Links become placeholders so the emphasis rules cannot alter URLs.
+    text = _emphasis(_LINK_RE.sub(_link, text))
+    return re.sub("\x00(\\d+)\x00", lambda m: links[int(m.group(1))], text)
+
+
+def _emphasis(text):
+    """Convert **bold** and *italic* markdown in already-escaped text."""
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
-    # Italic: *text*
-    text = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", text)
-    return text
+    return re.sub(r"\*([^*]+)\*", r"<em>\1</em>", text)

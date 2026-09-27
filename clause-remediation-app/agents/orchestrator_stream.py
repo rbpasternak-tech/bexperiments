@@ -12,20 +12,36 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from tools.supabase_tools import search_documents, list_documents, get_document
-from tools.legal_tools import identify_clause, assess_clause, draft_replacement, review_redline
-from tools.docx_tools import read_docx_text, apply_replacements, generate_redline
+from tools.legal_tools import (
+    identify_clause,
+    assess_clause,
+    draft_replacement,
+    review_redline,
+    coerce_confidence,
+    format_confidence,
+)
+from tools.docx_tools import read_docx_text, apply_replacements, generate_redline, build_docx_index
 
 
+# Local folder holding the source .docx files (same tree the legal-doc-catalog
+# seed script reads). Defaults to ~/Dummy docs; override with DOCS_DIR.
 DOCS_DIR = Path(os.environ.get("DOCS_DIR", str(Path.home() / "Dummy docs")))
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "output"
 
 
-def find_docx_path(filename):
-    """Locate a .docx file in the docs directory tree."""
-    for path in DOCS_DIR.rglob("*.docx"):
-        if path.name == filename:
-            return path
-    return None
+def find_docx_path(filename, docx_index):
+    """Look up a .docx file by filename in a prebuilt index.
+
+    Args:
+        filename: The filename to look up (may be empty or None).
+        docx_index: Dict from build_docx_index(DOCS_DIR), built once per run.
+
+    Returns:
+        Path to the file, or None if not found.
+    """
+    if not filename:
+        return None
+    return docx_index.get(filename)
 
 
 def run_remediation_stream(clause_type, old_standard, new_standard, category_filter=None):
@@ -65,6 +81,10 @@ def run_remediation_stream(clause_type, old_standard, new_standard, category_fil
             "agent": "SEARCH",
             "message": f"Category '{category_filter}' returned {len(category_docs)} documents",
         }
+        # NOTE: this is a UNION, not an intersection. Every document in the
+        # category is analyzed even if it did not match the full-text search,
+        # and search hits from other categories are kept too. This is the
+        # intended demo behavior (see README "Known behavior").
         search_ids = {r["id"] for r in search_results}
         category_ids = {d["id"] for d in category_docs}
         combined_ids = search_ids | category_ids
@@ -86,45 +106,45 @@ def run_remediation_stream(clause_type, old_standard, new_standard, category_fil
     documents_needing_update = []
 
     for i, doc_id in enumerate(combined_ids):
-        doc = get_document(doc_id)
+        doc = get_document(doc_id) or {}
 
         yield {
             "type": "doc_analyze_start",
             "agent": "LEGAL",
             "doc_id": doc_id,
-            "title": doc["title"],
+            "title": doc.get("title", ""),
             "filename": doc.get("filename", ""),
             "category": doc.get("category", ""),
             "progress": f"{i + 1}/{len(combined_ids)}",
-            "message": f"Analyzing: {doc['title']}",
+            "message": f"Analyzing: {doc.get('title', '')}",
         }
 
-        clause_result = identify_clause(doc["body_text"], clause_type)
+        clause_result = identify_clause(doc.get("body_text") or "", clause_type)
 
         if not clause_result.get("found"):
             documents_analyzed.append({
                 "id": doc_id,
-                "title": doc["title"],
-                "filename": doc["filename"],
+                "title": doc.get("title", ""),
+                "filename": doc.get("filename", ""),
             })
             yield {
                 "type": "doc_analyze_result",
                 "agent": "LEGAL",
                 "doc_id": doc_id,
-                "title": doc["title"],
+                "title": doc.get("title", ""),
                 "status": "no_clause",
-                "confidence": clause_result.get("confidence", 0),
-                "message": f"No {clause_type} clause found (confidence: {clause_result.get('confidence', 0):.0%})",
+                "confidence": coerce_confidence(clause_result.get("confidence")),
+                "message": f"No {clause_type} clause found (confidence: {format_confidence(clause_result.get('confidence'))})",
             }
             continue
 
-        assessment = assess_clause(clause_result["clause_text"], new_standard)
+        assessment = assess_clause(clause_result.get("clause_text") or "", new_standard)
         needs_update = assessment.get("needs_update", False)
 
         doc_record = {
             "id": doc_id,
-            "title": doc["title"],
-            "filename": doc["filename"],
+            "title": doc.get("title", ""),
+            "filename": doc.get("filename", ""),
             "clause_found": True,
             "section": clause_result.get("section"),
             "clause_text": clause_result.get("clause_text"),
@@ -141,10 +161,10 @@ def run_remediation_stream(clause_type, old_standard, new_standard, category_fil
             "type": "doc_analyze_result",
             "agent": "LEGAL",
             "doc_id": doc_id,
-            "title": doc["title"],
+            "title": doc.get("title", ""),
             "status": "needs_update" if needs_update else "current",
             "section": clause_result.get("section"),
-            "confidence": clause_result.get("confidence", 0),
+            "confidence": coerce_confidence(clause_result.get("confidence")),
             "risk_level": assessment.get("risk_level"),
             "reason": assessment.get("reason", ""),
             "message": (
@@ -188,7 +208,7 @@ def run_remediation_stream(clause_type, old_standard, new_standard, category_fil
         }
 
         draft = draft_replacement(
-            original_clause=doc_record["clause_text"],
+            original_clause=doc_record.get("clause_text") or "",
             target_standard=new_standard,
             context=f"{doc_record['title']} - {clause_type} clause in {doc_record.get('section', 'document')}",
         )
@@ -212,9 +232,12 @@ def run_remediation_stream(clause_type, old_standard, new_standard, category_fil
     clean_dir.mkdir(parents=True, exist_ok=True)
     redline_dir.mkdir(parents=True, exist_ok=True)
 
+    # Scan DOCS_DIR once per run; reused for processing and QA lookups.
+    docx_index = build_docx_index(DOCS_DIR)
+
     updated_docs = []
     for doc_record in drafts:
-        docx_path = find_docx_path(doc_record["filename"])
+        docx_path = find_docx_path(doc_record["filename"], docx_index)
         if not docx_path:
             yield {
                 "type": "doc_process_result",
@@ -235,7 +258,7 @@ def run_remediation_stream(clause_type, old_standard, new_standard, category_fil
                 "doc_id": doc_record["id"],
                 "title": doc_record["title"],
                 "status": "skipped",
-                "message": f"SKIP: No find/replace pair in draft",
+                "message": "SKIP: No find/replace pair in draft",
             }
             continue
 
@@ -276,7 +299,7 @@ def run_remediation_stream(clause_type, old_standard, new_standard, category_fil
             "message": f"Reviewing: {doc_record['title']}",
         }
 
-        docx_path = find_docx_path(doc_record["filename"])
+        docx_path = find_docx_path(doc_record["filename"], docx_index)
         original_text = read_docx_text(docx_path) if docx_path else ""
         modified_text = read_docx_text(doc_record["clean_path"]) if doc_record.get("clean_path") else ""
 

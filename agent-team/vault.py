@@ -1,21 +1,27 @@
 """Read/write helpers for the Obsidian vault (plain markdown files on disk).
 
 The vault is iCloud-synced but locally it's just a folder, so the bot reads
-and writes files directly. One-writer rule: this module only touches the
-habit grid (Tracking/Habits/), the reading queue Inbox, and task checkboxes
-in Tasks/Master.md — daily notes and review sections belong to the Cowork
-scheduled tasks.
+and writes files directly. Writes are append-only: the habit grid
+(Tracking/Habits/), the reading queue Inbox, task checkboxes in
+Tasks/Master.md, and single lines appended under a section heading
+(append_under_section, e.g. daily-note captures). Auto-generated review
+sections belong to the Cowork scheduled tasks and are never rewritten.
 """
 
 import calendar
 import os
 import re
+import threading
 from datetime import datetime
 from pathlib import Path
 
 READING_QUEUE = "Reading/queue.md"
 TASKS_MASTER = "Tasks/Master.md"
 HABITS_DIR = "Tracking/Habits"
+
+# The background health import and persona tool calls can both write the
+# habit grid; serialize the read-modify-write so neither loses the other's cells.
+_HABIT_WRITE_LOCK = threading.Lock()
 
 
 class Vault:
@@ -60,7 +66,8 @@ class Vault:
     def _resolve(self, relative):
         """Resolve a vault-relative path, refusing anything outside the root."""
         path = (self.root / relative).resolve()
-        if not str(path).startswith(str(self.root.resolve())):
+        root = self.root.resolve()
+        if path != root and root not in path.parents:
             raise ValueError(f"Path escapes vault: {relative}")
         return path
 
@@ -222,6 +229,11 @@ class Vault:
         """
         if not self.available():
             return self._unavailable_message()
+        with _HABIT_WRITE_LOCK:
+            return self._upsert_habit_row_locked(date_str, values)
+
+    def _upsert_habit_row_locked(self, date_str, values):
+        """Body of upsert_habit_row; caller holds _HABIT_WRITE_LOCK."""
         month = date_str[:7]
         month_file = f"{HABITS_DIR}/{month}.md"
         path = self._resolve(month_file)

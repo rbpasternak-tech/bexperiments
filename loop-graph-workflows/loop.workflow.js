@@ -11,7 +11,7 @@ export const meta = {
   phases: [{ title: 'Converge', detail: 'draft/verify iterations until the gate passes' }],
 }
 
-const FILE = '/Users/rebeccapasternak/bexperiments/dynamic-workflows-cookbook/corpus/clauses/03-auto-renewal.txt'
+const FILE = '/Users/rebeccapasternak/Documents/GitHub/bexperiments/dynamic-workflows-cookbook/corpus/clauses/03-auto-renewal.txt'
 
 // The goal, stated as checkable acceptance criteria the verifier holds.
 const CRITERIA = [

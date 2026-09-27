@@ -2,6 +2,11 @@
 
 Serves the static dashboard and streams orchestrator events
 in real-time via Server-Sent Events.
+
+The dashboard is served from this same origin, so no CORS is enabled.
+/api/run stays a GET because the browser consumes it with EventSource
+(GET-only); because it starts paid Claude calls and writes files, it
+rejects requests the browser marks as coming from another site.
 """
 
 import json
@@ -9,8 +14,7 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, Response, jsonify, request, send_from_directory
-from flask_cors import CORS
+from flask import Flask, Response, abort, jsonify, request, send_from_directory
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
@@ -18,10 +22,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent / "agents"))
 
 from agents.orchestrator_stream import run_remediation_stream
-from tools.supabase_tools import get_document_stats, search_documents
+from tools.supabase_tools import get_document_stats
 
 app = Flask(__name__, static_folder="static")
-CORS(app)
+
+HOST = "127.0.0.1"
+PORT = 5001
+
+
+def _is_cross_site_request():
+    """Return True if the browser marked this request as cross-site.
+
+    Uses the Sec-Fetch-Site header when present, falling back to comparing
+    the Origin header with the request host. Non-browser clients (curl)
+    send neither header and are allowed, since the server only listens on
+    localhost.
+    """
+    fetch_site = request.headers.get("Sec-Fetch-Site")
+    if fetch_site:
+        return fetch_site not in ("same-origin", "none")
+    origin = request.headers.get("Origin")
+    if origin:
+        return origin.rstrip("/") != request.host_url.rstrip("/")
+    return False
 
 
 @app.route("/")
@@ -56,6 +79,8 @@ def stats():
 @app.route("/api/run")
 def run_sse():
     """SSE endpoint that streams remediation events."""
+    if _is_cross_site_request():
+        abort(403)
     clause_type = request.args.get("clause_type", "arbitration")
     old_standard = request.args.get("old_standard", "AAA Commercial Arbitration Rules (2013)")
     new_standard = request.args.get("new_standard", "AAA Commercial Arbitration Rules (2024)")
@@ -86,4 +111,4 @@ def run_sse():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5001, threaded=True)
+    app.run(host=HOST, port=PORT, debug=False, threaded=True)

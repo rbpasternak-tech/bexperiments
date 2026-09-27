@@ -111,8 +111,30 @@ def collect_documents(base_dir):
     return documents
 
 
+def document_key(category, year, filename):
+    """Build the identity key used to detect already-seeded documents.
+
+    The schema has no unique constraint, and the source tree is
+    Category/Year/filename.docx, so the same filename can legitimately
+    appear in several category or year folders. A document is therefore
+    identified by all three parts of its relative path.
+
+    Args:
+        category: Humanized category name (as stored in the table).
+        year: Integer year, or None for undated documents.
+        filename: The .docx filename.
+
+    Returns:
+        Tuple usable as a set member.
+    """
+    return (category, year, filename)
+
+
 def seed(supabase_client, user_id, documents):
     """Upload documents to Supabase, skipping duplicates.
+
+    A document is a duplicate when a row with the same category, year,
+    and filename already exists for this user (see document_key).
 
     Args:
         supabase_client: Authenticated Supabase client.
@@ -122,15 +144,25 @@ def seed(supabase_client, user_id, documents):
     Returns:
         Tuple of (inserted_count, skipped_count).
     """
-    existing = supabase_client.table("documents").select("filename").execute()
-    existing_filenames = {row["filename"] for row in existing.data}
+    existing = (
+        supabase_client.table("documents")
+        .select("category, year, filename")
+        .eq("user_id", user_id)
+        .execute()
+    )
+    existing_keys = {
+        document_key(row["category"], row["year"], row["filename"])
+        for row in existing.data
+    }
 
     inserted = 0
     skipped = 0
 
     for doc in documents:
-        if doc["filename"] in existing_filenames:
-            print(f"  Skip (exists): {doc['filename']}")
+        key = document_key(doc["category"], doc["year"], doc["filename"])
+        label = f"{doc['category']}/{doc['year'] or 'undated'}/{doc['filename']}"
+        if key in existing_keys:
+            print(f"  Skip (exists): {label}")
             skipped += 1
             continue
 
@@ -144,7 +176,8 @@ def seed(supabase_client, user_id, documents):
             "word_count": doc["word_count"],
         }
         supabase_client.table("documents").insert(row).execute()
-        print(f"  Inserted: {doc['filename']}")
+        existing_keys.add(key)
+        print(f"  Inserted: {label}")
         inserted += 1
 
     return inserted, skipped

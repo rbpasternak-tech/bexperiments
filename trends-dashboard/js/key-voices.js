@@ -5,7 +5,8 @@
  *   - Sortable HTML table: source name, article count, signal strength badge, top topics
  */
 
-import { COLORS, colorForCategory, formatNumber, esc, capitalize, emptyState } from './chart-utils.js';
+import { formatNumber, esc, capitalize, emptyState } from './chart-utils.js';
+import { normalizeTopic } from './data-loader.js';
 
 /* ---- Module-level chart reference ---- */
 let radarChartInstance = null;
@@ -83,7 +84,7 @@ function buildSourceProfiles(sourcesArray, digests) {
   const topicCategoryMap = new Map();
   for (const d of digests) {
     for (const t of d.topics || []) {
-      const name = t.name || t.topic || '';
+      const name = normalizeTopic(t.name || t.topic || '');
       const cat = (t.category || '').toLowerCase().replace(/\s+/g, '_');
       if (name && cat) topicCategoryMap.set(name, cat);
     }
@@ -110,7 +111,7 @@ function buildSourceProfiles(sourcesArray, digests) {
     const topics = s.topics || s.top_topics || [];
     if (Array.isArray(topics)) {
       for (const t of topics) {
-        const topicName = typeof t === 'string' ? t : t.name || t.topic || '';
+        const topicName = normalizeTopic(typeof t === 'string' ? t : t.name || t.topic || '');
         profile.topTopics.add(topicName);
         const cat = topicCategoryMap.get(topicName) || (s.category || s.topic || '').toLowerCase().replace(/\s+/g, '_');
         if (cat) {
@@ -120,26 +121,9 @@ function buildSourceProfiles(sourcesArray, digests) {
     }
   }
 
-  // Also scan digests for source_contributions to capture additional topic info
-  for (const d of digests) {
-    const contributions = d.source_contributions || [];
-    for (const c of contributions) {
-      const name = c.source_name || c.source || c.name || 'Unknown';
-      if (!map.has(name)) continue;
-      const profile = map.get(name);
-      const topics = c.topics || c.top_topics || [];
-      if (Array.isArray(topics)) {
-        for (const t of topics) {
-          const topicName = typeof t === 'string' ? t : t.name || t.topic || '';
-          profile.topTopics.add(topicName);
-          const cat = topicCategoryMap.get(topicName);
-          if (cat) {
-            profile.categoryCounts[cat] = (profile.categoryCounts[cat] || 0) + 1;
-          }
-        }
-      }
-    }
-  }
+  // sourcesArray is already every digest's source_contributions merged
+  // (data.aggregatedSources), so it is not re-scanned from data.digests;
+  // doing so counted every category twice.
 
   return [...map.values()]
     .sort((a, b) => b.totalArticles - a.totalArticles)

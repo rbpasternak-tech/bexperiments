@@ -6,7 +6,9 @@
  *   - Chronological signal feed with type badges and source links
  */
 
-import { formatNumber, esc, capitalize, formatShortDate, emptyState } from './chart-utils.js';
+import {
+  formatNumber, esc, capitalize, formatShortDate, emptyState, renderSourceLink,
+} from './chart-utils.js';
 
 /* ---- Signal type styling ---- */
 const SIGNAL_TYPE_COLORS = {
@@ -128,20 +130,4 @@ function signalItem(sig) {
       <span class="event-headline">${headline}</span>
       ${source}
     </div>`;
-}
-
-function renderSourceLink(sig) {
-  const url = sig.source_url || sig.url || sig.link || '';
-  const name = sig.source || sig.source_name || '';
-  if (url) {
-    const label = name || domainFromUrl(url);
-    return `<a href="${esc(url)}" target="_blank" rel="noopener" class="source-link">${esc(label)}</a>`;
-  }
-  if (name) return `<span class="source-name">${esc(name)}</span>`;
-  return '';
-}
-
-function domainFromUrl(url) {
-  try { return new URL(url).hostname.replace(/^www\./, ''); }
-  catch { return url; }
 }

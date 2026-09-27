@@ -115,6 +115,16 @@ async function loadDetail(id) {
   }
 }
 
+function safeDecode(value) {
+  // A hand-edited or truncated hash (e.g. "%E0%A4%A") makes
+  // decodeURIComponent throw; fall back to the raw string.
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 function route() {
   const hash = window.location.hash || '#/';
 
@@ -126,39 +136,49 @@ function route() {
 
   const searchMatch = hash.match(/^#\/search\?q=(.+)$/);
   if (searchMatch) {
-    loadSearchResults(decodeURIComponent(searchMatch[1]));
+    loadSearchResults(safeDecode(searchMatch[1]));
     return;
   }
 
   loadCatalog();
 }
 
+// User id the app is currently rendered for; null while the sign-in form shows.
+// After sign-in both the form's onLogin callback and the SIGNED_IN auth event
+// call showApp. Whichever arrives first renders; the second only refreshes the
+// header, so the catalog is not fetched and rendered twice.
+let shownUserId = null;
+
 function showApp(session) {
+  renderHeaderUser(headerActions, session);
+  if (shownUserId === session.user.id) return;
+  shownUserId = session.user.id;
   authContainer.hidden = true;
   appContent.hidden = false;
-  renderHeaderUser(headerActions, session);
   route();
 }
 
 function showAuth() {
+  shownUserId = null;
   authContainer.hidden = false;
   appContent.hidden = true;
   headerActions.innerHTML = '';
-  renderAuth(authContainer, async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+  renderAuth(authContainer, (session) => {
     if (session) showApp(session);
   });
 }
 
 async function init() {
-  const { data, error: sessionError } = await supabase.auth.getSession();
+  const { data } = await supabase.auth.getSession();
   if (data?.session) {
     showApp(data.session);
   } else {
     showAuth();
   }
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+  supabase.auth.onAuthStateChange((event, session) => {
+    // init() already rendered the initial state; token refreshes need no re-render.
+    if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
     if (session) {
       showApp(session);
     } else {
@@ -167,7 +187,6 @@ async function init() {
   });
 
   window.addEventListener('hashchange', () => {
-    const { data } = supabase.auth.getSession();
     if (authContainer.hidden) route();
   });
 }

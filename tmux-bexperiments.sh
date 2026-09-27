@@ -13,9 +13,9 @@ set -euo pipefail
 SESSION="bexperiments"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-PROJECTS=(doc-find-replace legal-doc-catalog clause-remediation-app
-          trends-dashboard newsletter-digest dynamic-workflows-cookbook
-          loop-graph-workflows)
+PROJECTS=(agent-team clause-remediation-app doc-find-replace
+          dynamic-workflows-cookbook habit-tracker legal-doc-catalog
+          loop-graph-workflows newsletter-digest trends-dashboard wife-rating)
 # Extra project folders passed as arguments get windows too.
 PROJECTS+=("$@")
 

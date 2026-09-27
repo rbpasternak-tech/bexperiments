@@ -11,7 +11,7 @@ export const meta = {
 }
 
 // The "material": 5 tiny mock clauses bundled with the cookbook.
-const DIR = '/Users/rebeccapasternak/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
+const DIR = '/Users/rebeccapasternak/Documents/GitHub/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
 const CLAUSES = [
   '01-liability.txt',
   '02-governing-law.txt',

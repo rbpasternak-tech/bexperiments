@@ -3,7 +3,9 @@
  * Renders the Weekly Snapshot section: top stories, one-to-watch, and quick stats.
  */
 
-import { SENTIMENT_COLORS, formatCurrency, formatNumber, esc, emptyState } from './chart-utils.js';
+import {
+  SENTIMENT_COLORS, formatCurrency, formatNumber, esc, emptyState, safeUrl, domainFromUrl,
+} from './chart-utils.js';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                         */
@@ -188,32 +190,21 @@ function sentimentBar(dist) {
 }
 
 function renderSourceLinks(sources) {
-  if (!sources || sources.length === 0) return '';
+  if (!Array.isArray(sources) || sources.length === 0) return '';
   return sources
     .map((s) => {
-      if (typeof s === 'string') {
-        // Could be a URL or plain name
-        if (s.startsWith('http')) {
-          const domain = domainFromUrl(s);
-          return `<a href="${esc(s)}" target="_blank" rel="noopener" class="source-link">${domain}</a>`;
-        }
-        return `<span class="source-name">${esc(s)}</span>`;
-      }
-      // Object with name/url
-      const name = s.name || s.source || domainFromUrl(s.url || '');
-      const url = s.url || s.link || '';
+      if (!s) return '';
+      // A string is either a URL or a plain source name.
+      const raw = typeof s === 'string' ? s : s.url || s.link || '';
+      const url = safeUrl(raw);
+      const name = typeof s === 'string'
+        ? (url ? domainFromUrl(url) : s)
+        : s.name || s.source || domainFromUrl(url) || '';
       if (url) {
-        return `<a href="${esc(url)}" target="_blank" rel="noopener" class="source-link">${esc(name)}</a>`;
+        return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" class="source-link">${esc(name || url)}</a>`;
       }
-      return `<span class="source-name">${esc(name)}</span>`;
+      return name ? `<span class="source-name">${esc(name)}</span>` : '';
     })
+    .filter(Boolean)
     .join(' ');
-}
-
-function domainFromUrl(url) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
 }

@@ -53,9 +53,46 @@ export function formatDayLabel(monthKey, day) {
 
 // ===== localStorage Read/Write =====
 
+const CORRUPT_BACKUP_PREFIX = 'corrupt-backup:';
+
+/**
+ * Reads and parses a JSON value from localStorage.
+ * Unparseable or invalid values are copied to a backup key (outside the
+ * habits_ namespace, so they are never read as a month) and logged, then
+ * treated as missing so the app keeps working instead of crashing.
+ * @param {string} key - localStorage key.
+ * @param {Function} isValid - Returns true if the parsed value is usable.
+ * @returns {*} The parsed value, or null if missing or corrupt.
+ */
+function readJson(key, isValid) {
+  const raw = localStorage.getItem(key);
+  if (raw === null) return null;
+  try {
+    const value = JSON.parse(raw);
+    if (isValid(value)) return value;
+  } catch (_) {
+    // Fall through to backup below.
+  }
+  let backupKey = CORRUPT_BACKUP_PREFIX + key;
+  try {
+    const existing = localStorage.getItem(backupKey);
+    if (existing !== null && existing !== raw) {
+      backupKey += ':' + Date.now();
+    }
+    if (existing !== raw) {
+      localStorage.setItem(backupKey, raw);
+    }
+    console.error(`Habit Tracker: stored data for "${key}" is corrupt; backed it up to "${backupKey}".`);
+  } catch (err) {
+    console.error(`Habit Tracker: stored data for "${key}" is corrupt and could not be backed up. Raw value:`, raw, err);
+  }
+  return null;
+}
+
+const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+
 export function getMonthData(monthKey) {
-  const raw = localStorage.getItem(MONTH_PREFIX + monthKey);
-  return raw ? JSON.parse(raw) : null;
+  return readJson(MONTH_PREFIX + monthKey, (v) => isObject(v) && Array.isArray(v.habits) && isObject(v.checks));
 }
 
 export function saveMonthData(monthKey, data) {
@@ -63,8 +100,7 @@ export function saveMonthData(monthKey, data) {
 }
 
 export function getConfig() {
-  const raw = localStorage.getItem(CONFIG_KEY);
-  return raw ? JSON.parse(raw) : {};
+  return readJson(CONFIG_KEY, isObject) || {};
 }
 
 export function saveConfig(config) {
@@ -92,9 +128,11 @@ export function getOrCreateMonth(monthKey) {
 
   // Find most recent prior month to carry forward
   const allKeys = getAllMonthKeys().filter(k => k < monthKey);
-  if (allKeys.length > 0) {
-    const priorKey = allKeys[allKeys.length - 1];
-    const priorData = getMonthData(priorKey);
+  let priorData = null;
+  for (let i = allKeys.length - 1; i >= 0 && !priorData; i--) {
+    priorData = getMonthData(allKeys[i]);
+  }
+  if (priorData) {
     const newData = {
       month: monthKey,
       habits: priorData.habits.map(h => ({ ...h })),

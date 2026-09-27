@@ -118,6 +118,8 @@ export function renderTrendLines(container, canvasId, data) {
     const datasets = lineChartInstance.data.datasets;
     for (let i = 0; i < datasets.length; i++) {
       const ds = datasets[i];
+      // Remember the true color before any fading is applied.
+      if (!ds._originalColor) ds._originalColor = ds.borderColor;
       if (hovering && activeIdx >= 0) {
         ds.borderWidth = i === activeIdx ? 3.5 : 1;
         ds.borderColor = i === activeIdx
@@ -127,7 +129,6 @@ export function renderTrendLines(container, canvasId, data) {
         ds.borderWidth = 2;
         ds.borderColor = ds._originalColor || ds.borderColor;
       }
-      if (!ds._originalColor) ds._originalColor = ds.borderColor;
     }
     lineChartInstance.update('none');
   }

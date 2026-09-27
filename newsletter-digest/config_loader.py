@@ -23,6 +23,9 @@ def load_config(config_path=None):
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
 
+    if not isinstance(config, dict):
+        raise ValueError(f"{config_path} is empty or not a YAML mapping")
+
     # Validate required sections
     required_sections = ["gmail", "newsletters", "rss_feeds", "summarizer", "digest"]
     for section in required_sections:

@@ -104,6 +104,28 @@ export function decodeResults(encoded) {
   }
 }
 
+// Shared links are untrusted input: keep only well-formed fields so a
+// hand-edited link renders safely instead of throwing mid-render.
+function normalizeResults(data) {
+  if (!data || typeof data !== 'object' || !data.ratings || typeof data.ratings !== 'object') return null;
+  const text = (value) => (typeof value === 'string' ? value : '');
+  const ratings = {};
+  CATEGORIES.forEach((cat) => {
+    const n = Number(data.ratings[cat.id]);
+    if (Number.isInteger(n) && n >= 1 && n <= 5) ratings[cat.id] = n;
+  });
+  return {
+    ...data,
+    date: text(data.date),
+    ratings,
+    chips: Array.isArray(data.chips) ? data.chips.filter((chip) => typeof chip === 'string') : [],
+    again: text(data.again) || null,
+    keep: text(data.keep),
+    suggestion: text(data.suggestion),
+    comments: text(data.comments),
+  };
+}
+
 function buildResultsData() {
   return {
     v: 1,
@@ -286,7 +308,12 @@ async function copyToClipboard(text, statusMessage) {
 // --- Draft persistence ---
 
 function saveDraft() {
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+  } catch (err) {
+    // Private browsing or full storage — the form still works, just without a saved draft.
+    console.warn('Could not save draft:', err);
+  }
 }
 
 function loadDraft() {
@@ -322,7 +349,12 @@ function addToLog(data, encoded) {
     avg: Number(averageRating(data.ratings).toFixed(1)),
   });
   log.sort((a, b) => (a.date < b.date ? 1 : -1));
-  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  try {
+    localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  } catch (err) {
+    // Private browsing or full storage — show this review, but it won't be remembered.
+    console.warn('Could not save review log:', err);
+  }
   return log;
 }
 
@@ -407,7 +439,13 @@ function renderTrend(log) {
 // --- CSV export of the full log ---
 
 function csvField(value) {
-  return `"${String(value ?? '').replace(/"/g, '""')}"`;
+  let text = String(value ?? '');
+  // Neutralize spreadsheet formula injection: text cells starting with
+  // = + - @ (or tab / carriage return) are prefixed with a single quote.
+  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(text)) {
+    text = `'${text}`;
+  }
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 function buildCsv(log) {
@@ -417,7 +455,7 @@ function buildCsv(log) {
     'Would marry again', 'Highlights', 'Keep doing', 'Gentle suggestion', 'Comments',
   ];
   const rows = [...log].reverse().map((entry) => {
-    const data = decodeResults(entry.encoded) || {};
+    const data = normalizeResults(decodeResults(entry.encoded)) || {};
     const ratings = data.ratings || {};
     return [
       entry.date, entry.avg,
@@ -437,7 +475,8 @@ function downloadCsv(log) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(link.href);
+  // Revoke later: some browsers start the download asynchronously after click().
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   const status = document.getElementById('csv-status');
   status.textContent = `Saved "wife-review-log.csv" (${log.length} review${log.length === 1 ? '' : 's'}) to this device's downloads — check your Downloads folder, or the Files app on a phone.`;
 }
@@ -603,8 +642,8 @@ function init() {
   window.addEventListener('hashchange', () => location.reload());
 
   const match = location.hash.match(/^#r=(.+)$/);
-  const shared = match && decodeResults(match[1]);
-  if (shared && shared.ratings) {
+  const shared = match && normalizeResults(decodeResults(match[1]));
+  if (shared) {
     renderResults(shared, { fromLink: true });
     renderLog(addToLog(shared, match[1]), match[1]);
     return;

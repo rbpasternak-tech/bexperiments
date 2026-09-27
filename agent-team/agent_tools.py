@@ -6,7 +6,7 @@ isn't reachable (e.g. running off the Mac).
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from health_export import read_health_metrics, rings_closed
@@ -255,9 +255,12 @@ def _get_latest_digest():
     return json.dumps(summary, ensure_ascii=False)
 
 
-def _record_habits(tool_input, vault):
-    """Translate record_habits input into habit-grid cells and write them."""
-    date_str = tool_input.get("date") or datetime.now().strftime("%Y-%m-%d")
+def habit_cell_values(tool_input):
+    """Translate record_habits-style fields into {column: cell_text}.
+
+    Only fields actually provided produce cells, so blanks never clobber
+    existing grid values.
+    """
     values = {}
     if tool_input.get("steps") is not None:
         values["Steps"] = f"{int(tool_input['steps']):,}"
@@ -269,51 +272,16 @@ def _record_habits(tool_input, vault):
         answer = str(tool_input.get(field, "") or "").lower()
         if answer in BOOL_CELL and answer != "":
             values[column] = BOOL_CELL[answer]
+    return values
+
+
+def _record_habits(tool_input, vault):
+    """Translate record_habits input into habit-grid cells and write them."""
+    date_str = tool_input.get("date") or datetime.now().strftime("%Y-%m-%d")
+    values = habit_cell_values(tool_input)
     if not values:
         return "Nothing to record — no fields provided."
     return vault.upsert_habit_row(date_str, values)
-
-
-def record_health_rows(ctx, days=4):
-    """Deterministically write recent days' health metrics to the habit grid.
-
-    Runs before the LLM habit check-in so the numbers land even if the
-    persona's turn fails or hits its token limit. Only fills days whose
-    Steps cell is still empty (never overwrites a hand-corrected value) and
-    skips days flagged 'partial' (their finished totals arrive the next
-    day). Returns a short summary for the log / Telegram.
-    """
-    vault = ctx["vault"]
-    export_dir = ctx.get("health_export_dir")
-    goals = ctx.get("ring_goals")
-    recorded, last_error = [], None
-    today = datetime.now().date()
-    for i in range(days):
-        date_str = (today - timedelta(days=i)).isoformat()
-        cells = vault.habit_row_cells(date_str)
-        if cells is None or cells.get("Steps"):
-            continue  # row missing, or steps already recorded
-        metrics = read_health_metrics(export_dir, date_str)
-        if "error" in metrics:
-            last_error = metrics["error"]  # e.g. eviction vs phone not syncing
-            continue
-        if metrics.get("steps") is None or metrics.get("partial"):
-            continue  # nothing usable yet, or day not finished
-        fields = {"date": date_str, "steps": metrics["steps"]}
-        if metrics.get("calories") is not None:
-            fields["calories"] = metrics["calories"]
-        if metrics.get("weight") is not None:
-            fields["weight"] = metrics["weight"]
-        rings = rings_closed(metrics, goals)
-        if rings:
-            fields["rings"] = rings
-        _record_habits(fields, vault)
-        recorded.append(date_str)
-    if recorded:
-        return "recorded " + ", ".join(recorded)
-    if last_error:
-        return "no rows recorded — " + last_error
-    return "no new days to record"
 
 
 def handle_tool_call(name, tool_input, ctx):
@@ -323,9 +291,14 @@ def handle_tool_call(name, tool_input, ctx):
     if name == "set_reminder":
         due = tool_input.get("due", "")
         try:
-            datetime.fromisoformat(due)
+            due_dt = datetime.fromisoformat(due)
         except ValueError:
             return f"Error: due time '{due}' is not valid ISO 8601."
+        if due_dt.tzinfo is not None:
+            # Store local naive time: pop_due_reminders compares against
+            # naive datetime.now(), and an aware value would raise TypeError
+            # on every poll, stalling reminders and scheduled duties.
+            due = due_dt.astimezone().replace(tzinfo=None).isoformat()
         reminder_id = state.add_reminder(chat_id, persona_key, due, tool_input["text"])
         return f"Reminder {reminder_id} set for {due}."
     if name == "list_reminders":

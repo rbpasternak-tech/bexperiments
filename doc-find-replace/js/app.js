@@ -6,11 +6,12 @@
 
 import {
   openDb, addDocument, getAllDocuments, getDocument, deleteDocument,
+  updateDocument, getOriginalData,
   addReplacement, getAllReplacements, updateReplacement, deleteReplacement,
   deleteReplacementsByDocId
 } from './storage.js';
 import { readDocxText, applyDocxCleanReplacements } from './docx-processor.js';
-import { readPdfText } from './pdf-processor.js';
+import { readPdfText, applyPdfCleanReplacements } from './pdf-processor.js';
 import { extractAllTerms } from './term-extractor.js';
 import { escapeRegex, applyReplacement, applyAllReplacements } from './replacer.js';
 import {
@@ -57,6 +58,15 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+/**
+ * Escapes a string for use inside a double-quoted HTML attribute.
+ * @param {string} str - The string to escape.
+ * @returns {string} Escaped attribute-safe string.
+ */
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/"/g, '&quot;');
 }
 
 /**
@@ -125,7 +135,7 @@ async function refreshDocList() {
     totalSize += doc.size || 0;
     const li = document.createElement('li');
     li.innerHTML = `
-      <span class="doc-name" title="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</span>
+      <span class="doc-name" title="${escapeAttr(doc.name)}">${escapeHtml(doc.name)}</span>
       <span class="doc-size">${formatSize(doc.size || 0)}</span>
       <button class="doc-delete" data-id="${doc.id}" title="Delete document">&times;</button>
     `;
@@ -271,9 +281,9 @@ async function refreshTable() {
       : escapeHtml(r.docName);
     const sourceLabel = r.source === 'auto' ? 'bracket' : r.source;
     tr.innerHTML = `
-      <td title="${escapeHtml(r.docName || 'All Documents')}">${docCell}</td>
-      <td><input type="text" value="${escapeHtml(r.find)}" data-field="find"></td>
-      <td><input type="text" value="${escapeHtml(r.replace || '')}" data-field="replace" placeholder="Enter replacement..."></td>
+      <td title="${escapeAttr(r.docName || 'All Documents')}">${docCell}</td>
+      <td><input type="text" value="${escapeAttr(r.find)}" data-field="find"></td>
+      <td><input type="text" value="${escapeAttr(r.replace || '')}" data-field="replace" placeholder="Enter replacement..."></td>
       <td><span class="source-badge source-${r.source}">${sourceLabel}</span></td>
       <td class="td-check"><input type="checkbox" ${r.active ? 'checked' : ''} data-field="active"></td>
       <td class="td-actions"><button class="row-delete" title="Delete row">&times;</button></td>
@@ -355,12 +365,15 @@ async function showPreview(tr) {
   const contextRadius = 80;
 
   for (const doc of docs) {
+    // Rows describe the original upload, so preview against it (not the
+    // Apply All result, where the matches have already been replaced).
+    const source = getOriginalData(doc);
     let text;
     try {
       if (doc.type === 'docx') {
-        text = await readDocxText(doc.data);
+        text = await readDocxText(source);
       } else {
-        text = await readPdfText(doc.data);
+        text = await readPdfText(source);
       }
     } catch (_) {
       continue;
@@ -550,12 +563,10 @@ async function handleExtractAll() {
   setProgress(true, 'Extracting defined terms...');
 
   try {
-    let totalNew = 0;
     for (let i = 0; i < docs.length; i++) {
       const doc = docs[i];
       setProgress(true, `Extracting from ${doc.name} (${i + 1}/${docs.length})...`);
-      await extractAndStoreForDoc(doc.id, doc.name, doc.type, doc.data);
-      // Count new extractions by comparing before/after
+      await extractAndStoreForDoc(doc.id, doc.name, doc.type, getOriginalData(doc));
     }
     await refreshTable();
     showToast('Term extraction complete.', 'success');
@@ -571,6 +582,9 @@ async function handleExtractAll() {
 
 /**
  * Applies all checked replacements to their respective documents in IndexedDB.
+ * The result is always computed from the originally uploaded bytes, which are
+ * kept in `originalData`, so running Apply All again (or exporting afterwards)
+ * never applies a replacement twice.
  */
 async function handleApplyAll() {
   const replacements = await getAllReplacements();
@@ -622,20 +636,21 @@ async function handleApplyAll() {
 
       setProgress(true, `Applying to ${doc.name} (${count}/${total})...`);
 
+      const original = getOriginalData(doc);
       let newData;
-      if (doc.type === 'docx') {
-        newData = await applyDocxCleanReplacements(doc.data, reps);
-      } else {
-        // For PDF, we import dynamically
-        const { applyPdfCleanReplacements } = await import('./pdf-processor.js');
-        newData = await applyPdfCleanReplacements(doc.data, reps);
+      try {
+        if (doc.type === 'docx') {
+          newData = await applyDocxCleanReplacements(original, reps);
+        } else {
+          newData = await applyPdfCleanReplacements(original, reps);
+        }
+      } catch (err) {
+        throw new Error(`${doc.name}: ${err.message}`);
       }
 
+      doc.originalData = original;
       doc.data = newData;
       doc.size = newData.byteLength;
-
-      // Use updateDocument from storage
-      const { updateDocument } = await import('./storage.js');
       await updateDocument(doc);
     }
 

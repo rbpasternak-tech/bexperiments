@@ -6,7 +6,13 @@
  */
 
 import { chartDefaults }          from './chart-utils.js';
-import { loadAllData }            from './data-loader.js';
+import {
+  loadAllData,
+  buildTopicTimeSeries,
+  mergeArrays,
+  normalizeTopic,
+  digestDate,
+} from './data-loader.js';
 import { renderWeeklySnapshot }   from './weekly-snapshot.js';
 import { renderTopicHeatmap }     from './topic-heatmap.js';
 import { renderTrendLines }       from './trend-lines.js';
@@ -22,22 +28,37 @@ import { renderWeeklyDiff }       from './weekly-diff.js';
 
 const state = {
   selectedTopic: null,
+  selectedWeek: '__all__', // '__all__' or an index into state.data.digests
   data: null,
 };
 
 /**
- * Filter all sections to a specific topic.
+ * Filter all sections to a specific topic (within the selected week).
  * Pass null or empty string to clear the filter.
  */
 export function filterByTopic(topicName) {
-  state.selectedTopic = topicName || null;
+  state.selectedTopic = topicName ? normalizeTopic(topicName) : null;
   updateFilterUI();
+  rerender();
+}
 
-  // Re-render sections that respond to topic filtering
-  if (state.data) {
-    const filtered = topicName ? filterData(state.data, topicName) : state.data;
-    renderAllSections(filtered);
+/**
+ * The data every section should render: the selected week (or all weeks),
+ * narrowed to the selected topic if one is set.
+ */
+function currentView() {
+  if (!state.data) return null;
+  let view = state.data;
+  if (state.selectedWeek !== '__all__') {
+    const digest = (state.data.digests || [])[Number(state.selectedWeek)];
+    if (digest) view = buildSingleDigestView(digest, state.data);
   }
+  return state.selectedTopic ? filterData(view, state.selectedTopic) : view;
+}
+
+function rerender() {
+  const view = currentView();
+  if (view) renderAllSections(view);
 }
 
 // Expose globally so other modules (e.g. topic-heatmap click handler) can call it
@@ -61,29 +82,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSectionNav();
 
   /* ---- 4. Load data ---- */
-  const dataBasePath = detectDataPath();
-  const data = await loadAllData(dataBasePath);
-  state.data = data;
+  try {
+    const dataBasePath = detectDataPath();
+    const data = await loadAllData(dataBasePath);
+    state.data = data;
 
-  /* ---- 5. Populate week selector ---- */
-  populateWeekSelector(data);
+    /* ---- 5. Populate week selector ---- */
+    populateWeekSelector(data);
 
-  /* ---- 6. Render everything ---- */
-  renderAllSections(data);
+    /* ---- 6. Render everything ---- */
+    renderAllSections(data);
 
-  /* ---- 7. Populate meta bar ---- */
-  updateMetaBar(data);
-
-  /* ---- 8. Done ---- */
-  showLoading(false);
+    /* ---- 7. Populate meta bar ---- */
+    updateMetaBar(data);
+  } catch (err) {
+    console.error('Dashboard failed to load:', err);
+  } finally {
+    /* ---- 8. Done (never leave the overlay up) ---- */
+    showLoading(false);
+  }
 });
 
 /* ------------------------------------------------------------------ */
 /*  Theme Toggle                                                       */
 /* ------------------------------------------------------------------ */
 
+function readSetting(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+
+function writeSetting(key, value) {
+  try { localStorage.setItem(key, value); } catch { /* storage unavailable */ }
+}
+
 function initTheme() {
-  const saved = localStorage.getItem('dashboard-theme');
+  const saved = readSetting('dashboard-theme');
   if (saved === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
@@ -95,15 +128,15 @@ function initTheme() {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       if (isDark) {
         document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('dashboard-theme', 'light');
+        writeSetting('dashboard-theme', 'light');
       } else {
         document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('dashboard-theme', 'dark');
+        writeSetting('dashboard-theme', 'dark');
       }
       updateThemeIcon();
       applyChartDefaults();
-      // Re-render charts with new theme colors
-      if (state.data) renderAllSections(state.data);
+      // Re-render charts with new theme colors, keeping week/topic filters
+      rerender();
     });
   }
 }
@@ -167,26 +200,32 @@ function initSectionNav() {
 /*  Render All Sections                                                */
 /* ------------------------------------------------------------------ */
 
+const SECTIONS = [
+  ['section-weekly-snapshot',    (el, data) => renderWeeklySnapshot(el, data)],
+  ['section-topic-heatmap',      (el, data) => renderTopicHeatmap(el, data)],
+  ['section-weekly-diff',        (el, data) => renderWeeklyDiff(el, data)],
+  ['section-trend-lines',        (el, data) => renderTrendLines(el, 'trend-lines-chart', data)],
+  ['section-ai-economy',         (el, data) => renderAIEconomy(el, data)],
+  ['section-regulatory-pulse',   (el, data) => renderRegulatoryPulse(el, data)],
+  ['section-legal-tech-signals', (el, data) => renderLegalTechSignals(el, data)],
+  ['section-key-voices',         (el, data) => renderKeyVoices(el, data)],
+];
+
+/**
+ * Render every section. Each one is isolated so a failure in one (for
+ * example Chart.js failing to load from the CDN) cannot blank the rest.
+ */
 function renderAllSections(data) {
-  const section = (id) => document.getElementById(id);
-
-  const snapshotEl   = section('section-weekly-snapshot');
-  const heatmapEl    = section('section-topic-heatmap');
-  const diffEl       = section('section-weekly-diff');
-  const trendEl      = section('section-trend-lines');
-  const economyEl    = section('section-ai-economy');
-  const regulatoryEl = section('section-regulatory-pulse');
-  const legalTechEl  = section('section-legal-tech-signals');
-  const voicesEl     = section('section-key-voices');
-
-  if (snapshotEl)   renderWeeklySnapshot(snapshotEl, data);
-  if (heatmapEl)    renderTopicHeatmap(heatmapEl, data);
-  if (diffEl)       renderWeeklyDiff(diffEl, data);
-  if (trendEl)      renderTrendLines(trendEl, 'trend-lines-chart', data);
-  if (economyEl)    renderAIEconomy(economyEl, data);
-  if (regulatoryEl) renderRegulatoryPulse(regulatoryEl, data);
-  if (legalTechEl)  renderLegalTechSignals(legalTechEl, data);
-  if (voicesEl)     renderKeyVoices(voicesEl, data);
+  const view = { ...data, selectedTopic: state.selectedTopic };
+  for (const [id, render] of SECTIONS) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    try {
+      render(el, view);
+    } catch (err) {
+      console.error(`Failed to render ${id}:`, err);
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -210,87 +249,101 @@ function populateWeekSelector(data) {
   allOpt.textContent = 'All Weeks';
   selector.appendChild(allOpt);
 
-  for (const d of digests) {
-    const date = d?.meta?.run_date || d?.meta?.date || d?.meta?.week_ending || d?.date || 'unknown';
-    const labelDate = d?.meta?.date_range_start || date;
+  digests.forEach((d, i) => {
+    const labelDate = d?.meta?.date_range_start || digestDate(d);
     const opt = document.createElement('option');
-    opt.value = date;
+    opt.value = String(i);
     opt.textContent = formatWeekLabel(labelDate);
     selector.appendChild(opt);
-  }
+  });
 
   selector.addEventListener('change', () => {
-    const val = selector.value;
-    if (val === '__all__') {
-      renderAllSections(state.data);
-    } else {
-      const digest = digests.find((d) => {
-        const dd = d?.meta?.run_date || d?.meta?.date || d?.meta?.week_ending || d?.date || '';
-        return dd === val;
-      });
-      if (digest) {
-        const singleView = buildSingleDigestView(digest, state.data);
-        renderAllSections(singleView);
-      }
-    }
+    state.selectedWeek = selector.value;
+    rerender();
   });
 }
 
 function buildSingleDigestView(digest, fullData) {
+  const digests = [digest];
   return {
     index: fullData.index,
-    digests: [digest],
+    digests,
     latest: digest,
-    topicTimeSeries: buildTopicTimeSeriesInline([digest]),
-    aggregatedEconomy:    tagArray(digest.ai_economy_events || [], digest),
-    aggregatedRegulatory: tagArray(digest.regulatory_events || [], digest),
-    aggregatedLegalTech:  tagArray(digest.legal_tech_signals || [], digest),
-    aggregatedSources:    tagArray(digest.source_contributions || [], digest),
+    topicTimeSeries:      buildTopicTimeSeries(digests),
+    aggregatedEconomy:    mergeArrays(digests, 'ai_economy_events'),
+    aggregatedRegulatory: mergeArrays(digests, 'regulatory_events'),
+    aggregatedLegalTech:  mergeArrays(digests, 'legal_tech_signals'),
+    aggregatedSources:    mergeArrays(digests, 'source_contributions'),
     trendAnalysis: { emerging: [], fading: [] },
   };
-}
-
-function tagArray(arr, digest) {
-  const date = digest?.meta?.run_date || digest?.meta?.date || digest?.meta?.week_ending || digest?.date || '';
-  return arr.map((item) => ({ ...item, _digestDate: date }));
-}
-
-function buildTopicTimeSeriesInline(digests) {
-  const topicMap = new Map();
-  for (const d of digests) {
-    const date = d?.meta?.run_date || d?.meta?.date || d?.meta?.week_ending || d?.date || 'unknown';
-    for (const t of d.topics || []) {
-      const name = t.name || t.topic || 'Unknown';
-      if (!topicMap.has(name)) topicMap.set(name, []);
-      topicMap.get(name).push({ date, count: t.mention_count ?? t.count ?? 1 });
-    }
-  }
-  return [...topicMap.entries()].map(([topic, series]) => ({ topic, series }));
 }
 
 /* ------------------------------------------------------------------ */
 /*  Topic Filtering                                                    */
 /* ------------------------------------------------------------------ */
 
-function filterData(data, topicName) {
-  const lower = topicName.toLowerCase();
+const normText = (v) => String(v || '').toLowerCase().replace(/\s+/g, ' ').trim();
+const normCategory = (v) => normText(v).replace(/ /g, '_');
 
-  const matchesTopic = (item) => {
-    const fields = [
-      item.topic, item.category, item.sector,
-      ...(item.topics || []).map((t) => typeof t === 'string' ? t : t.name || t.topic || ''),
-    ];
-    return fields.some((f) => f && f.toLowerCase().includes(lower));
+function itemTopics(item) {
+  const list = item.top_topics || item.topics || [];
+  return (Array.isArray(list) ? list : [])
+    .map((t) => normalizeTopic(typeof t === 'string' ? t : t?.name || t?.topic || ''));
+}
+
+/**
+ * Narrow the section data to one topic. Digest events carry no topic field,
+ * so matching uses what the data does link:
+ *   - sources: their top_topics include the topic;
+ *   - regulatory events: impact_area names the topic (or its category);
+ *   - economy / legal-tech events: the headline matches one of the topic's
+ *     representative headlines, or the event's source covered the topic in
+ *     the same digest.
+ * Snapshot, heatmap and trend lines keep their full data (the heatmap marks
+ * the selected row) so the page never goes blank.
+ */
+function filterData(data, topicName) {
+  const topic = normalizeTopic(topicName);
+  const byDate = new Map();
+  const categories = new Set();
+
+  for (const d of data.digests || []) {
+    const ctx = { headlines: [], sources: new Set() };
+    for (const t of d.topics || []) {
+      if (normalizeTopic(t.name || t.topic || '') !== topic) continue;
+      if (t.category) categories.add(normCategory(t.category));
+      for (const h of t.representative_headlines || []) ctx.headlines.push(normText(h));
+    }
+    for (const s of d.source_contributions || []) {
+      if (itemTopics(s).includes(topic)) {
+        ctx.sources.add(normText(s.source_name || s.source || s.name));
+      }
+    }
+    byDate.set(digestDate(d), ctx);
+  }
+
+  const headlineMatches = (item) => {
+    const ctx = byDate.get(item._digestDate);
+    const text = normText(item.headline || item.title || item.description);
+    return Boolean(ctx && text && ctx.headlines.some(
+      (h) => h && (h.includes(text) || text.includes(h))));
+  };
+  const sourceCovers = (item) => {
+    const ctx = byDate.get(item._digestDate);
+    return Boolean(ctx && ctx.sources.has(normText(item.source || item.source_name)));
+  };
+  const impactMatches = (item) => {
+    const areas = Array.isArray(item.impact_area) ? item.impact_area : [item.impact_area];
+    return areas.filter(Boolean).some(
+      (a) => normalizeTopic(a) === topic || categories.has(normCategory(a)));
   };
 
   return {
     ...data,
-    topicTimeSeries: data.topicTimeSeries,
-    aggregatedEconomy:    data.aggregatedEconomy.filter(matchesTopic),
-    aggregatedRegulatory: data.aggregatedRegulatory.filter(matchesTopic),
-    aggregatedLegalTech:  data.aggregatedLegalTech.filter(matchesTopic),
-    aggregatedSources:    data.aggregatedSources.filter(matchesTopic),
-    trendAnalysis: data.trendAnalysis,
+    aggregatedEconomy:    (data.aggregatedEconomy || []).filter((e) => headlineMatches(e) || sourceCovers(e)),
+    aggregatedRegulatory: (data.aggregatedRegulatory || []).filter((e) => impactMatches(e) || headlineMatches(e)),
+    aggregatedLegalTech:  (data.aggregatedLegalTech || []).filter((e) => headlineMatches(e) || sourceCovers(e)),
+    aggregatedSources:    (data.aggregatedSources || []).filter((s) => itemTopics(s).includes(topic)),
   };
 }
 
@@ -301,6 +354,7 @@ function updateFilterUI() {
   if (state.selectedTopic) {
     badge.textContent = `Filtered: ${state.selectedTopic}`;
     badge.style.display = 'inline-flex';
+    badge.title = 'Clear topic filter';
     badge.onclick = () => filterByTopic(null);
   } else {
     badge.style.display = 'none';

@@ -12,7 +12,7 @@ export const meta = {
   phases: [{ title: 'Draft candidates' }, { title: 'Judge' }, { title: 'Synthesize' }],
 }
 
-const DIR = '/Users/rebeccapasternak/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
+const DIR = '/Users/rebeccapasternak/Documents/GitHub/bexperiments/dynamic-workflows-cookbook/corpus/clauses'
 const FILE = '01-liability.txt'
 
 // Three DIFFERENT angles on the same open-ended task. Diversity is the point — we want the
