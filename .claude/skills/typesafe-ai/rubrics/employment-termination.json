@@ -1,0 +1,42 @@
+{
+  "name": "employment-termination",
+  "description": "Employer-side exposure to wrongful-termination / termination-without-proper-warning claims.",
+  "questions": {
+    "risk": {
+      "type": "choice",
+      "instructions": "You are reviewing this document from the EMPLOYER's side. Former workers are suing, alleging they were fired without proper warning or notice. Assess the employer's exposure. What is the employer's liability risk from this document for wrongful-termination / termination-without-proper-warning claims?",
+      "criteria": {
+        "HIGH": "Creates or evidences clear exposure: a contractual or statutory notice obligation, a promised warning/discipline process not followed, termination timed near protected activity, or unlawful termination-related terms.",
+        "MEDIUM": "Some exposure: ambiguous or policy language plaintiffs could use as pretext or implied-contract evidence, softened by disclaimers.",
+        "LOW": "Protective or neutral: clear at-will, no-notice language and no warning promises."
+      }
+    },
+    "atwill_protects": {
+      "type": "noul",
+      "instructions": "The document contains clear at-will language allowing termination without cause or notice, which protects the employer."
+    },
+    "promises_warning": {
+      "type": "noul",
+      "instructions": "The document promises, requires, or describes a notice period, warning, progressive discipline, or improvement-plan process before termination."
+    },
+    "policy_deviation": {
+      "type": "noul",
+      "instructions": "The document shows the employer deviating from its own stated discipline, PIP, or notice process, or proposes terminations without notice."
+    },
+    "retaliation_signal": {
+      "type": "noul",
+      "instructions": "The document shows or would enable termination linked to protected activity (leave, complaints, accommodation requests, age, protected speech, agency charges)."
+    },
+    "severity": {
+      "type": "score",
+      "instructions": "You are reviewing this document from the EMPLOYER's side. Former workers are suing, alleging they were fired without proper warning or notice. Assess the employer's exposure. Rate overall litigation exposure.",
+      "criteria": [
+        "Negligible",
+        "Minor",
+        "Moderate",
+        "Serious",
+        "Severe"
+      ]
+    }
+  }
+}
