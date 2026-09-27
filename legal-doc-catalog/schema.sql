@@ -24,6 +24,10 @@ create index documents_fts_idx on documents using gin (fts);
 create index documents_category_idx on documents (category);
 create index documents_year_idx on documents (year);
 
+-- Owner index: every RLS policy and search_documents() filter on user_id.
+-- "if not exists" lets this line be run on its own against an existing project.
+create index if not exists documents_user_id_idx on documents (user_id);
+
 -- Row Level Security
 alter table documents enable row level security;
 

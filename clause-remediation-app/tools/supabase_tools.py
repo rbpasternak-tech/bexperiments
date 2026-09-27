@@ -9,10 +9,19 @@ from supabase import create_client
 
 
 def _get_client():
-    """Create and authenticate a Supabase client.
+    """Create a Supabase client signed in as the catalog user.
+
+    Key choice: SUPABASE_SERVICE_KEY is used if set, otherwise
+    SUPABASE_ANON_KEY. Either way the client then signs in with
+    SEED_EMAIL / SEED_PASSWORD, and supabase-py sends that user's access
+    token on subsequent queries. Queries therefore run as the seed user
+    under row-level security: the ``documents`` policies and the
+    ``search_documents`` RPC both filter on ``auth.uid()``, which is only
+    set for a signed-in user. The anon key is sufficient; the service key
+    is accepted for compatibility with the legal-doc-catalog seed .env.
 
     Returns:
-        Tuple of (client, user_id).
+        Authenticated Supabase client.
 
     Raises:
         RuntimeError: If required env vars are missing.
@@ -29,19 +38,18 @@ def _get_client():
         )
 
     client = create_client(url, key)
-    auth = client.auth.sign_in_with_password({"email": email, "password": password})
-    return client, auth.user.id
+    client.auth.sign_in_with_password({"email": email, "password": password})
+    return client
 
 
 _client = None
-_user_id = None
 
 
 def _ensure_client():
     """Lazy-initialize the Supabase client singleton."""
-    global _client, _user_id
+    global _client
     if _client is None:
-        _client, _user_id = _get_client()
+        _client = _get_client()
     return _client
 
 
