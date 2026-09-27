@@ -19,7 +19,11 @@ from pathlib import Path
 import anthropic
 import yaml
 
-from agent_tools import record_health_rows
+from health_import import (
+    DEFAULT_EVERY_MINUTES,
+    import_recent_days,
+    start_background_import,
+)
 from persona_agent import run_persona_turn
 from router import build_alias_map, pick_persona
 from schedules import Scheduler
@@ -74,9 +78,11 @@ SCHEDULED_DUTIES = {
     ),
     "habit_checkin": (
         "bartleby",
-        "It is the scheduled nightly habit check-in. First read this "
+        "It is the scheduled nightly habit check-in. Health numbers for "
+        "past days are imported into the grid automatically (hourly), so "
+        "do not re-record days that already have Steps. First read this "
         "month's habit file (Tracking/Habits/<YYYY-MM>.md) and note "
-        "which of the LAST FOUR days (today included) have an empty "
+        "which of the LAST FOUR days (today included) still have an empty "
         "Steps cell. For each such day call read_health_export and "
         "record what it returns with record_habits AGAINST THE DATE IT "
         "BELONGS TO — steps, calories, weight, and the rings yes/no "
@@ -221,15 +227,15 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
             print(f"Warning: schedule {key!r} has no matching duty/persona.")
             continue
         persona = personas_cfg["personas"][persona_key]
-        # Write the health numbers deterministically BEFORE the LLM turn, so
-        # a finished day's steps/calories/rings land even if the persona's
-        # reply fails or hits its token limit. The persona then only has to
-        # ask for the manual habits.
+        # The background thread imports health numbers hourly; run it once
+        # more right before the check-in so the persona sees a fresh grid,
+        # and surface a read failure here (at most once a night) rather
+        # than from the hourly thread.
         if key == "habit_checkin":
-            summary = record_health_rows(dict(ctx, chat_id=chat_id))
-            print(f"[habit_checkin] deterministic health write: {summary}")
-            if "COULD NOT READ" in summary:
-                telegram.send_message(chat_id, f"⚠️ Health import: {summary}")
+            result = import_recent_days(ctx)
+            print(f"[habit_checkin] health import: {result['summary']}", flush=True)
+            if result["error"]:
+                telegram.send_message(chat_id, f"⚠️ Health import: {result['summary']}")
         try:
             reply = run_persona_turn(
                 claude, config["model"], persona_key, personas_cfg, instruction,
@@ -238,6 +244,11 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
         except Exception as exc:
             traceback.print_exc()
             print(f"Scheduled duty {key} failed: {exc}", file=sys.stderr)
+            telegram.send_message(
+                chat_id,
+                f"({persona['name']} missed the scheduled {key.replace('_', ' ')}: "
+                f"{type(exc).__name__}: {exc})",
+            )
             continue
         state.append_history(chat_id, persona["name"], reply)
         telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
@@ -288,6 +299,9 @@ def main():
         "health_export_dir": config.get("health_export_dir"),
         "ring_goals": config.get("ring_goals"),
     }
+    start_background_import(
+        ctx, config.get("health_import_every_minutes", DEFAULT_EVERY_MINUTES)
+    )
 
     vault_error = vault.availability_error()
     vault_note = "vault OK" if not vault_error else f"vault UNAVAILABLE: {vault_error}"

@@ -11,12 +11,17 @@ sections belong to the Cowork scheduled tasks and are never rewritten.
 import calendar
 import os
 import re
+import threading
 from datetime import datetime
 from pathlib import Path
 
 READING_QUEUE = "Reading/queue.md"
 TASKS_MASTER = "Tasks/Master.md"
 HABITS_DIR = "Tracking/Habits"
+
+# The background health import and persona tool calls can both write the
+# habit grid; serialize the read-modify-write so neither loses the other's cells.
+_HABIT_WRITE_LOCK = threading.Lock()
 
 
 class Vault:
@@ -224,6 +229,11 @@ class Vault:
         """
         if not self.available():
             return self._unavailable_message()
+        with _HABIT_WRITE_LOCK:
+            return self._upsert_habit_row_locked(date_str, values)
+
+    def _upsert_habit_row_locked(self, date_str, values):
+        """Body of upsert_habit_row; caller holds _HABIT_WRITE_LOCK."""
         month = date_str[:7]
         month_file = f"{HABITS_DIR}/{month}.md"
         path = self._resolve(month_file)

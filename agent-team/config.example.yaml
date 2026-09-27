@@ -32,6 +32,10 @@ vault_path: ""
 # "~/Library/Mobile Documents/iCloud~com~HealthExport~HealthAutoExport/Documents"
 health_export_dir: ""
 
+# How often (minutes) the bot imports finished days' health numbers into the
+# habit grid on its own, independent of the 9pm check-in. 0 disables it.
+health_import_every_minutes: 60
+
 # Apple Watch ring goals, used to auto-fill the Rings habit column from the
 # export. Needs the automation to also export Active Energy, Exercise Time,
 # and Stand Hours. Set move_kcal to YOUR Move goal (Fitness app shows it).

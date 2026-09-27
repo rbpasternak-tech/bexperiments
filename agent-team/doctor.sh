@@ -1,7 +1,8 @@
 #!/bin/bash
 # One-command diagnosis for the agent-team bot. Read-only: changes nothing.
 # Prints PASS/WARN/FAIL for code version, bot processes, launchd state,
-# config paths, a live health-export parse, the habit grid, and the log
+# config paths, a live health-export parse, the automatic import's last
+# run, the habit grid, and the log
 # tail. Run on the Mac:
 #   cd bexperiments/agent-team && ./doctor.sh
 set -uo pipefail
@@ -158,6 +159,30 @@ if not any_data:
     print("      ^ neither day parsed — the error text above says why "
           "(folder, permissions, iCloud download, or the automation "
           "hasn't exported yet)")
+
+# The bot's background importer records each run; stale or failing runs
+# mean the grid is not filling itself.
+from health_import import LEDGER_FILE
+from state import DEFAULT_STATE_DIR
+try:
+    last = json.loads((DEFAULT_STATE_DIR / LEDGER_FILE).read_text()).get("last_run")
+except (OSError, ValueError):
+    last = None
+if not last:
+    print("WARN: automatic health import has never run — restart the bot "
+          "with ./install-launchd.sh after pulling")
+else:
+    age_h = (datetime.datetime.now()
+             - datetime.datetime.fromisoformat(last["at"])).total_seconds() / 3600
+    every = cfg.get("health_import_every_minutes", 60) or 0
+    if every <= 0:
+        status = "INFO"
+    elif "COULD NOT READ" in last["summary"] or age_h > max(2 * every / 60, 3):
+        status = "WARN"
+    else:
+        status = "PASS"
+    print(f"{status}: automatic health import last ran {age_h:.1f}h ago: "
+          f"{last['summary']}")
 PYEOF
 
 echo

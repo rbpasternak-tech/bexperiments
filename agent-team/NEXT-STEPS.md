@@ -1,5 +1,15 @@
 # Agent Team — Next Steps
 
+Update 2026-09-27: the health import is now automatic. It used to run only
+inside the 9pm check-in, skipped any day still flagged 'partial' until it
+aged out of the 4-day window, and skipped days whose month file or row did
+not exist yet — so rows often stayed blank. `health_import.py` now runs on
+a background thread hourly (plus right before the check-in), writes partial
+days and upgrades them when the finished totals land, creates the month
+grid when needed, and never overwrites a hand-edited cell. Its last run
+shows in `doctor.sh`. After pulling, restart the bot:
+`./install-launchd.sh`.
+
 Update 2026-08-01 (night): found why scheduled check-ins saw a "blank"
 export while manual pushes worked — the iPhone automation writes into its
 own iCloud Drive folder ("New Automations"), not the folder

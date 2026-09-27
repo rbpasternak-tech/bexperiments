@@ -92,7 +92,12 @@ def run_persona_turn(anthropic_client, model, persona_key, personas_cfg, user_te
         for block in response.content:
             if block.type != "tool_use":
                 continue
-            result = handle_tool_call(block.name, block.input, ctx)
+            try:
+                result = handle_tool_call(block.name, block.input, ctx)
+            except Exception as exc:
+                # A malformed tool input (missing field, bad number, vault
+                # path escape) should cost one tool result, not the turn.
+                result = f"Error: {block.name} failed: {type(exc).__name__}: {exc}"
             print(
                 f"[tool] {persona_key} round {round_no}: {block.name} -> "
                 f"{str(result)[:200]}",
