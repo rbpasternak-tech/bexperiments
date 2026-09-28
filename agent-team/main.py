@@ -13,7 +13,7 @@ import argparse
 import sys
 import time
 import traceback
-from datetime import datetime
+from datetime import datetime, date
 from pathlib import Path
 
 import anthropic
@@ -24,6 +24,7 @@ from health_import import (
     import_recent_days,
     start_background_import,
 )
+from cowork_watch import cowork_warnings, format_alert
 from persona_agent import run_persona_turn
 from router import build_alias_map, pick_persona
 from schedules import Scheduler
@@ -231,6 +232,18 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
         # more right before the check-in so the persona sees a fresh grid,
         # and surface a read failure here (at most once a night) rather
         # than from the hourly thread.
+        # Daily notes are made by a Cowork task that stops when the Mac
+        # sleeps. Make sure yesterday's and today's exist before any duty
+        # that reads or writes them, and say so when Cowork missed a run.
+        if key in ("morning_triage", "evening_capture", "habit_checkin"):
+            created = ctx["vault"].ensure_daily_notes(date.today())
+            if created:
+                print(f"[{key}] created daily notes: {', '.join(created)}", flush=True)
+            if key == "morning_triage":
+                alert = format_alert(cowork_warnings(ctx["vault"], date.today(), created))
+                if alert:
+                    print(f"[{key}] {alert}", flush=True)
+                    telegram.send_message(chat_id, alert)
         if key == "habit_checkin":
             result = import_recent_days(ctx)
             print(f"[habit_checkin] health import: {result['summary']}", flush=True)

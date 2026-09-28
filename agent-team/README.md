@@ -94,3 +94,15 @@ in the voice of whichever persona set them.
 - `personas.yaml` — the cast: voices, roles, aliases (edit to recast the show)
 - `state.py` — JSON persistence in `~/Library/Application Support/agent-team/` (outside the repo and iCloud)
 - `telegram_api.py` — minimal Telegram Bot API wrapper (no SDK)
+
+## Daily notes and the Cowork watchdog
+
+Daily notes are normally created by the Cowork `daily-note-create` task,
+which silently skips its slot when the Mac is asleep or the Claude app is
+closed. Before the morning triage, evening capture, and habit check-in, the
+bot creates any missing `Daily/YYYY-MM-DD.md` for the last 14 days from
+`Templates/Daily.md` (never overwriting an existing note). At the morning
+triage it also posts one Telegram alert when a Cowork task missed a run: a
+daily note had to be backfilled, the Gmail inbox sweep is more than a day
+old, or (on Mondays) Sunday's weekly review is missing. See
+`cowork_watch.py`.

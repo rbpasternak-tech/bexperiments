@@ -12,10 +12,14 @@ import calendar
 import os
 import re
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 READING_QUEUE = "Reading/queue.md"
+DAILY_DIR = "Daily"
+DAILY_TEMPLATE = "Templates/Daily.md"
+_DAILY_NOTE_RE = re.compile(r"^Daily/(\d{4}-\d{2}-\d{2})\.md$")
+_TEMPLATE_DATE_RE = re.compile(r"\{\{date(?::[^}]*)?\}\}")
 TASKS_MASTER = "Tasks/Master.md"
 HABITS_DIR = "Tracking/Habits"
 
@@ -134,6 +138,11 @@ class Vault:
         if not relative.endswith(".md"):
             return "Can only append to .md notes."
         path = self._resolve(relative)
+        daily = _DAILY_NOTE_RE.match(relative)
+        if not path.is_file() and daily:
+            # A daily note gets the full template, not a one-section stub:
+            # a stub would also block the template from ever being applied.
+            self.create_daily_note(daily.group(1))
         if not path.is_file():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(f"## {section}\n{line}\n")
@@ -160,6 +169,48 @@ class Vault:
             lines.append(f"\n## {section}\n{line}\n")
         path.write_text("".join(lines))
         return f"Appended to '{section}' in {relative}."
+
+    # --- Daily notes ---
+
+    def create_daily_note(self, date_str):
+        """Create Daily/<date>.md from Templates/Daily.md if it is missing.
+
+        Never overwrites an existing note. Returns True only when a note was
+        created; False when it already existed, the vault is unavailable, or
+        the template is missing (nothing is written without the template).
+        """
+        if not self.available():
+            return False
+        path = self._resolve(f"{DAILY_DIR}/{date_str}.md")
+        if path.exists():
+            return False
+        template = self._resolve(DAILY_TEMPLATE)
+        if not template.is_file():
+            return False
+        body = _TEMPLATE_DATE_RE.sub(date_str, template.read_text())
+        path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            # "x" mode: if another writer (Cowork, a phone sync) created the
+            # note a moment ago, leave theirs alone.
+            with open(path, "x") as handle:
+                handle.write(body)
+        except FileExistsError:
+            return False
+        return True
+
+    def ensure_daily_notes(self, today, lookback_days=14):
+        """Create any missing daily notes from today-lookback through today.
+
+        Mirrors the Cowork daily-note-create task (template-based, never
+        overwrites) so notes exist even when that task does not run.
+        `today` is a date. Returns the list of date strings created.
+        """
+        created = []
+        for offset in range(lookback_days, -1, -1):
+            date_str = (today - timedelta(days=offset)).isoformat()
+            if self.create_daily_note(date_str):
+                created.append(date_str)
+        return created
 
     # --- Reading queue ---
 
@@ -305,7 +356,10 @@ class Vault:
         )
         title = f"# {month}"
         if prev_lines and prev_lines[0].startswith("#"):
-            title = prev_lines[0].replace(prev.stem, month)
+            # Retitle both spellings: "2026-08" and "August 2026".
+            prev_name = datetime.strptime(prev.stem, "%Y-%m").strftime("%B %Y")
+            new_name = datetime.strptime(month, "%Y-%m").strftime("%B %Y")
+            title = prev_lines[0].replace(prev.stem, month).replace(prev_name, new_name)
         path = self._resolve(f"{HABITS_DIR}/{month}.md")
         path.write_text(f"{title}\n\n{header}\n{separator}\n{rows}")
         return True
