@@ -128,7 +128,7 @@ def extract_trends(newsletters, rss_articles, date_start, date_end, model, outpu
         print("  No content to extract trends from.")
         return
 
-    client = anthropic.Anthropic()
+    client = anthropic.Anthropic(timeout=600.0, max_retries=5)
     prompt = "Extract structured data:\n\n" + "\n".join(content_parts)
 
     # Retry up to 3 times on transient API errors

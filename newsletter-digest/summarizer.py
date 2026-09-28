@@ -85,7 +85,7 @@ def summarize(newsletters, rss_articles, model, max_tokens=4096):
     if len(user_message) > 80000:
         user_message = user_message[:80000] + "\n\n[Content truncated due to length]"
 
-    client = anthropic.Anthropic()
+    client = anthropic.Anthropic(timeout=600.0, max_retries=5)
     response = client.messages.create(
         model=model,
         max_tokens=max_tokens,

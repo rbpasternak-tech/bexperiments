@@ -25,6 +25,7 @@ import time
 from datetime import date, datetime, timedelta
 
 from agent_tools import habit_cell_values
+import mfp_source
 from health_export import read_health_metrics, rings_closed
 
 HEALTH_COLUMNS = ("Steps", "Calories", "Weight", "Rings")
@@ -85,6 +86,8 @@ def _import_locked(ctx, lookback_days, today):
                 days[date_str] = outcome["entry"]
             if outcome.get("written"):
                 recorded.append(date_str + (" (partial)" if outcome.get("partial") else ""))
+
+        recorded.extend(_backfill_calories_from_mfp(ctx, days, today, lookback_days))
 
     cutoff = (today - timedelta(days=LEDGER_KEEP_DAYS)).isoformat()
     for old in [d for d in days if d < cutoff]:
@@ -152,6 +155,42 @@ def _import_day(ctx, date_str, entry):
         return {"error": f"{date_str}: {message}"}
     new_entry["cells"].update(values)
     return {"written": True, "partial": partial, "entry": new_entry}
+
+
+def _backfill_calories_from_mfp(ctx, days, today, lookback_days):
+    """Fill still-empty Calories cells from MyFitnessPal (best-effort).
+
+    MyFitnessPal is the calorie source of truth; the Apple Health export often
+    lags or drops calories. Only finished days (ledger says final) whose
+    Calories cell is blank are asked for, so hand-entered values are never
+    touched. Does nothing unless mfp_source is configured, and never raises.
+    Returns the list of "date (calories via MyFitnessPal)" strings written.
+    """
+    if not mfp_source.is_configured():
+        return []
+    vault = ctx["vault"]
+    gaps = []
+    for offset in range(1, lookback_days + 1):
+        date_str = (today - timedelta(days=offset)).isoformat()
+        entry = days.get(date_str) or {}
+        cells = vault.habit_row_cells(date_str)
+        if cells is None or not entry.get("final"):
+            continue
+        if not cells.get("Calories"):
+            gaps.append(date_str)
+    written = []
+    try:
+        fetched = mfp_source.fetch_calories(gaps) if gaps else {}
+    except Exception as exc:  # strictly best-effort
+        print(f"[health_import] MyFitnessPal backfill failed: {exc}", flush=True)
+        return []
+    for date_str, calories in fetched.items():
+        values = habit_cell_values({"calories": calories})
+        message = vault.upsert_habit_row(date_str, values)
+        if message.startswith("Updated"):
+            days[date_str].setdefault("cells", {}).update(values)
+            written.append(f"{date_str} (calories via MyFitnessPal)")
+    return written
 
 
 def _shrinks(old_cell, new_cell):
