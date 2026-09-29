@@ -110,7 +110,8 @@ three days for weekly and monthly ones).
 | `vault_weekly_review` | sun 18:45 | `## Weekly review (auto-generated …)` in today's note |
 | `vault_monthly_archive` | day1 20:00 | `## Monthly archive proposal (…)` in today's note — proposal only |
 
-Each job's summary (or failure) is posted to Telegram. Writes are enforced
+Each job's summary (or failure) is posted to Telegram. Run one on demand by
+sending `/run sweep`, `/run review`, `/run archive`, or `/run notes`. Writes are enforced
 in code, append-only and idempotent (a re-run never duplicates a section).
 Override a slot or disable a job with `off` under `schedules:` in
 `config.yaml`. The inbox sweep reads Gmail read-only with a copy of the

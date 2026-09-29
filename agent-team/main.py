@@ -192,6 +192,9 @@ def handle_message(message, config, personas_cfg, alias_map, claude, ctx, telegr
             "allowed_chat_ids in agent-team/config.yaml and restart the bot.",
         )
         return
+    if text.lower().split()[0] == "/run":
+        run_job_command(text, config, claude, ctx, telegram, chat_id)
+        return
     if handle_command(text, chat_id, personas_cfg, state, telegram):
         return
     history = state.get_history(chat_id)
@@ -269,6 +272,32 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
             continue
         state.append_history(chat_id, persona["name"], reply)
         telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
+
+
+RUN_ALIASES = {
+    "sweep": "vault_inbox_sweep",
+    "review": "vault_weekly_review",
+    "archive": "vault_monthly_archive",
+    "notes": "vault_daily_notes",
+}
+
+
+def run_job_command(text, config, claude, ctx, telegram, chat_id):
+    """Handle '/run <sweep|review|archive|notes>': run a Second Brain job now.
+
+    Args:
+        text: The full command text.
+        config, claude, ctx, telegram, chat_id: As for run_vault_job.
+    """
+    parts = text.split()
+    key = RUN_ALIASES.get(parts[1].lower()) if len(parts) > 1 else None
+    if not key:
+        telegram.send_message(chat_id, "Usage: /run sweep | review | archive | notes")
+        return
+    telegram.send_message(chat_id, f"Running {parts[1].lower()} now…")
+    run_vault_job(key, config, claude, ctx, telegram, chat_id)
+    if key == "vault_daily_notes":
+        telegram.send_message(chat_id, "Daily notes checked.")
 
 
 def run_vault_job(key, config, claude, ctx, telegram, chat_id):

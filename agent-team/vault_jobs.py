@@ -20,7 +20,8 @@ from cowork_watch import last_gmail_sweep
 from gmail_reader import GmailReader, GmailUnavailable
 
 MAX_ROUNDS = 40
-MAX_TOKENS = 8000
+MAX_TOKENS = 16000
+MAX_CUTOFFS = 3
 _PROMPT_DIR = Path(__file__).resolve().parent / "vault_jobs"
 
 # Loaded once at import: the repo sits in iCloud, and a prompt file evicted
@@ -98,7 +99,8 @@ TOOLS = [
         "description": (
             "Add reading items to Reading/queue.md under a new Inbox "
             "subsection (newest first). Items whose URL is already in the "
-            "queue are skipped automatically. Call once per run."
+            "queue are skipped automatically. Send at most 20 items per call; "
+            "repeat the same heading to add more."
         ),
         "input_schema": {
             "type": "object",
@@ -162,11 +164,29 @@ def run_job(job_key, claude, model, ctx, today=None, gmail=None):
     )
     messages = [{"role": "user", "content": f"Run the {title} now."}]
     response = None
+    cutoffs = 0
     for round_no in range(1, MAX_ROUNDS + 1):
         response = claude.messages.create(
             model=model, max_tokens=MAX_TOKENS, system=system,
             tools=TOOLS, messages=messages,
         )
+        if response.stop_reason == "max_tokens":
+            # Cut off mid-reply (usually one huge tool call). Keep only what
+            # finished, and ask for smaller steps instead of ending silently.
+            cutoffs += 1
+            if cutoffs > MAX_CUTOFFS:
+                raise RuntimeError(f"{title}: output hit the token limit {cutoffs} times")
+            done = [b for b in response.content if b.type == "text"]
+            if done:
+                messages.append({"role": "assistant", "content": done})
+            else:
+                messages.append({"role": "assistant", "content": "(my reply was cut off)"})
+            messages.append({"role": "user", "content": (
+                "Your last reply hit the output limit and was discarded. Continue "
+                "in smaller steps: at most 20 items per add_queue_items call "
+                "(repeat the same heading), and keep section bodies concise."
+            )})
+            continue
         if response.stop_reason != "tool_use":
             break
         messages.append({"role": "assistant", "content": response.content})
@@ -184,7 +204,11 @@ def run_job(job_key, claude, model, ctx, today=None, gmail=None):
     text = "\n".join(b.text for b in (response.content if response else []) if b.type == "text").strip()
     if response is not None and response.stop_reason == "tool_use":
         text = (text + "\n" if text else "") + f"(stopped after {MAX_ROUNDS} tool rounds)"
-    return text or "(finished without a summary)"
+    if not text:
+        raise RuntimeError(
+            f"{title} ended without a summary (stop_reason={getattr(response, 'stop_reason', None)})"
+        )
+    return text
 
 
 def run_daily_notes(ctx, today=None):

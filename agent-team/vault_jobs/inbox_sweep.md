@@ -35,7 +35,7 @@ For each keeper:
 
 The recurring self-send of the AI Legal Technology Role Benchmark Google Sheet always carries the same URL; it will be skipped as a duplicate by design — mention it once in the flags.
 
-Write all keepers with ONE `add_queue_items` call (it skips URLs already in the queue and places the subsection newest-first). If Gmail is unavailable, say "Gmail sweep skipped — <reason>" and continue.
+Write the keepers with `add_queue_items`, at most 20 items per call, repeating the same heading for more (it skips URLs already in the queue and places the subsection newest-first). If Gmail is unavailable, say "Gmail sweep skipped — <reason>" and continue.
 
 ## Step 3 — Yesterday's note scan (only if it had content)
 
