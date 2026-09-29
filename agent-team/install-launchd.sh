@@ -32,8 +32,26 @@ if [ ! -x "$PYTHON" ]; then
     BASE_PY="$(command -v python3.13 || command -v python3)"
     "$BASE_PY" -m venv "$VENV_DIR"
     "$PYTHON" -m pip install --quiet --upgrade pip
-    if [ -f "$PROJECT_DIR/requirements.txt" ]; then
-        "$PYTHON" -m pip install --quiet -r "$PROJECT_DIR/requirements.txt"
+fi
+# Install/refresh requirements on every run so new dependencies land in an
+# existing venv too.
+brctl download "$PROJECT_DIR/requirements.txt" >/dev/null 2>&1 || true
+"$PYTHON" -m pip install --quiet -r "$PROJECT_DIR/requirements.txt"
+
+# The inbox sweep reads Gmail with the newsletter digest's OAuth token (it has
+# the gmail.readonly scope). Keep a copy outside iCloud so launchd can always
+# read it; the bot refreshes its own copy from then on.
+SUPPORT_DIR="$HOME/Library/Application Support/agent-team"
+GMAIL_TOKEN="$SUPPORT_DIR/gmail_token.json"
+DIGEST_TOKEN="$PROJECT_DIR/../newsletter-digest/token.json"
+mkdir -p "$SUPPORT_DIR"
+if [ ! -f "$GMAIL_TOKEN" ]; then
+    brctl download "$DIGEST_TOKEN" >/dev/null 2>&1 || true
+    if [ -f "$DIGEST_TOKEN" ]; then
+        install -m 600 "$DIGEST_TOKEN" "$GMAIL_TOKEN"
+        echo "Copied Gmail token for the inbox sweep to $GMAIL_TOKEN"
+    else
+        echo "WARNING: no newsletter-digest/token.json; the inbox sweep will report Gmail as unavailable." >&2
     fi
 fi
 

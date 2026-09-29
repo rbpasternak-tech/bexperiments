@@ -9,9 +9,12 @@ sections belong to the Cowork scheduled tasks and are never rewritten.
 """
 
 import calendar
+import errno
 import os
 import re
+import subprocess
 import threading
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -87,7 +90,7 @@ class Vault:
         path = self._resolve(f"{HABITS_DIR}/{date_str[:7]}.md")
         if not path.is_file():
             return None
-        lines = path.read_text().splitlines()
+        lines = _read_text(path).splitlines()
         columns = _find_table_columns(lines)
         if not columns:
             return None
@@ -107,7 +110,7 @@ class Vault:
         path = self._resolve(relative)
         if not path.is_file():
             return f"Note not found: {relative}"
-        text = path.read_text()
+        text = _read_text(path)
         if len(text) > max_chars:
             text = text[:max_chars] + "\n[... truncated ...]"
         return text
@@ -147,7 +150,7 @@ class Vault:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(f"## {section}\n{line}\n")
             return f"Created {relative} with section '{section}'."
-        lines = path.read_text().splitlines(keepends=True)
+        lines = _read_text(path).splitlines(keepends=True)
         target = section.strip().lower()
         section_idx = None
         for i, text_line in enumerate(lines):
@@ -187,7 +190,7 @@ class Vault:
         template = self._resolve(DAILY_TEMPLATE)
         if not template.is_file():
             return False
-        body = _TEMPLATE_DATE_RE.sub(date_str, template.read_text())
+        body = _TEMPLATE_DATE_RE.sub(date_str, _read_text(template))
         path.parent.mkdir(parents=True, exist_ok=True)
         try:
             # "x" mode: if another writer (Cowork, a phone sync) created the
@@ -212,7 +215,110 @@ class Vault:
                 created.append(date_str)
         return created
 
+    def list_files_with_age(self, subpath="", limit=400):
+        """Like list_files, plus days since each file was last modified."""
+        now = datetime.now().timestamp()
+        rows = []
+        for rel in self.list_files(subpath, limit=limit):
+            try:
+                age = (now - self._resolve(rel).stat().st_mtime) / 86400
+            except OSError:
+                age = None
+            rows.append((rel, None if age is None else int(age)))
+        return rows
+
+    def append_section(self, relative, heading, body):
+        """Append a new '## heading' block to the end of a note.
+
+        Append-only and idempotent: refuses when a heading with that exact
+        text is already in the note, so a re-run never duplicates a section.
+        A missing daily note is created from the template first.
+        """
+        if not self.available():
+            return self._unavailable_message()
+        if not relative.endswith(".md"):
+            return "Can only append to .md notes."
+        daily = _DAILY_NOTE_RE.match(relative)
+        if daily:
+            self.create_daily_note(daily.group(1))
+        path = self._resolve(relative)
+        heading = heading.strip().lstrip("#").strip()
+        text = _read_text(path) if path.is_file() else ""
+        if re.search(rf"^#+\s+{re.escape(heading)}\s*$", text, re.M):
+            return f"Section '{heading}' already exists in {relative}; nothing written."
+        block = f"## {heading}\n{body.strip()}\n"
+        text = text.rstrip("\n")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text((text + "\n\n" if text else "") + block)
+        return f"Added section '{heading}' to {relative}."
+
     # --- Reading queue ---
+
+    def queue_urls(self):
+        """Return the set of http(s) URLs already in Reading/queue.md."""
+        if not self.available():
+            return set()
+        path = self._resolve(READING_QUEUE)
+        if not path.is_file():
+            return set()
+        return {_clean_url(u) for u in _URL_RE.findall(_read_text(path))}
+
+    def add_queue_sweep(self, heading, items):
+        """Insert a sweep subsection into Reading/queue.md's Inbox section.
+
+        `heading` is the subsection title (e.g. 'Gmail sweep (2026-09-28)');
+        `items` are full '- [ ] ...' lines. The subsection goes ABOVE the
+        previous sweep (newest first). If a subsection with this heading
+        already exists, the items are added under it instead. Lines whose
+        URL is already in the queue are skipped. Returns a status message.
+        """
+        if not self.available():
+            return self._unavailable_message()
+        path = self._resolve(READING_QUEUE)
+        if not path.is_file():
+            return f"{READING_QUEUE} not found in vault."
+        existing = self.queue_urls()
+        fresh, dupes = [], 0
+        for item in items:
+            item = item.rstrip()
+            urls = [_clean_url(u) for u in _URL_RE.findall(item)]
+            if urls and all(u in existing for u in urls):
+                dupes += 1
+                continue
+            existing.update(urls)
+            fresh.append(item)
+        if not fresh:
+            return f"Nothing new to add ({dupes} already in the queue)."
+        lines = _read_text(path).splitlines()
+        title = "### " + heading.strip().lstrip("#").strip()
+        block = [title] + fresh
+        if title in lines:
+            at = lines.index(title) + 1
+            while at < len(lines) and lines[at].startswith("- "):
+                at += 1
+            lines[at:at] = fresh
+        else:
+            inbox = next(
+                (i for i, l in enumerate(lines) if re.match(r"^##\s+Inbox\b", l)), None
+            )
+            if inbox is None:
+                lines += ["", "## Inbox (raw drops)"] + block
+            else:
+                at = len(lines)
+                for i in range(inbox + 1, len(lines)):
+                    if lines[i].startswith("### ") or re.match(r"^#{1,2}\s", lines[i]):
+                        at = i
+                        break
+                if at == len(lines) or lines[at].startswith("## ") or lines[at].startswith("# "):
+                    # No earlier sweep: end of the Inbox section.
+                    while at > inbox + 1 and not lines[at - 1].strip():
+                        at -= 1
+                    lines[at:at] = [""] + block + [""]
+                else:
+                    lines[at:at] = block + [""]
+        path.write_text("\n".join(lines) + "\n")
+        return f"Added {len(fresh)} item(s) under '{title[4:]}' ({dupes} already in the queue)."
+
 
     def append_reading_item(self, url, title, source="telegram"):
         """Add a capture to the queue's Inbox section, deduped by URL."""
@@ -221,7 +327,7 @@ class Vault:
         path = self._resolve(READING_QUEUE)
         if not path.is_file():
             return f"{READING_QUEUE} not found in vault."
-        text = path.read_text()
+        text = _read_text(path)
         if url and url in text:
             return f"Already in queue: {url}"
         today = datetime.now().strftime("%Y-%m-%d")
@@ -246,7 +352,7 @@ class Vault:
             return []
         return [
             line.strip()[6:].strip()
-            for line in path.read_text().splitlines()
+            for line in _read_text(path).splitlines()
             if line.strip().startswith("- [ ]")
         ]
 
@@ -257,7 +363,7 @@ class Vault:
         path = self._resolve(TASKS_MASTER)
         if not path.is_file():
             return False
-        lines = path.read_text().splitlines(keepends=True)
+        lines = _read_text(path).splitlines(keepends=True)
         needle = task_text.strip().lower()
         for i, line in enumerate(lines):
             stripped = line.strip()
@@ -297,7 +403,7 @@ class Vault:
                     "format from."
                 )
             created_note = f" (created {month_file} for the new month)"
-        lines = path.read_text().splitlines(keepends=True)
+        lines = _read_text(path).splitlines(keepends=True)
         columns = _find_table_columns(lines)
         if not columns:
             return f"No habit table header found in {month_file}."
@@ -335,7 +441,7 @@ class Vault:
         if not earlier:
             return False
         prev = earlier[-1]
-        prev_lines = prev.read_text().splitlines()
+        prev_lines = _read_text(prev).splitlines()
         header = separator = None
         for i, line in enumerate(prev_lines):
             if line.strip().startswith("| Date"):
@@ -363,6 +469,35 @@ class Vault:
         path = self._resolve(f"{HABITS_DIR}/{month}.md")
         path.write_text(f"{title}\n\n{header}\n{separator}\n{rows}")
         return True
+
+
+def _read_text(path):
+    """Read a file, pulling it back from iCloud first if it was evicted.
+
+    The vault lives in iCloud Drive with "Optimize Mac Storage" on. A
+    launchd-run process cannot fault an evicted ("dataless") file back in;
+    the read fails with EDEADLK ("Resource deadlock avoided"). `brctl
+    download` can, so on that error ask for the file and retry briefly.
+    """
+    path = Path(path)
+    for attempt in range(20):
+        try:
+            return path.read_text()
+        except OSError as exc:
+            if exc.errno != errno.EDEADLK or attempt == 19:
+                raise
+            if attempt == 0:
+                subprocess.run(["brctl", "download", str(path)], capture_output=True)
+            time.sleep(1)
+    return path.read_text()
+
+
+_URL_RE = re.compile(r"https?://[^\s)>\]\"'`]+")
+
+
+def _clean_url(url):
+    """Trim trailing punctuation so 'x.com/a.' and 'x.com/a' match."""
+    return url.rstrip(".,;:!?*_")
 
 
 def _insert_in_section(text, heading_pattern, block):

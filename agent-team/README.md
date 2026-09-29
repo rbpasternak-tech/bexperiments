@@ -95,14 +95,32 @@ in the voice of whichever persona set them.
 - `state.py` — JSON persistence in `~/Library/Application Support/agent-team/` (outside the repo and iCloud)
 - `telegram_api.py` — minimal Telegram Bot API wrapper (no SDK)
 
-## Daily notes and the Cowork watchdog
+## Second Brain jobs (formerly Cowork scheduled tasks)
 
-Daily notes are normally created by the Cowork `daily-note-create` task,
-which silently skips its slot when the Mac is asleep or the Claude app is
-closed. Before the morning triage, evening capture, and habit check-in, the
-bot creates any missing `Daily/YYYY-MM-DD.md` for the last 14 days from
-`Templates/Daily.md` (never overwriting an existing note). At the morning
-triage it also posts one Telegram alert when a Cowork task missed a run: a
-daily note had to be backfilled, the Gmail inbox sweep is more than a day
-old, or (on Mondays) Sunday's weekly review is missing. See
-`cowork_watch.py`.
+The vault jobs that used to be Cowork scheduled tasks now run inside the bot
+(`vault_jobs.py`, instructions in `vault_jobs/`). Cowork tasks skip any slot
+the Mac sleeps through; the bot runs under launchd and its scheduler catches
+up missed slots as soon as the Mac wakes (same day for daily jobs, up to
+three days for weekly and monthly ones).
+
+| Job | Default slot | Writes |
+|---|---|---|
+| `vault_daily_notes` | 23:55 | Missing `Daily/` notes through tomorrow, from `Templates/Daily.md` |
+| `vault_inbox_sweep` | 06:45 (before the 07:00 triage) | New subsection in `Reading/queue.md` Inbox; `## Sweep flags` in today's note |
+| `vault_weekly_review` | sun 18:45 | `## Weekly review (auto-generated …)` in today's note |
+| `vault_monthly_archive` | day1 20:00 | `## Monthly archive proposal (…)` in today's note — proposal only |
+
+Each job's summary (or failure) is posted to Telegram. Writes are enforced
+in code, append-only and idempotent (a re-run never duplicates a section).
+Override a slot or disable a job with `off` under `schedules:` in
+`config.yaml`. The inbox sweep reads Gmail read-only with a copy of the
+newsletter digest's token, which `install-launchd.sh` places in
+`~/Library/Application Support/agent-team/gmail_token.json`.
+
+The duties that read or write daily notes also create any missing ones, and
+at the morning triage `cowork_watch.py` posts one alert if a daily note had
+to be backfilled, the Gmail sweep is more than a day old, or (Mondays)
+Sunday's weekly review is missing.
+
+Vault reads that hit an iCloud-evicted file (EDEADLK) ask `brctl` to
+download it and retry.

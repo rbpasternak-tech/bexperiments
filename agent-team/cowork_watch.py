@@ -1,11 +1,9 @@
-"""Watchdog for the Cowork scheduled tasks that feed the Second Brain.
+"""Watchdog for the scheduled jobs that feed the Second Brain.
 
-The Cowork tasks (nightly daily note, 8am inbox sweep, Sunday weekly review)
-run inside the Claude desktop app and silently stop when the Mac is asleep
-at their slot or the app is closed. Their failure output goes to a run log
-nobody reads, so gaps went unnoticed for days. The bot runs under launchd and
-catches up missed slots on wake, so it checks their footprints in the vault
-each morning and says so in Telegram when one is missing.
+The nightly daily note, the morning inbox sweep, and the Sunday weekly review
+used to be Cowork tasks that silently stopped when the Mac slept; they now run
+inside the bot (vault_jobs.py). Each morning this checks their footprints in
+the vault and says so in Telegram when one is missing, whatever wrote them.
 
 Read-only: this module never writes to the vault.
 """
@@ -43,7 +41,7 @@ def cowork_warnings(vault, today, backfilled):
     missed_notes = [d for d in backfilled if d < today.isoformat()]
     if missed_notes:
         warnings.append(
-            "Nightly daily-note task did not run — I created "
+            "Daily notes were missing — I created "
             + ", ".join(missed_notes) + " from the template."
         )
 
@@ -69,10 +67,10 @@ def format_alert(warnings):
     """One Telegram message, or None when everything ran."""
     if not warnings:
         return None
-    lines = ["⚠️ Cowork scheduled tasks missed runs:"]
+    lines = ["⚠️ Second Brain jobs missed runs:"]
     lines += [f"• {w}" for w in warnings]
     lines.append(
-        "Likely cause: the Mac was asleep or the Claude app was closed at "
-        "the scheduled time. Open Claude → Scheduled to re-run them."
+        "Missed slots run when the Mac wakes; details are in "
+        "~/Library/Logs/agent-team/bot.log."
     )
     return "\n".join(lines)

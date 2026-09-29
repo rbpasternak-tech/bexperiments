@@ -26,6 +26,7 @@ from health_import import (
 )
 from cowork_watch import cowork_warnings, format_alert
 from persona_agent import run_persona_turn
+import vault_jobs
 from router import build_alias_map, pick_persona
 from schedules import Scheduler
 from state import StateStore
@@ -223,6 +224,9 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
     chat_id = allowed[0]
     state = ctx["state"]
     for key in scheduler.due_schedules():
+        if key.startswith("vault_"):
+            run_vault_job(key, config, claude, ctx, telegram, chat_id)
+            continue
         persona_key, instruction = SCHEDULED_DUTIES.get(key, (None, None))
         if not persona_key or persona_key not in personas_cfg["personas"]:
             print(f"Warning: schedule {key!r} has no matching duty/persona.")
@@ -267,6 +271,27 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
         telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
 
 
+def run_vault_job(key, config, claude, ctx, telegram, chat_id):
+    """Run one Second Brain job; report its result (or failure) in Telegram."""
+    started = datetime.now()
+    try:
+        if key == "vault_daily_notes":
+            created = vault_jobs.run_daily_notes(ctx)
+            print(f"[{key}] created: {', '.join(created) or 'nothing'}", flush=True)
+            return  # silent: nothing for Rebecca to act on
+        title = vault_jobs.JOBS[key][0]
+        summary = vault_jobs.run_job(key, claude, config["model"], ctx)
+    except Exception as exc:
+        traceback.print_exc()
+        telegram.send_message(
+            chat_id, f"⚠️ Second Brain job {key} failed: {type(exc).__name__}: {exc}"
+        )
+        return
+    minutes = (datetime.now() - started).seconds // 60
+    print(f"[{key}] done in {minutes} min: {summary[:300]}", flush=True)
+    telegram.send_message(chat_id, f"🗂 {title}:\n{summary}")
+
+
 def deliver_due_reminders(personas_cfg, state, telegram):
     """Send any reminders whose due time has passed."""
     for reminder in state.pop_due_reminders():
@@ -305,12 +330,16 @@ def main():
     claude = anthropic.Anthropic(api_key=api_key)
     state = StateStore(history_limit=config.get("history_limit", 40))
     vault = Vault(config.get("vault_path"))
-    scheduler = Scheduler(state, config.get("schedules"))
+    # Second Brain jobs (ported from Cowork) are on by default; config.yaml
+    # `schedules` can move or disable ("off") them.
+    schedules = {**vault_jobs.DEFAULT_SCHEDULES, **(config.get("schedules") or {})}
+    scheduler = Scheduler(state, schedules)
     ctx = {
         "state": state,
         "vault": vault,
         "health_export_dir": config.get("health_export_dir"),
         "ring_goals": config.get("ring_goals"),
+        "gmail_token_path": config.get("gmail_token_path"),
     }
     start_background_import(
         ctx, config.get("health_import_every_minutes", DEFAULT_EVERY_MINUTES)
