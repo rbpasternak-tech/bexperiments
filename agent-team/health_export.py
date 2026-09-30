@@ -165,21 +165,54 @@ def _read_health_metrics_once(export_dir, date_str):
     if fallback:
         return fallback
 
-    # Everything missed. Enrich the "no data" error with AutoSync freshness
-    # so the operator knows whether the phone simply stopped pushing.
-    if sync_dir and configured.get("error", "").startswith(
+    # Everything missed. Enrich the "no data" error with the freshness of
+    # the configured JSON folder (AutoSync is no longer used) so the
+    # operator knows whether the phone actually stopped pushing.
+    if directory and configured.get("error", "").startswith(
         "No health export data found"
     ):
-        latest = _latest_core_sync_date(sync_dir)
-        if latest and latest < date_str:
-            configured["error"] += (
-                f" AutoSync's newest core-metric day is {latest} — the "
-                "Health Auto Export app on the phone has not pushed "
-                "steps/energy/rings since then, so nothing past that date "
-                "can be filled. Open the app on the phone and confirm "
-                "AutoSync is on and has run recently."
-            )
+        latest = _latest_json_export(directory)
+        if latest and latest[0] < date_str:
+            latest_day, landed = latest
+            landed_str = datetime.fromtimestamp(landed).strftime("%Y-%m-%d %H:%M")
+            if time.time() - landed > JSON_STALE_SECONDS:
+                configured["error"] += (
+                    f" The newest Health Auto Export JSON covers {latest_day}"
+                    f" and landed {landed_str} — the phone's automation has "
+                    "not pushed since then. Open Health Auto Export on the "
+                    "unlocked iPhone (or run the automation) to export."
+                )
+            else:
+                configured["error"] += (
+                    f" Exports are current (newest covers {latest_day}, "
+                    f"landed {landed_str}); this day's export has simply "
+                    "not arrived yet."
+                )
     return configured
+
+
+# The configured JSON folder counts as stale when its newest export landed
+# more than this long ago.
+JSON_STALE_SECONDS = 2 * 24 * 3600
+EXPORT_NAME_DATE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+
+def _latest_json_export(directory):
+    """Return (newest data date by filename, that file's mtime) for the
+    HealthAutoExport-YYYY-MM-DD.json files in directory, or None."""
+    newest = None
+    try:
+        files = list(directory.rglob("*.json"))
+    except OSError:
+        return None
+    for path in files:
+        match = EXPORT_NAME_DATE.search(path.name)
+        if not match:
+            continue
+        key = (match.group(1), _mtime(path))
+        if newest is None or key > newest:
+            newest = key
+    return newest
 
 
 def _combine_partial(primary, secondary):
@@ -667,4 +700,12 @@ def _metrics_from_file(path, date_str):
             found[key] = round(float(quantities[-1]), 1)
         else:
             found[key] = int(round(sum(quantities)))
+    if found and _mtime(path) < _day_end_epoch(date_str):
+        # Written before the day ended: a mid-day snapshot, so the importer
+        # keeps re-reading until a finished export replaces it.
+        found["partial"] = True
+        found["note"] = (
+            "export was written before this day ended; totals may be "
+            "incomplete"
+        )
     return found or None
