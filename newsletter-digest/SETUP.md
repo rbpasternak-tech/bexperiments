@@ -141,6 +141,15 @@ serves) without touching whatever you are working on in the checkout:
 
 ## Things that bit us
 
+- **iCloud still had `config.yaml` evicted at 08:01 on 2026-09-30.** The
+  runner gave up after 2 minutes, probably because the Mac had just woken
+  and iCloud was not back yet. The runner now keeps asking for missing files
+  for up to 15 minutes, and any failed run posts a macOS notification. The
+  durable fix is to stop iCloud evicting the repo: in Finder, right-click
+  the `bexperiments` folder and choose **Keep Downloaded**.
+- **A Claude API timeout killed the whole run (around 2026-09-25).** Fixed
+  on 2026-09-27: the Claude calls use a 10-minute timeout with 5 retries,
+  and a failed stage no longer stops the others.
 - **The job used to push to whatever branch was checked out.** The old
   `push_dashboard_data()` ran plain `git push`, so on a feature branch the
   data never reached `main` and Pages. Fixed on 2026-09-27: the publisher
