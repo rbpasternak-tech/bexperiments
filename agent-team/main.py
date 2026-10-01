@@ -31,12 +31,14 @@ import ai_radar
 import clip_ingest
 from clips import MEDIA_TMP_DIR, find_urls
 from cowork_watch import cowork_warnings, format_alert
+from gmail_reader import GmailReader
 from persona_agent import run_persona_turn
 import vault_jobs
 from router import build_alias_map, pick_persona
 from schedules import Scheduler
 from state import StateStore
 from telegram_api import TelegramClient, load_secret, load_token
+from work_desk import build_work_desk
 from vault import Vault
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -44,18 +46,32 @@ PROJECT_DIR = Path(__file__).resolve().parent
 SCHEDULED_DUTIES = {
     "morning_triage": (
         "jeeves",
-        "It is the scheduled morning triage; deliver it in three parts. "
+        "It is the scheduled morning triage — the user's one daily message; "
+        "deliver it in four parts. "
         "PART 1 — What's new since yesterday: read yesterday's and today's "
-        "daily notes, the dated subsections of Reading/queue.md, clip notes "
+        "daily notes, clip notes "
         "in Reading/clips/ whose filename starts with yesterday's or today's "
         "date (list_vault_files), any Inbox section of Tasks/Master.md, and "
         "yesterday's row in this month's habit file. Summarize the genuinely "
-        "new items in a few bullets (clips and reading captures by title, "
+        "new items in a few bullets (clips by title, "
         "new tasks, habit row filled or not); "
-        "skip the section entirely if nothing is new. "
-        "PART 2 — The agenda: call get_open_tasks and list_reminders and "
+        "skip the section entirely if nothing is new. Leave Gmail and the "
+        "reading-queue sweep to Part 2. "
+        "PART 2 — Work desk: exactly three short labelled lines, in this "
+        "order — Inbox, Littler intel, Legal tech news — built ONLY from the "
+        "WORK DESK FACTS block at the end of this instruction (do not search "
+        "Gmail, the web, or the digest yourself, and do not borrow items "
+        "from other notes or briefings). Inbox: what today's sweep added, "
+        "then at most three of ITS flags that need the user's judgment or "
+        "carry a date; if the facts say NONE TODAY, that one line is the "
+        "whole Inbox entry. Littler intel and Legal tech news: when the facts say "
+        "NEW, give at most three one-line highlights; when they say NONE "
+        "TODAY, STALE or UNAVAILABLE, say so in one line with the reason "
+        "and never repeat items from an older issue; always pass on a "
+        "LATE/MISSED note. "
+        "PART 3 — The agenda: call get_open_tasks and list_reminders and "
         "present a brief numbered agenda (flag long-stale tasks). "
-        "PART 3 — Close with one inviting question: anything new to "
+        "PART 4 — Close with one inviting question: anything new to "
         "capture — tasks, ideas, things to do, see, watch, or try? When "
         "the user answers, file every item (tasks to Tasks/Master.md, "
         "to-try items to the To Try lists, ideas to today's daily note, "
@@ -375,6 +391,8 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
             print(f"[habit_checkin] health import: {result['summary']}", flush=True)
             if result["error"]:
                 telegram.send_message(chat_id, f"⚠️ Health import: {result['summary']}")
+        if key == "morning_triage":
+            instruction = triage_instruction(ctx)
         try:
             reply = run_persona_turn(
                 claude, config["model"], persona_key, personas_cfg, instruction,
@@ -391,6 +409,35 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
             continue
         state.append_history(chat_id, persona["name"], reply)
         telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
+
+
+def triage_instruction(ctx, now=None):
+    """Morning-triage instruction plus the freshly computed work-desk facts
+    (inbox sweep, Littler intel, legal tech news; see work_desk.py)."""
+    gmail = GmailReader(ctx.get("gmail_token_path"))
+    facts = build_work_desk(ctx["vault"], gmail, now)
+    print(f"[morning_triage] {facts[:300]!r}", flush=True)
+    return SCHEDULED_DUTIES["morning_triage"][1] + "\n\n" + facts
+
+
+def preview_triage(config, personas_cfg, claude, ctx):
+    """Render today's morning triage to stdout without side effects: no
+    Telegram send, no history append, no daily-note creation, and the
+    persona's write tools are stubbed (ctx dry_run)."""
+    allowed = config.get("allowed_chat_ids") or [0]
+    ctx = dict(ctx, chat_id=allowed[0], dry_run=True)
+    alert = format_alert(cowork_warnings(ctx["vault"], date.today(), []))
+    persona = personas_cfg["personas"]["jeeves"]
+    instruction = triage_instruction(ctx)
+    print("=" * 20, "WORK DESK FACTS", "=" * 20)
+    print(instruction.rsplit("WORK DESK FACTS (computed by the bot just now):", 1)[1].strip())
+    reply = run_persona_turn(
+        claude, config["model"], "jeeves", personas_cfg, instruction, ctx
+    )
+    print("=" * 20, "PREVIEW (not sent)", "=" * 20)
+    if alert:
+        print(alert + "\n")
+    print(f"{persona['emoji']} {persona['name']}:\n{reply}")
 
 
 RUN_ALIASES = {
@@ -467,11 +514,15 @@ def main():
         "--once", action="store_true",
         help="poll a single batch of updates and exit (for testing)",
     )
+    parser.add_argument(
+        "--preview-triage", action="store_true",
+        help="print today's morning triage without sending or writing anything",
+    )
     args = parser.parse_args()
 
     config, personas_cfg = load_config()
     alias_map = build_alias_map(personas_cfg)
-    telegram = TelegramClient(load_token(config))
+    telegram = None if args.preview_triage else TelegramClient(load_token(config))
     api_key = load_secret("ANTHROPIC_API_KEY", config, "anthropic_api_key")
     if not api_key:
         raise SystemExit(
@@ -495,6 +546,9 @@ def main():
         "gmail_token_path": config.get("gmail_token_path"),
         "clip_settings": config.get("clips") or {},
     }
+    if args.preview_triage:
+        preview_triage(config, personas_cfg, claude, ctx)
+        return
     start_background_import(
         ctx, config.get("health_import_every_minutes", DEFAULT_EVERY_MINUTES)
     )

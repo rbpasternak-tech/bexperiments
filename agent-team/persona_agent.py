@@ -9,6 +9,12 @@ from datetime import datetime
 
 from agent_tools import TOOL_DEFINITIONS, handle_tool_call
 
+# Tools that change state; stubbed when ctx["dry_run"] (main.py --preview-triage).
+WRITE_TOOLS = {
+    "set_reminder", "cancel_reminder", "capture_reading", "complete_task",
+    "append_to_note", "record_habits",
+}
+
 MAX_TOOL_ROUNDS = 8
 MAX_TOKENS = 4096
 # A forced text-only wrap-up gets a wider budget than a normal turn: it must
@@ -103,7 +109,10 @@ def run_persona_turn(anthropic_client, model, persona_key, personas_cfg, user_te
             if block.type != "tool_use":
                 continue
             try:
-                result = handle_tool_call(block.name, block.input, ctx)
+                if ctx.get("dry_run") and block.name in WRITE_TOOLS:
+                    result = f"(dry run: {block.name} not executed)"
+                else:
+                    result = handle_tool_call(block.name, block.input, ctx)
             except Exception as exc:
                 # A malformed tool input (missing field, bad number, vault
                 # path escape) should cost one tool result, not the turn.
