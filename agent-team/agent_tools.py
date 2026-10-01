@@ -275,13 +275,25 @@ def habit_cell_values(tool_input):
     return values
 
 
-def _record_habits(tool_input, vault):
-    """Translate record_habits input into habit-grid cells and write them."""
+def _record_habits(tool_input, vault, state=None, persona_key=None):
+    """Translate record_habits input into habit-grid cells and write them.
+
+    Health numbers (Steps/Calories/Weight) written here are tagged in the
+    health importer's ledger as bot-written by persona_key, so a finished
+    export can later upgrade them; a later hand edit still wins.
+    """
     date_str = tool_input.get("date") or datetime.now().strftime("%Y-%m-%d")
     values = habit_cell_values(tool_input)
     if not values:
         return "Nothing to record — no fields provided."
-    return vault.upsert_habit_row(date_str, values)
+    message = vault.upsert_habit_row(date_str, values)
+    if state is not None and message.startswith("Updated"):
+        try:
+            import health_import  # lazy: health_import imports this module
+            health_import.note_bot_write(state, date_str, values, persona_key or "bot")
+        except Exception as exc:  # provenance is best-effort; the write stands
+            print(f"[record_habits] provenance note failed: {exc}", flush=True)
+    return message
 
 
 def handle_tool_call(name, tool_input, ctx):
@@ -351,5 +363,5 @@ def handle_tool_call(name, tool_input, ctx):
                 result["rings"] = rings
         return json.dumps(result, ensure_ascii=False)
     if name == "record_habits":
-        return _record_habits(tool_input, vault)
+        return _record_habits(tool_input, vault, state, persona_key)
     return f"Unknown tool: {name}"

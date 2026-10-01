@@ -2,19 +2,25 @@
 
 Runs on its own background thread (every `health_import_every_minutes`,
 default 60) and once more right before Bartleby's nightly check-in, so the
-grid fills itself as soon as the phone's AutoSync push lands — no Telegram
-conversation required.
+grid fills itself as soon as the phone's Health Auto Export JSON lands — no
+Telegram conversation required.
 
 Rules, per recent past day (today is never written; its totals are still
 growing):
 
-  * A cell is only written when it is empty, or still holds exactly the
-    value this importer wrote last time. Anything typed or corrected by
-    hand is left alone.
-  * A 'partial' read (the phone had not pushed the finished day yet) is
-    written anyway, so a day never stays blank just because the final push
-    was late, and it is upgraded on a later run once the finished totals
-    arrive. A final read marks the day done and it is not read again.
+  * Provenance is kept per health cell in the ledger: "cells" holds the last
+    value any bot wrote (this importer, or a persona via record_habits) and
+    "sources" says who wrote it ("import", "bartleby", "jeeves", ... or
+    "user"). A filled cell whose value differs from the last bot-written
+    value was typed by hand: it is marked "user" and never overwritten.
+  * Bot-written cells (import or persona) are upgraded when a finished
+    (non-partial) export for that day arrives. A 'partial' read (written
+    before the day ended) still fills blanks and may raise a bot-written
+    count, but never lowers one.
+  * The FINAL_AFTER_DAYS most recent days (the check-in's window) are
+    re-read on every run and never frozen. Older days in the lookback are
+    marked final once a finished export has been read (or every health cell
+    is hand-typed), and are not read again.
 
 What was written is kept in a small ledger (health-import.json in the
 bot's state dir) alongside the last run's status, which doctor.sh prints.
@@ -29,7 +35,15 @@ import mfp_source
 from health_export import read_health_metrics, rings_closed
 
 HEALTH_COLUMNS = ("Steps", "Calories", "Weight", "Rings")
+# Health numbers a persona's record_habits write is tagged as bot-written
+# for. Rings is left out: a rings answer via the check-in is usually the
+# user correcting the export's call, and their word beats the export.
+BOT_TAGGED_COLUMNS = ("Steps", "Calories", "Weight")
 LOOKBACK_DAYS = 7
+# Days 1..FINAL_AFTER_DAYS before today are never marked final, so late or
+# re-run phone exports keep upgrading them (matches the 9pm check-in's
+# three-day window).
+FINAL_AFTER_DAYS = 3
 LEDGER_KEEP_DAYS = 45
 DEFAULT_EVERY_MINUTES = 60
 LEDGER_FILE = "health-import.json"
@@ -38,8 +52,8 @@ LEDGER_FILE = "health-import.json"
 # dead day for the whole lookback window.
 MAX_MISSES = 48
 
-# Serializes the background thread and the check-in's synchronous run so
-# two imports never interleave their ledger read-modify-write.
+# Serializes the background thread, the check-in's synchronous run and
+# persona provenance notes so ledger read-modify-writes never interleave.
 _IMPORT_LOCK = threading.Lock()
 
 
@@ -54,6 +68,29 @@ def import_recent_days(ctx, lookback_days=LOOKBACK_DAYS, today=None):
     """
     with _IMPORT_LOCK:
         return _import_locked(ctx, lookback_days, today or date.today())
+
+
+def note_bot_write(state, date_str, values, source):
+    """Record that a persona (source, e.g. "bartleby") wrote health cells.
+
+    Called after a successful record_habits write so the importer knows
+    those Steps/Calories/Weight values are bot-written and may upgrade them
+    from a finished export. Clears "final" so the day is looked at again
+    while it is still inside the lookback window.
+    """
+    health = {c: v for c, v in values.items() if c in BOT_TAGGED_COLUMNS and v}
+    if not health:
+        return
+    with _IMPORT_LOCK:
+        ledger_path = state.state_dir / LEDGER_FILE
+        ledger = state._read_json(ledger_path, {})
+        entry = ledger.setdefault("days", {}).setdefault(
+            date_str, {"cells": {}, "final": False}
+        )
+        entry.setdefault("cells", {}).update(health)
+        entry.setdefault("sources", {}).update({c: source for c in health})
+        entry["final"] = False
+        state._write_json(ledger_path, ledger)
 
 
 def _import_locked(ctx, lookback_days, today):
@@ -71,7 +108,7 @@ def _import_locked(ctx, lookback_days, today):
         for offset in range(1, lookback_days + 1):
             date_str = (today - timedelta(days=offset)).isoformat()
             entry = days.get(date_str)
-            outcome = _import_day(ctx, date_str, entry)
+            outcome = _import_day(ctx, date_str, entry, offset)
             if outcome.get("error"):
                 notes.append(outcome["error"])
                 # Alert-worthy only for yesterday: older gaps were already
@@ -111,28 +148,50 @@ def _import_locked(ctx, lookback_days, today):
     return {"recorded": recorded, "error": error, "summary": summary}
 
 
-def _import_day(ctx, date_str, entry):
-    """Import one day. Returns {written, partial, entry, error} (all optional)."""
+def _import_day(ctx, date_str, entry, offset):
+    """Import one day. Returns {written, partial, entry, error} (all optional).
+
+    offset is how many days before today date_str is; only days past
+    FINAL_AFTER_DAYS can be marked final.
+    """
     if entry and entry.get("final"):
         return {}  # finished totals already in the grid
     if entry and not entry.get("cells") and entry.get("misses", 0) >= MAX_MISSES:
         return {}  # no data ever arrived for this day; stop asking
     vault = ctx["vault"]
-    owned = (entry or {}).get("cells", {})
+    entry = entry or {}
+    owned = dict(entry.get("cells", {}))      # last bot-written value per column
+    sources = dict(entry.get("sources", {}))  # who wrote each health cell
     current = vault.habit_row_cells(date_str) or {}  # None: row/month not created yet
+    may_finalize = offset > FINAL_AFTER_DAYS
+
+    # A filled cell that no longer matches what a bot last wrote was typed
+    # (or corrected) by hand: it belongs to the user from now on.
+    for column in HEALTH_COLUMNS:
+        cell = current.get(column, "")
+        if cell and cell != owned.get(column):
+            owned.pop(column, None)
+            sources[column] = "user"
 
     def writable(column):
-        """True when a cell is blank or still holds our own earlier value."""
-        cell = current.get(column, "")
-        return not cell or cell == owned.get(column)
+        """True when a cell is blank or still holds a bot-written value."""
+        return not current.get(column, "") or column in owned
+
+    def make_entry(final, finished=False):
+        """Ledger entry carrying the (possibly updated) provenance."""
+        new = {"cells": owned, "sources": sources, "final": final}
+        if finished or entry.get("finished"):
+            new["finished"] = True
+        return new
 
     if not any(writable(c) for c in HEALTH_COLUMNS):
-        return {}  # every health cell was filled by hand
+        # Every health cell was filled by hand; nothing to read.
+        return {"entry": make_entry(final=may_finalize)}
     metrics = read_health_metrics(ctx.get("health_export_dir"), date_str)
     if "error" in metrics:
         return {"error": f"{date_str}: {metrics['error']}"}
     if metrics.get("steps") is None:
-        return {}
+        return {"entry": make_entry(final=False)}
     partial = bool(metrics.get("partial"))
     fields = {"steps": metrics["steps"]}
     for key in ("calories", "weight"):
@@ -147,13 +206,20 @@ def _import_day(ctx, date_str, entry):
         if writable(column) and current.get(column, "") != cell
         and not (partial and _shrinks(current.get(column, ""), cell))
     }
-    new_entry = {"cells": dict(owned), "final": not partial}
+    # A finished read only freezes a day once it has left the check-in
+    # window; inside it the day keeps being re-read every run.
+    new_entry = make_entry(final=(not partial) and may_finalize, finished=not partial)
+    # Cells already holding the export's value count as import-written.
+    for column, cell in habit_cell_values(fields).items():
+        if column in owned and current.get(column, "") == cell and not partial:
+            sources[column] = sources.get(column) or "import"
     if not values:
-        return {"entry": new_entry}  # nothing changed; maybe now final
+        return {"entry": new_entry}  # nothing changed
     message = vault.upsert_habit_row(date_str, values)
     if not message.startswith("Updated"):
         return {"error": f"{date_str}: {message}"}
-    new_entry["cells"].update(values)
+    owned.update(values)
+    sources.update({column: "import" for column in values})
     return {"written": True, "partial": partial, "entry": new_entry}
 
 
@@ -161,10 +227,11 @@ def _backfill_calories_from_mfp(ctx, days, today, lookback_days):
     """Fill still-empty Calories cells from MyFitnessPal (best-effort).
 
     MyFitnessPal is the calorie source of truth; the Apple Health export often
-    lags or drops calories. Only finished days (ledger says final) whose
-    Calories cell is blank are asked for, so hand-entered values are never
-    touched. Does nothing unless mfp_source is configured, and never raises.
-    Returns the list of "date (calories via MyFitnessPal)" strings written.
+    lags or drops calories. Only days a finished export has been read for
+    whose Calories cell is blank are asked for, so hand-entered values are
+    never touched. Does nothing unless mfp_source is configured, and never
+    raises. Returns the list of "date (calories via MyFitnessPal)" strings
+    written.
     """
     if not mfp_source.is_configured():
         return []
@@ -174,7 +241,7 @@ def _backfill_calories_from_mfp(ctx, days, today, lookback_days):
         date_str = (today - timedelta(days=offset)).isoformat()
         entry = days.get(date_str) or {}
         cells = vault.habit_row_cells(date_str)
-        if cells is None or not entry.get("final"):
+        if cells is None or not (entry.get("final") or entry.get("finished")):
             continue
         if not cells.get("Calories"):
             gaps.append(date_str)
@@ -188,7 +255,9 @@ def _backfill_calories_from_mfp(ctx, days, today, lookback_days):
         values = habit_cell_values({"calories": calories})
         message = vault.upsert_habit_row(date_str, values)
         if message.startswith("Updated"):
-            days[date_str].setdefault("cells", {}).update(values)
+            day = days.setdefault(date_str, {"cells": {}, "final": False})
+            day.setdefault("cells", {}).update(values)
+            day.setdefault("sources", {})["Calories"] = "mfp"
             written.append(f"{date_str} (calories via MyFitnessPal)")
     return written
 
