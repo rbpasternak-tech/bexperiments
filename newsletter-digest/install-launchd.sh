@@ -118,7 +118,11 @@ for _ in \$(seq 1 90); do
 done
 for f in "\${required[@]}"; do
     if ! is_ready "\$f"; then
-        echo "ERROR: \$f is still not available locally (iCloud) after 15 minutes. Giving up."
+        echo "ERROR: \$f is still not readable after 15 minutes. Giving up."
+        echo "  ls -lO: \$(ls -lO "\$f" 2>&1)"
+        echo "  read:   \$(head -c 1 "\$f" 2>&1 >/dev/null || true)"
+        echo "  ('dataless' above = iCloud evicted it; 'Operation not permitted' = macOS"
+        echo "   privacy is blocking background access to ~/Documents.)"
         notify_failure "iCloud had not downloaded \$(basename "\$f")."
         exit 1
     fi
