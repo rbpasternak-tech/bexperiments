@@ -40,6 +40,7 @@ from schedules import Scheduler
 from state import StateStore
 from telegram_api import TelegramClient, load_secret, load_token
 from work_desk import build_work_desk
+import brief_watch
 from vault import Vault
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -47,38 +48,43 @@ PROJECT_DIR = Path(__file__).resolve().parent
 SCHEDULED_DUTIES = {
     "morning_triage": (
         "jeeves",
-        "It is the scheduled morning triage — the user's one daily message; "
-        "deliver it in four parts. "
-        "PART 1 — What's new since yesterday: read yesterday's and today's "
-        "daily notes, clip notes "
-        "in Reading/clips/ whose filename starts with yesterday's or today's "
-        "date (list_vault_files), any Inbox section of Tasks/Master.md, and "
-        "yesterday's row in this month's habit file. Summarize the genuinely "
-        "new items in a few bullets (clips by title, "
-        "new tasks, habit row filled or not); "
-        "skip the section entirely if nothing is new. Leave Gmail and the "
-        "reading-queue sweep to Part 2. "
-        "PART 2 — Work desk: exactly three short labelled lines, in this "
-        "order — Inbox, Littler intel, Legal tech news — built ONLY from the "
-        "WORK DESK FACTS block at the end of this instruction (do not search "
-        "Gmail, the web, or the digest yourself, and do not borrow items "
-        "from other notes or briefings). Inbox: what today's sweep added, "
-        "then at most three of ITS flags that need the user's judgment or "
-        "carry a date; if the facts say NONE TODAY, that one line is the "
-        "whole Inbox entry. Littler intel and Legal tech news: when the facts say "
-        "NEW, give at most three one-line highlights; when they say NONE "
-        "TODAY, STALE or UNAVAILABLE, say so in one line with the reason "
-        "and never repeat items from an older issue; always pass on a "
-        "LATE/MISSED note. "
-        "PART 3 — The agenda: call get_open_tasks and list_reminders and "
-        "present a brief numbered agenda (flag long-stale tasks). "
-        "PART 4 — Close with one inviting question: anything new to "
-        "capture — tasks, ideas, things to do, see, watch, or try? When "
-        "the user answers, file every item (tasks to Tasks/Master.md, "
-        "to-try items to the To Try lists, ideas to today's daily note, "
-        "links via capture_reading) — EXCEPT new projects: never create a "
-        "project yourself; confirm its name and intended home first. The "
-        "user can also reply 'done <n>' or snooze/cancel items.",
+        "It is the scheduled morning triage — the user's one daily message. "
+        "Make it a TIGHT brief: plain text, a one-line greeting, then these "
+        "labelled entries in exactly this order, one or two lines each "
+        "(Today may run to six short lines). No other sections, no daily-note "
+        "headings, no commentary between entries. "
+        "'Inbox:' — from the WORK DESK FACTS only: what today's sweep added "
+        "and at most two of ITS flags that need judgment or carry a date; if "
+        "the facts say NONE TODAY, that one line is the entry. "
+        "'Overnight:' — only what actually landed since yesterday's triage: "
+        "clip notes in Reading/clips/ whose filename starts with yesterday's "
+        "or today's date (list_vault_files), things the user filed or the "
+        "team captured in the chat transcript since yesterday morning, new "
+        "lines in the Inbox section of Tasks/Master.md, and any job failure "
+        "visible in the transcript. Never mention empty daily notes or empty "
+        "templates. Nothing landed: 'Quiet night.' "
+        "'Habits (<yesterday as M/D>):' — yesterday's row in "
+        "Tracking/Habits/<YYYY-MM>.md in one line: steps, rings, weight, and "
+        "which manual habits are done or missing; 'not filled yet' if empty. "
+        "'Littler intel:' then 'Legal tech:' — from the WORK DESK FACTS only. "
+        "NEW: at most two one-line highlights. NONE TODAY, STALE or "
+        "UNAVAILABLE: one line with the reason, never repeating items from an "
+        "older issue. Always pass on a LATE/MISSED note. "
+        "'Today:' — call list_reminders and get_open_tasks. Reminders due "
+        "today or tomorrow, any deadline in the next two days from the facts "
+        "or tasks, then a numbered list of the 3 to 5 tasks that matter most "
+        "today (dated, overdue or long-stale first), ending '(+N more on the "
+        "board)'. Never list every task. "
+        "'Tech experiments:' and 'Projects:' — from the WATCH FACTS only; "
+        "omit the entry entirely when they say NOTHING NEW. "
+        "Close with one short line: 'Anything to capture?'. "
+        "Do not search Gmail, the web or the digest yourself. When the user "
+        "answers, file every item (tasks to Tasks/Master.md, to-try items to "
+        "the To Try lists, ideas to today's daily note, links via "
+        "capture_reading) — EXCEPT new projects: never create a project "
+        "yourself; confirm its name and intended home first. 'done <n>' "
+        "refers to the numbered Today list; the user can also snooze or "
+        "cancel items.",
     ),
     "midday_pulse": (
         "lizzy",
@@ -396,8 +402,9 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
             print(f"[habit_checkin] health import: {result['summary']}", flush=True)
             if result["error"]:
                 telegram.send_message(chat_id, f"⚠️ Health import: {result['summary']}")
+        watch_state = None
         if key == "morning_triage":
-            instruction = triage_instruction(ctx)
+            instruction, watch_state = triage_instruction(ctx)
         try:
             reply = run_persona_turn(
                 claude, config["model"], persona_key, personas_cfg, instruction,
@@ -416,18 +423,25 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
         telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
         if key == "morning_triage":
             culture_shortlist.mark_triage_announced(state)
+            brief_watch.commit(watch_state)  # advance only after delivery
 
 
 def triage_instruction(ctx, now=None):
-    """Morning-triage instruction plus the freshly computed work-desk facts
-    (inbox sweep, Littler intel, legal tech news; see work_desk.py)."""
+    """Morning-triage instruction plus freshly computed facts: the work desk
+    (inbox sweep, Littler intel, legal tech news; work_desk.py) and the
+    watch facts (tech experiments, projects; brief_watch.py).
+
+    Returns (instruction, watch_state); the caller saves watch_state with
+    brief_watch.commit only after a live triage is delivered."""
     gmail = GmailReader(ctx.get("gmail_token_path"))
     facts = build_work_desk(ctx["vault"], gmail, now)
     culture = culture_shortlist.triage_note(ctx["state"])
     if culture:
         facts += "\n\n" + culture
+    watch_text, watch_state = brief_watch.collect(ctx["vault"], now)
+    facts += "\n\nWATCH FACTS:\n" + watch_text
     print(f"[morning_triage] {facts[:300]!r}", flush=True)
-    return SCHEDULED_DUTIES["morning_triage"][1] + "\n\n" + facts
+    return SCHEDULED_DUTIES["morning_triage"][1] + "\n\n" + facts, watch_state
 
 
 def preview_triage(config, personas_cfg, claude, ctx):
@@ -438,7 +452,7 @@ def preview_triage(config, personas_cfg, claude, ctx):
     ctx = dict(ctx, chat_id=allowed[0], dry_run=True)
     alert = format_alert(cowork_warnings(ctx["vault"], date.today(), []))
     persona = personas_cfg["personas"]["jeeves"]
-    instruction = triage_instruction(ctx)
+    instruction, _ = triage_instruction(ctx)  # watch state NOT committed
     print("=" * 20, "WORK DESK FACTS", "=" * 20)
     print(instruction.rsplit("WORK DESK FACTS (computed by the bot just now):", 1)[1].strip())
     reply = run_persona_turn(

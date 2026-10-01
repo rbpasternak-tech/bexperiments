@@ -36,17 +36,23 @@ Scheduled duties run on the polling loop:
 Jeeves' 7am task triage, Bartleby's 9pm habit check-in, Gatsby's Sunday
 recap (times configurable under `schedules`).
 
-The 7am triage is the one daily message, in four parts: what's new since
-yesterday, a **Work desk** (Inbox, Littler intel, Legal tech news), the
-agenda, and a capture question. The Work desk only reuses existing output
+The 7am triage is the one daily message, a tight brief of labelled lines:
+Inbox, Overnight, Habits (yesterday's row), Littler intel, Legal tech,
+Today (reminders, near deadlines, top 3–5 tasks), and — only when something
+is new — Tech experiments and Projects, closing with "Anything to capture?".
+The work-desk lines only reuse existing output
 (`work_desk.py`): today's 6:45 sweep flags and queue subsection, the newest
 self-sent "Daily AI Competitive Intelligence" email (one targeted read-only
 Gmail search), and the newsletter digest's JSON in `trends-dashboard/data`.
 Each source is classified NEW / NONE TODAY / STALE / UNAVAILABLE in code
 (a Littler issue whose body date trails delivery by more than a day is
 STALE; a digest slot in its launchd plist with no run is flagged
-LATE/MISSED), so old issues are never reposted. It writes nothing to the
-vault. Preview without sending or writing: `python main.py --preview-triage`.
+LATE/MISSED), so old issues are never reposted. `brief_watch.py` finds new
+or status-changed notes in `To-try/Tech experiments/` and edited `Projects/`
+notes since the last triage (baseline in `triage-watch.json`, advanced only
+after a delivered triage; files whose content matches the bot's own last
+write, `bot-writes.json`, are skipped). It writes nothing to the vault.
+Preview without sending or writing: `python main.py --preview-triage`.
 
 The team is also a frictionless capture layer for the vault: dictate from
 your phone and it files things append-only into the right place — "worked

@@ -511,7 +511,7 @@ def triage_note(state_store):
         return ""
     desc = "; ".join(f"the {_pretty_date(i['shortlist_date'])} list ({i['picks']} picks)" for i in items)
     return ("CULTURE SHORTLIST NOTE: " + desc + " expired without a reply, so nothing "
-            "was filed. Mention it once, in one line, at the end of Part 1.")
+            "was filed. Mention it once, as one short clause in Overnight.")
 
 
 def mark_triage_announced(state_store):

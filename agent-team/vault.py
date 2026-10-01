@@ -51,6 +51,7 @@ never rewrites a clip note.
 # The background health import and persona tool calls can both write the
 # habit grid; serialize the read-modify-write so neither loses the other's cells.
 _HABIT_WRITE_LOCK = threading.Lock()
+_BOT_WRITES_LOCK = threading.Lock()
 
 
 class Vault:
@@ -154,7 +155,37 @@ class Vault:
                 break
         return found
 
+    def record_bot_write(self, relative):
+        """Remember the content hash of a Projects/ note the bot just wrote,
+        so the morning brief can skip files only the bot touched
+        (brief_watch.py). Best effort; never raises."""
+        if not str(relative).startswith(PROJECTS_DIR + "/"):
+            return
+        try:
+            import hashlib, json
+            from brief_watch import BOT_WRITES_FILE
+            digest = hashlib.sha1(_read_text(self._resolve(relative)).encode("utf-8")).hexdigest()
+            with _BOT_WRITES_LOCK:
+                try:
+                    data = json.loads(BOT_WRITES_FILE.read_text())
+                except (OSError, ValueError):
+                    data = {}
+                data[str(relative)] = digest
+                tmp = BOT_WRITES_FILE.with_suffix(".tmp")
+                tmp.write_text(json.dumps(data, indent=1))
+                tmp.replace(BOT_WRITES_FILE)
+        except Exception as exc:  # bookkeeping must never break a write
+            print(f"[vault] record_bot_write failed for {relative}: {exc}", flush=True)
+
     def append_under_section(self, relative, section, line):
+        """Append one line under a heading (see _append_under_section) and
+        record Projects/ writes as bot-made."""
+        result = self._append_under_section(relative, section, line)
+        if result.startswith(("Appended", "Created")):
+            self.record_bot_write(relative)
+        return result
+
+    def _append_under_section(self, relative, section, line):
         """Append one line under a heading in a note. Append-only: never
         rewrites existing content. Creates the section (and the note) if
         missing. Returns a status message."""
@@ -478,6 +509,7 @@ class Vault:
             return f"Error: {PROJECTS_DIR}/{name}/ already exists."
         folder.mkdir(parents=True)
         (folder / "index.md").write_text(index_body.rstrip("\n") + "\n")
+        self.record_bot_write(f"{PROJECTS_DIR}/{name}/index.md")
         return f"{PROJECTS_DIR}/{name}/index.md"
 
     # --- Reading queue cleanup ---
