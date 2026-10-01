@@ -45,14 +45,29 @@ ring_goals:
   exercise_min: 30
   stand_hours: 12
 
-# Recurring duties, local time. "HH:MM" daily, "ddd HH:MM" weekly.
-# Delete a line to disable that duty.
+# Shared links and videos are fetched, transcribed ON THIS MAC (faster-whisper;
+# audio never leaves the machine), summarized, and filed as notes in the
+# vault's Reading/clips/. install-launchd.sh downloads the model once to
+# ~/Library/Application Support/agent-team/whisper/.
+clips:
+  whisper_model: small          # tiny | base | small | medium (small fits 8 GB RAM)
+  max_transcribe_seconds: 900   # long videos: transcribe only the first N seconds
+  cookies_from_browser: ""      # e.g. "safari" if Instagram refuses without a login
+
+# Recurring duties, local time. "HH:MM" daily, "ddd HH:MM" weekly,
+# "dayN HH:MM" monthly. Delete a line to disable that duty. The Second
+# Brain jobs below the personas are on by default; set one to "off" to stop it.
 schedules:
   morning_triage: "07:00"   # Jeeves: tasks + reminders agenda
   midday_pulse: "13:00"     # Bennet: what's landed — tasks, people, links
   evening_capture: "17:30"  # Jeeves: worked on, people, new tasks, tomorrow
   habit_checkin: "21:00"    # Bartleby: fill today's habit-grid row
   weekly_recap: "sun 19:00" # Gatsby: wins recap (after the weekly review runs)
+  # vault_inbox_sweep: "06:45"      # Gmail self-sends/unread -> Reading/queue.md
+  # vault_ai_radar: "sun 17:30"     # rebuild Ideas/AI radar.md + project proposals
+  # vault_weekly_review: "sun 18:45"
+  # vault_monthly_archive: "day1 20:00"
+  # vault_daily_notes: "23:55"
 
 # How many transcript entries each persona sees.
 history_limit: 40

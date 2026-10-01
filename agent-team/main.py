@@ -4,7 +4,10 @@ One bot, four classic-literature personas (see personas.yaml). Address a
 teammate by name ("Jeeves, remind me to lift at 6") or just talk — a router
 picks who answers.
 Personas share one chat transcript, can set/cancel reminders, and can pull
-the latest newsletter-digest trends.
+the latest newsletter-digest trends. A shared link or video skips the
+personas: it is fetched, transcribed locally, summarized and filed as a clip
+note in the vault (clip_ingest.py), and "yes N" starts a project proposed
+by the weekly AI radar (ai_radar.py).
 
 Run: python main.py   (long-polls Telegram; Ctrl-C to stop)
 """
@@ -24,6 +27,9 @@ from health_import import (
     import_recent_days,
     start_background_import,
 )
+import ai_radar
+import clip_ingest
+from clips import MEDIA_TMP_DIR, find_urls
 from cowork_watch import cowork_warnings, format_alert
 from persona_agent import run_persona_turn
 import vault_jobs
@@ -40,10 +46,12 @@ SCHEDULED_DUTIES = {
         "jeeves",
         "It is the scheduled morning triage; deliver it in three parts. "
         "PART 1 — What's new since yesterday: read yesterday's and today's "
-        "daily notes, the dated subsections of Reading/queue.md, any Inbox "
-        "section of Tasks/Master.md, and yesterday's row in this month's "
-        "habit file. Summarize the genuinely new items in a few bullets "
-        "(reading captures by title, new tasks, habit row filled or not); "
+        "daily notes, the dated subsections of Reading/queue.md, clip notes "
+        "in Reading/clips/ whose filename starts with yesterday's or today's "
+        "date (list_vault_files), any Inbox section of Tasks/Master.md, and "
+        "yesterday's row in this month's habit file. Summarize the genuinely "
+        "new items in a few bullets (clips and reading captures by title, "
+        "new tasks, habit row filled or not); "
         "skip the section entirely if nothing is new. "
         "PART 2 — The agenda: call get_open_tasks and list_reminders and "
         "present a brief numbered agenda (flag long-stale tasks). "
@@ -124,11 +132,19 @@ HELP_TEXT = """Your team:
 Talk normally and the right teammate answers, or address one directly:
   "Jeeves, plan my morning"  ·  "@bartleby remind me to lift at 6pm"
 
+Share a link (reel, TikTok, YouTube, article) or send a video, with an
+optional note, and it is transcribed and filed as a note in Reading/clips/.
+The Sunday AI radar proposes projects from everything saved; reply
+"yes 2" to create proposal 2 in Projects/.
+
 Commands:
   /team — who's on the team
   /reminders — pending reminders
+  /run sweep | review | archive | notes | radar — run a Second Brain job now
   /whoami — this chat's id (for the config allowlist)
   /help — this message"""
+
+PENDING_CAPTION_HOURS = 6
 
 
 def load_config():
@@ -185,7 +201,8 @@ def handle_message(message, config, personas_cfg, alias_map, claude, ctx, telegr
     chat_id = message["chat"]["id"]
     text = (message.get("text") or "").strip()
     state = ctx["state"]
-    if not text:
+    media = _video_attachment(message)
+    if not text and not media:
         return
     allowed = config.get("allowed_chat_ids") or []
     if chat_id not in allowed:
@@ -195,10 +212,15 @@ def handle_message(message, config, personas_cfg, alias_map, claude, ctx, telegr
             "allowed_chat_ids in agent-team/config.yaml and restart the bot.",
         )
         return
+    if media:
+        handle_video_capture(media, message, config, claude, ctx, telegram, chat_id)
+        return
     if text.lower().split()[0] == "/run":
         run_job_command(text, config, claude, ctx, telegram, chat_id)
         return
     if handle_command(text, chat_id, personas_cfg, state, telegram):
+        return
+    if handle_capture(text, config, claude, ctx, telegram, chat_id):
         return
     history = state.get_history(chat_id)
     persona_key, persona_text = pick_persona(
@@ -220,6 +242,100 @@ def handle_message(message, config, personas_cfg, alias_map, claude, ctx, telegr
         return
     state.append_history(chat_id, persona["name"], reply)
     telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
+
+
+def _video_attachment(message):
+    """Return (file_id, filename) for a video sent to the chat, else None."""
+    for key in ("video", "video_note", "animation"):
+        if message.get(key):
+            return message[key]["file_id"], message[key].get("file_name") or f"{key}.mp4"
+    document = message.get("document") or {}
+    if (document.get("mime_type") or "").startswith(("video/", "audio/")):
+        return document["file_id"], document.get("file_name") or "attachment"
+    if message.get("voice"):
+        return message["voice"]["file_id"], "voice.ogg"
+    return None
+
+
+def handle_video_capture(media, message, config, claude, ctx, telegram, chat_id):
+    """Download a video/voice message and file it as a clip note."""
+    file_id, filename = media
+    note = (message.get("caption") or "").strip()
+    urls = find_urls(note)
+    try:
+        path = telegram.download_file(file_id, MEDIA_TMP_DIR / f"tg-{message.get('message_id', 0)}")
+    except Exception as exc:
+        telegram.send_message(chat_id, f"📎 Couldn't download that file: {exc}")
+        return
+    telegram.send_message(chat_id, f"📎 Got the video ({filename}) — transcribing…")
+    state = ctx["state"]
+    state.append_history(chat_id, "user", f"(sent a video{': ' + note if note else ''})")
+    clip_ingest.run_capture_async(
+        ctx, claude, config["model"], telegram, chat_id,
+        url=urls[0] if urls else None, note=note, video_path=str(path),
+    )
+
+
+def handle_capture(text, config, claude, ctx, telegram, chat_id):
+    """Handle shares, caption replies and 'yes N'. True when consumed.
+
+    A message that is a URL plus at most a short note is a share: it is
+    filed in the background. A plain message after a failed fetch is the
+    caption Rebecca was asked for. 'yes N' creates radar proposal N.
+    """
+    state = ctx["state"]
+    pending_key = f"pending_clip:{chat_id}"
+    if clip_ingest.looks_like_capture(text):
+        urls = find_urls(text)
+        note = text
+        for url in urls:
+            note = note.replace(url, " ")
+        state.set_value(pending_key, None)
+        state.append_history(chat_id, "user", text)
+        telegram.send_message(
+            chat_id, f"📎 Got it — fetching{' and transcribing' if urls else ''}…"
+        )
+        for url in urls[:3]:
+            clip_ingest.run_capture_async(
+                ctx, claude, config["model"], telegram, chat_id,
+                url=url, note=" ".join(note.split()),
+            )
+        return True
+    pending = state.get_value(pending_key)
+    if pending:
+        try:
+            age_h = (datetime.now() - datetime.fromisoformat(pending["asked_at"])).total_seconds() / 3600
+        except (KeyError, ValueError):
+            age_h = PENDING_CAPTION_HOURS + 1
+        if age_h > PENDING_CAPTION_HOURS:
+            state.set_value(pending_key, None)
+        elif text.lower().strip(" .!") in ("skip", "drop", "never mind", "nevermind", "forget it"):
+            state.set_value(pending_key, None)
+            telegram.send_message(chat_id, f"📎 Dropped {pending['url']}.")
+            return True
+        else:
+            state.set_value(pending_key, None)
+            state.append_history(chat_id, "user", f"(caption for {pending['url']}) {text}")
+            telegram.send_message(chat_id, "📎 Thanks — filing that…")
+            clip_ingest.run_capture_async(
+                ctx, claude, config["model"], telegram, chat_id,
+                url=pending["url"], note=pending.get("note", ""), caption=text,
+            )
+            return True
+    chosen = ai_radar.match_yes(text, state)
+    if chosen:
+        index, proposal = chosen
+        result = ai_radar.create_project_from_proposal(ctx["vault"], proposal)
+        if result.startswith("Error") or result.startswith("Vault not"):
+            reply = f"Couldn't create proposal {index}: {result}"
+        else:
+            reply = (f"🗂 Created {result} for \"{proposal['title']}\". "
+                     f"First step: {proposal['first_step']}")
+        state.append_history(chat_id, "user", text)
+        state.append_history(chat_id, "Radar", reply)
+        telegram.send_message(chat_id, reply)
+        return True
+    return False
 
 
 def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram):
@@ -282,6 +398,7 @@ RUN_ALIASES = {
     "review": "vault_weekly_review",
     "archive": "vault_monthly_archive",
     "notes": "vault_daily_notes",
+    "radar": "vault_ai_radar",
 }
 
 
@@ -295,7 +412,7 @@ def run_job_command(text, config, claude, ctx, telegram, chat_id):
     parts = text.split()
     key = RUN_ALIASES.get(parts[1].lower()) if len(parts) > 1 else None
     if not key:
-        telegram.send_message(chat_id, "Usage: /run sweep | review | archive | notes")
+        telegram.send_message(chat_id, "Usage: /run sweep | review | archive | notes | radar")
         return
     telegram.send_message(chat_id, f"Running {parts[1].lower()} now…")
     run_vault_job(key, config, claude, ctx, telegram, chat_id)
@@ -311,8 +428,12 @@ def run_vault_job(key, config, claude, ctx, telegram, chat_id):
             created = vault_jobs.run_daily_notes(ctx)
             print(f"[{key}] created: {', '.join(created) or 'nothing'}", flush=True)
             return  # silent: nothing for Rebecca to act on
-        title = vault_jobs.JOBS[key][0]
-        summary = vault_jobs.run_job(key, claude, config["model"], ctx)
+        if key == "vault_ai_radar":
+            title = "AI radar"
+            summary = ai_radar.run_radar(claude, config["model"], ctx)
+        else:
+            title = vault_jobs.JOBS[key][0]
+            summary = vault_jobs.run_job(key, claude, config["model"], ctx)
     except Exception as exc:
         traceback.print_exc()
         telegram.send_message(
@@ -372,6 +493,7 @@ def main():
         "health_export_dir": config.get("health_export_dir"),
         "ring_goals": config.get("ring_goals"),
         "gmail_token_path": config.get("gmail_token_path"),
+        "clip_settings": config.get("clips") or {},
     }
     start_background_import(
         ctx, config.get("health_import_every_minutes", DEFAULT_EVERY_MINUTES)

@@ -4,8 +4,10 @@ The vault is iCloud-synced but locally it's just a folder, so the bot reads
 and writes files directly. Writes are append-only: the habit grid
 (Tracking/Habits/), the reading queue Inbox, task checkboxes in
 Tasks/Master.md, and single lines appended under a section heading
-(append_under_section, e.g. daily-note captures). Auto-generated review
-sections belong to the Cowork scheduled tasks and are never rewritten.
+(append_under_section, e.g. daily-note captures), plus new notes
+(clip notes, project folders). Two exceptions, both deliberate: the
+weekly cleanup moves stale queue subsections to the archive and promotes
+queue items into theme sections, and the AI radar rewrites its own note.
 """
 
 import calendar
@@ -25,6 +27,23 @@ _DAILY_NOTE_RE = re.compile(r"^Daily/(\d{4}-\d{2}-\d{2})\.md$")
 _TEMPLATE_DATE_RE = re.compile(r"\{\{date(?::[^}]*)?\}\}")
 TASKS_MASTER = "Tasks/Master.md"
 HABITS_DIR = "Tracking/Habits"
+CLIPS_DIR = "Reading/clips"
+QUEUE_ARCHIVE = "Archive/Reading queue archive.md"
+PROJECTS_DIR = "Projects"
+PROJECT_TEMPLATE = "Templates/Project index.md"
+_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+_FILENAME_BAD_RE = re.compile(r'[\\/:*?"<>|#^\[\]]+')
+
+CLIPS_README = """# Clips
+
+One note per link or video shared to the Household Staff bot (Telegram):
+frontmatter (source, url, tags), a summary, key claims, and the full
+transcript or article text so the vault holds what the thing actually said —
+not just a URL. `Ideas/AI radar.md` is rebuilt from these every week.
+
+Filenames: `YYYY-MM-DD <title>.md`. Written by the bot; edit freely — the bot
+never rewrites a clip note.
+"""
 
 # The background health import and persona tool calls can both write the
 # habit grid; serialize the read-modify-write so neither loses the other's cells.
@@ -341,6 +360,212 @@ class Vault:
         path.write_text(text)
         return f"Captured to reading queue: {title}"
 
+
+    # --- Clip notes (Reading/clips/) ---
+
+    def clip_urls(self):
+        """Return {url: relative_path} for every clip note's frontmatter url."""
+        found = {}
+        for rel in self.list_files(CLIPS_DIR, limit=5000):
+            meta = self.note_frontmatter(rel)
+            url = meta.get("url")
+            if url:
+                found[_clean_url(url)] = rel
+        return found
+
+    def note_frontmatter(self, relative):
+        """Return a note's YAML-ish frontmatter as a flat {key: str} dict.
+
+        Only simple `key: value` lines are parsed (values keep their raw
+        text, so a list stays as its bracketed string). Missing note or no
+        frontmatter gives {}.
+        """
+        if not self.available():
+            return {}
+        path = self._resolve(relative)
+        if not path.is_file():
+            return {}
+        return _parse_frontmatter(_read_text(path))
+
+    def write_clip_note(self, stem, body):
+        """Create Reading/clips/<stem>.md; never overwrites an existing note.
+
+        Args:
+            stem: Desired filename without extension (sanitized here).
+            body: Full note text including frontmatter.
+
+        Returns:
+            The vault-relative path written (a numeric suffix is added when
+            the name is taken), or an error message when unavailable.
+        """
+        if not self.available():
+            return self._unavailable_message()
+        folder = self._resolve(CLIPS_DIR)
+        folder.mkdir(parents=True, exist_ok=True)
+        readme = folder / "README.md"
+        if not readme.exists():
+            readme.write_text(CLIPS_README)
+        stem = safe_filename(stem)
+        candidate, n = stem, 2
+        while (folder / f"{candidate}.md").exists():
+            candidate = f"{stem} ({n})"
+            n += 1
+        (folder / f"{candidate}.md").write_text(body.rstrip("\n") + "\n")
+        return f"{CLIPS_DIR}/{candidate}.md"
+
+    def read_template(self, relative):
+        """Return a template's text, or '' when missing."""
+        if not self.available():
+            return ""
+        path = self._resolve(relative)
+        return _read_text(path) if path.is_file() else ""
+
+    def write_note(self, relative, text):
+        """Write a whole note (create or replace). Used only for notes the
+        bot owns outright (the AI radar); everything else is append-only."""
+        if not self.available():
+            return self._unavailable_message()
+        path = self._resolve(relative)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text.rstrip("\n") + "\n")
+        return f"Wrote {relative}."
+
+    def create_project(self, name, index_body):
+        """Create Projects/<name>/index.md. Refuses if the folder exists.
+
+        Returns the vault-relative index path, or an error message.
+        """
+        if not self.available():
+            return self._unavailable_message()
+        name = safe_filename(name)
+        if not name:
+            return "Error: empty project name."
+        folder = self._resolve(f"{PROJECTS_DIR}/{name}")
+        if folder.exists():
+            return f"Error: {PROJECTS_DIR}/{name}/ already exists."
+        folder.mkdir(parents=True)
+        (folder / "index.md").write_text(index_body.rstrip("\n") + "\n")
+        return f"{PROJECTS_DIR}/{name}/index.md"
+
+    # --- Reading queue cleanup ---
+
+    def archive_stale_queue_sections(self, today, days=30):
+        """Move Inbox subsections older than `days` to the queue archive.
+
+        Implements the 30-day retention rule written in Reading/queue.md.
+        A subsection is a '### Heading' block inside '## Inbox'; its date is
+        the first YYYY-MM-DD in the heading. Undated subsections stay. Moved
+        blocks are appended verbatim under a new '## Moved <today> ...'
+        heading in Archive/Reading queue archive.md, so nothing is lost.
+
+        Args:
+            today: A date; the cutoff is today - days.
+            days: Retention window in days.
+
+        Returns:
+            (sections_moved, items_moved, cutoff_iso).
+        """
+        if not self.available():
+            return 0, 0, None
+        cutoff = (today - timedelta(days=days)).isoformat()
+        path = self._resolve(READING_QUEUE)
+        if not path.is_file():
+            return 0, 0, cutoff
+        lines = _read_text(path).splitlines()
+        start, end = _section_bounds(lines, r"^##\s+Inbox\b")
+        if start is None:
+            return 0, 0, cutoff
+        keep, moved_blocks = lines[: start + 1], []
+        for block in _split_subsections(lines[start + 1 : end]):
+            heading = block[0] if block and block[0].startswith("### ") else ""
+            found = _DATE_RE.search(heading)
+            if found and found.group(0) <= cutoff:
+                moved_blocks.append(block)
+            else:
+                keep.extend(block)
+        if not moved_blocks:
+            return 0, 0, cutoff
+        keep.extend(lines[end:])
+        items = sum(1 for b in moved_blocks for l in b if l.startswith("- ["))
+        archive = self._resolve(QUEUE_ARCHIVE)
+        header = (
+            "# Reading queue — archived inbox sections\n\n"
+            "Aged out of `Reading/queue.md` per the 30-day retention rule (see "
+            "its Capture flow). Nothing deleted — promote anything here that "
+            "still matters.\n"
+        )
+        text = _read_text(archive) if archive.is_file() else header
+        block_text = "\n".join("\n".join(_strip_blank_edges(b)) for b in moved_blocks)
+        text = (
+            text.rstrip("\n")
+            + f"\n\n## Moved {today.isoformat()} (sections dated ≤ {cutoff})\n\n"
+            + block_text + "\n"
+        )
+        archive.parent.mkdir(parents=True, exist_ok=True)
+        archive.write_text(text)
+        path.write_text("\n".join(keep).rstrip("\n") + "\n")
+        return len(moved_blocks), items, cutoff
+
+    def promote_queue_items(self, section, urls):
+        """Move Inbox items whose URL is in `urls` into a '## <section>'.
+
+        The section is created at the end of the Inbox region (where the
+        queue's own note says new theme sections go) when it does not exist.
+        Item lines keep their text; indented continuation lines travel with
+        them. A subsection left with no items loses its heading.
+
+        Returns a status message with counts.
+        """
+        if not self.available():
+            return self._unavailable_message()
+        section = section.strip().lstrip("#").strip()
+        if not section:
+            return "Error: empty section name."
+        wanted = {_clean_url(u) for u in urls if u}
+        path = self._resolve(READING_QUEUE)
+        if not path.is_file():
+            return f"{READING_QUEUE} not found in vault."
+        lines = _read_text(path).splitlines()
+        start, end = _section_bounds(lines, r"^##\s+Inbox\b")
+        if start is None:
+            return "No '## Inbox' section in the queue."
+        kept, moved = [lines[start]], []
+        for block in _split_subsections(lines[start + 1 : end]):
+            remaining, i = [], 0
+            while i < len(block):
+                line = block[i]
+                item = [line]
+                i += 1
+                while i < len(block) and block[i].startswith((" ", "\t")) and block[i].strip():
+                    item.append(block[i])
+                    i += 1
+                line_urls = {_clean_url(u) for u in _URL_RE.findall(line)}
+                if line.startswith("- [") and line_urls and line_urls & wanted:
+                    moved.extend(item)
+                else:
+                    remaining.extend(item)
+            has_items = any(l.startswith("- [") for l in remaining)
+            if remaining and remaining[0].startswith("### ") and not has_items:
+                continue  # emptied subsection: drop its heading
+            kept.extend(remaining)
+        if not moved:
+            return f"No Inbox items matched those URLs; nothing moved to '{section}'."
+        rest = lines[end:]
+        sec_start, sec_end = _section_bounds(rest, rf"^##\s+{re.escape(section)}\s*$")
+        if sec_start is not None:
+            insert_at = sec_end
+            while insert_at > sec_start + 1 and not rest[insert_at - 1].strip():
+                insert_at -= 1
+            rest[insert_at:insert_at] = moved
+            new_lines = lines[:start] + kept + rest
+            where = "existing"
+        else:
+            new_lines = lines[:start] + _strip_blank_edges(kept) + ["", f"## {section}"] + moved + [""] + rest
+            where = "new"
+        path.write_text("\n".join(new_lines).rstrip("\n") + "\n")
+        count = sum(1 for l in moved if l.startswith("- ["))
+        return f"Moved {count} item(s) into {where} section '## {section}'."
+
     # --- Tasks ---
 
     def open_tasks(self):
@@ -564,3 +789,69 @@ def _merge_cells(columns, cells, values):
         new = values.get(col, "")
         merged.append(new if new != "" else cells[idx])
     return merged
+
+
+def safe_filename(name):
+    """Strip characters Obsidian/macOS reject from a note or folder name."""
+    name = _FILENAME_BAD_RE.sub(" ", name or "")
+    name = re.sub(r"\s+", " ", name).strip(" .")
+    return name[:90]
+
+
+def _parse_frontmatter(text):
+    """Parse leading '---' frontmatter into {key: raw value string}."""
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}
+    meta = {}
+    for line in lines[1:]:
+        if line.strip() == "---":
+            break
+        if ":" in line and not line.startswith((" ", "\t")):
+            key, value = line.split(":", 1)
+            meta[key.strip()] = value.strip()
+    return meta
+
+
+def _section_bounds(lines, heading_pattern):
+    """Return (start, end) of the '## ' section whose heading matches.
+
+    `start` is the heading line's index; `end` is the index of the next
+    '## '/'# ' heading (or len(lines)). (None, None) when not found.
+    """
+    start = next((i for i, l in enumerate(lines) if re.match(heading_pattern, l)), None)
+    if start is None:
+        return None, None
+    end = len(lines)
+    for i in range(start + 1, len(lines)):
+        if re.match(r"^#{1,2}\s", lines[i]):
+            end = i
+            break
+    return start, end
+
+
+def _split_subsections(lines):
+    """Split a section body into blocks: a leading preamble (no heading)
+    followed by one block per '### ' heading, each including its lines up
+    to the next heading."""
+    blocks, current = [], []
+    for line in lines:
+        if line.startswith("### "):
+            if current:
+                blocks.append(current)
+            current = [line]
+        else:
+            current.append(line)
+    if current:
+        blocks.append(current)
+    return blocks
+
+
+def _strip_blank_edges(block):
+    """Drop leading/trailing blank lines from a list of lines."""
+    lines = list(block)
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return lines

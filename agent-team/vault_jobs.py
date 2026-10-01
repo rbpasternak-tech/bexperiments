@@ -38,9 +38,12 @@ JOBS = {
 DEFAULT_SCHEDULES = {
     "vault_daily_notes": "23:55",
     "vault_inbox_sweep": "06:45",
+    "vault_ai_radar": "sun 17:30",  # before the review, which cites it
     "vault_weekly_review": "sun 18:45",
     "vault_monthly_archive": "day1 20:00",
 }
+
+QUEUE_RETENTION_DAYS = 30
 
 TOOLS = [
     {
@@ -112,6 +115,23 @@ TOOLS = [
         },
     },
     {
+        "name": "promote_queue_items",
+        "description": (
+            "Move Inbox items out of Reading/queue.md's Inbox into a theme "
+            "section '## <section>' (created after the Inbox when new; reuse "
+            "an existing section name when one fits). Pass the items' URLs. "
+            "Lines keep their text; nothing is deleted."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "section": {"type": "string", "description": "e.g. 'Legal AI vendors'"},
+                "urls": {"type": "array", "items": {"type": "string"}},
+            },
+            "required": ["section", "urls"],
+        },
+    },
+    {
         "name": "append_section",
         "description": (
             "Append a new '## heading' section with a markdown body to the end "
@@ -133,7 +153,7 @@ TOOLS = [
 # What each job may write, enforced in the tool handler (not just the prompt).
 _ALLOWED_WRITES = {
     "vault_inbox_sweep": {"add_queue_items", "append_section:Sweep flags"},
-    "vault_weekly_review": {"append_section:Weekly review"},
+    "vault_weekly_review": {"append_section:Weekly review", "promote_queue_items"},
     "vault_monthly_archive": {"append_section:Monthly archive proposal"},
 }
 
@@ -162,7 +182,8 @@ def run_job(job_key, claude, model, ctx, today=None, gmail=None):
         f"rename, or delete vault files, and never touch .obsidian/.\n\n"
         + instructions
     )
-    messages = [{"role": "user", "content": f"Run the {title} now."}]
+    pre_note = _pre_step(job_key, vault, today)
+    messages = [{"role": "user", "content": f"Run the {title} now." + pre_note}]
     response = None
     cutoffs = 0
     for round_no in range(1, MAX_ROUNDS + 1):
@@ -211,6 +232,23 @@ def run_job(job_key, claude, model, ctx, today=None, gmail=None):
     return text
 
 
+def _pre_step(job_key, vault, today):
+    """Deterministic work done before a job's model turn; returns a note
+    for the model (empty when there is nothing to report)."""
+    if job_key != "vault_weekly_review":
+        return ""
+    sections, items, cutoff = vault.archive_stale_queue_sections(today, QUEUE_RETENTION_DAYS)
+    if not sections:
+        return (f"\n\nPre-step: no Inbox subsections dated on or before {cutoff} "
+                "needed archiving.")
+    note = (f"\n\nPre-step already done: {sections} Inbox subsection(s) with {items} "
+            f"item(s) dated on or before {cutoff} were moved to "
+            f"'Archive/Reading queue archive.md' (30-day retention). Report this "
+            "in the review.")
+    print(f"[vault_weekly_review] {note.strip()}", flush=True)
+    return note
+
+
 def run_daily_notes(ctx, today=None):
     """Deterministic nightly job: make sure notes exist through tomorrow."""
     today = today or date.today()
@@ -223,6 +261,11 @@ def _handle_tool(name, args, job_ctx):
     """Execute one job tool call and return a string result."""
     vault, gmail, job = job_ctx["vault"], job_ctx["gmail"], job_ctx["job"]
     allowed = _ALLOWED_WRITES.get(job, set())
+    # The prompts name dates symbolically; a model that copies "TODAY" into a
+    # heading or path gets the real date instead of a literal placeholder.
+    for key in ("heading", "path"):
+        if isinstance(args.get(key), str):
+            args[key] = args[key].replace("TODAY", job_ctx["today"].isoformat())
     if name == "read_note":
         return vault.read_note(args["path"], max_chars=60000)
     if name == "list_files":
@@ -248,6 +291,10 @@ def _handle_tool(name, args, job_ctx):
         if "add_queue_items" not in allowed:
             return "Not allowed: this job may not write to the reading queue."
         return vault.add_queue_sweep(args["heading"], args.get("items", []))
+    if name == "promote_queue_items":
+        if "promote_queue_items" not in allowed:
+            return "Not allowed: this job may not reorganize the reading queue."
+        return vault.promote_queue_items(args["section"], args.get("urls", []))
     if name == "append_section":
         heading = args["heading"].strip().lstrip("#").strip()
         if not any(

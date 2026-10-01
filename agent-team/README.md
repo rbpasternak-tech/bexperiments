@@ -43,10 +43,49 @@ sections (Jeeves), movies/restaurants/books into the To Try lists (Gatsby),
 updates under project notes. Bartleby's nightly check-in ends by asking if
 anything belongs in today's note.
 
-Division of labor with other vault automations: all bot writes are
-append-only (grid cells, queue captures, checkboxes, dictated lines).
-Auto-generated sections (Sweep flags, Weekly review) and note creation
-belong to their own scheduled tasks — the bot never rewrites content.
+Division of labor with other vault automations: bot writes are
+append-only (grid cells, queue captures, checkboxes, dictated lines, new
+clip notes and project folders) with two deliberate exceptions the weekly
+jobs own: the review's queue cleanup (archive + theme promotion) and the
+AI radar note, which is rebuilt each week.
+
+## Clips: reels, videos and articles become notes
+
+Share a link from your phone to the bot (Instagram reel, TikTok, YouTube
+Short, X/Facebook video, or any article), with an optional note about why.
+The bot fetches it with yt-dlp, transcribes the audio **on the Mac** with
+faster-whisper (nothing is sent to a transcription service), extracts
+article text with trafilatura, asks Claude for a title, summary, key
+claims and tags, and writes one note per item to `Reading/clips/
+<date> <title>.md` — frontmatter plus the full transcript or article
+text, so the vault holds what the thing actually said. A one-line pointer
+goes into today's daily note. Sending a video file (or voice note) works
+the same way. Duplicate URLs are skipped.
+
+When a fetch fails (Instagram often refuses without a login; paywalls),
+the bot asks you to paste the caption or what it said and files that
+instead — or reply `skip`. `clips.cookies_from_browser: safari` in
+config.yaml lets yt-dlp use your browser login for Instagram.
+
+### AI radar (Sunday 17:30)
+
+`vault_ai_radar` reads every clip note, the reading queue and its archive,
+your project notes and the week's daily notes, then rewrites
+`Ideas/AI radar.md`: recurring themes with trend and evidence links, what
+changed this week, the five queue items most worth reading, and three
+ranked project proposals grounded in what you saved (why now, evidence,
+first step). The week's proposals are also appended to today's daily note
+as an append-only history, and posted to Telegram. Reply `yes 2` and the
+bot creates `Projects/<title>/index.md` from your Project template with the
+proposal filled in. `/run radar` runs it on demand.
+
+### Weekly review now acts
+
+The Sunday review no longer only proposes: before the model turn it moves
+Inbox subsections older than 30 days to `Archive/Reading queue archive.md`
+(the queue's own retention rule), and the model promotes items that share
+a theme into `## Theme` sections of the queue with `promote_queue_items`.
+Its daily-note section also names the top five reads for the week.
 
 ## Setup
 
@@ -90,6 +129,9 @@ in the voice of whichever persona set them.
 - `vault.py` — Obsidian vault read/write (queue, tasks, habit grid)
 - `health_export.py` — reads Health Auto Export data (AutoSync `.hae` files and JSON exports)
 - `health_import.py` — hourly background import of health numbers into the habit grid
+- `clips.py` — fetch a link's content: yt-dlp download + local Whisper transcript, or article text
+- `clip_ingest.py` — summarize a capture and write the clip note (+ caption fallback, Telegram receipt)
+- `ai_radar.py` — weekly synthesis note, project proposals, and "yes N" project creation
 - `schedules.py` — recurring duties (7am triage, 9pm check-in, Sunday recap)
 - `personas.yaml` — the cast: voices, roles, aliases (edit to recast the show)
 - `state.py` — JSON persistence in `~/Library/Application Support/agent-team/` (outside the repo and iCloud)
@@ -107,11 +149,12 @@ three days for weekly and monthly ones).
 |---|---|---|
 | `vault_daily_notes` | 23:55 | Missing `Daily/` notes through tomorrow, from `Templates/Daily.md` |
 | `vault_inbox_sweep` | 06:45 (before the 07:00 triage) | New subsection in `Reading/queue.md` Inbox; `## Sweep flags` in today's note |
-| `vault_weekly_review` | sun 18:45 | `## Weekly review (auto-generated …)` in today's note |
+| `vault_ai_radar` | sun 17:30 | Rewrites `Ideas/AI radar.md`; `## AI radar (auto-generated …)` in today's note |
+| `vault_weekly_review` | sun 18:45 | Archives 30-day-old Inbox subsections, promotes themed items into `## Theme` queue sections, `## Weekly review (auto-generated …)` in today's note |
 | `vault_monthly_archive` | day1 20:00 | `## Monthly archive proposal (…)` in today's note — proposal only |
 
 Each job's summary (or failure) is posted to Telegram. Run one on demand by
-sending `/run sweep`, `/run review`, `/run archive`, or `/run notes`. Writes are enforced
+sending `/run sweep`, `/run review`, `/run archive`, `/run notes`, or `/run radar`. Writes are enforced
 in code, append-only and idempotent (a re-run never duplicates a section).
 Override a slot or disable a job with `off` under `schedules:` in
 `config.yaml`. The inbox sweep reads Gmail read-only with a copy of the
