@@ -1,0 +1,156 @@
+{
+  "created_at": "20260830T180910Z",
+  "execute": false,
+  "experiment": "legal-agent-benchmark",
+  "failures": [],
+  "matrix": [
+    {
+      "case": "offer-letter",
+      "condition": "claude-baseline",
+      "engine": "claude",
+      "guidance": "baseline",
+      "judge_engine": "codex"
+    },
+    {
+      "case": "offer-letter",
+      "condition": "codex-baseline",
+      "engine": "codex",
+      "guidance": "baseline",
+      "judge_engine": "claude"
+    }
+  ],
+  "orchestration": "graph",
+  "results": [
+    {
+      "case": "offer-letter",
+      "condition": "claude-baseline",
+      "engine": "claude",
+      "final_score": {
+        "citation_quality": 1.0,
+        "composite": 0.4167,
+        "precision_proxy": 1.0,
+        "recall": 0.1667
+      },
+      "guidance": "baseline",
+      "initial_score": {
+        "citation_quality": 1.0,
+        "composite": 0.4167,
+        "precision_proxy": 1.0,
+        "recall": 0.1667
+      },
+      "iterations": [
+        {
+          "iteration": 1,
+          "judgment": {
+            "citation_quality": 1.0,
+            "feedback": "Simulation asks the reviewer to cover remaining rubric items.",
+            "matched_issue_ids": [
+              "OFFER-01"
+            ],
+            "missed_issue_ids": [
+              "OFFER-02",
+              "OFFER-03",
+              "OFFER-04",
+              "OFFER-05",
+              "OFFER-06"
+            ],
+            "unsupported_findings": []
+          },
+          "review": {
+            "disclaimer": "simulation only",
+            "findings": [
+              {
+                "analysis": "Exercises benchmark plumbing only.",
+                "location": "fixture",
+                "quote": "simulated quote",
+                "recommendation": "Do not interpret as legal analysis.",
+                "severity": "high",
+                "title": "Simulated document issue"
+              }
+            ],
+            "simulation_stage": "initial",
+            "summary": "Deterministic simulation output.",
+            "uncertainties": []
+          },
+          "score": {
+            "citation_quality": 1.0,
+            "composite": 0.4167,
+            "precision_proxy": 1.0,
+            "recall": 0.1667
+          },
+          "timing": {
+            "judge_seconds": 0.001,
+            "review_seconds": 0.001
+          }
+        }
+      ],
+      "judge_engine": "codex"
+    },
+    {
+      "case": "offer-letter",
+      "condition": "codex-baseline",
+      "engine": "codex",
+      "final_score": {
+        "citation_quality": 1.0,
+        "composite": 0.4167,
+        "precision_proxy": 1.0,
+        "recall": 0.1667
+      },
+      "guidance": "baseline",
+      "initial_score": {
+        "citation_quality": 1.0,
+        "composite": 0.4167,
+        "precision_proxy": 1.0,
+        "recall": 0.1667
+      },
+      "iterations": [
+        {
+          "iteration": 1,
+          "judgment": {
+            "citation_quality": 1.0,
+            "feedback": "Simulation asks the reviewer to cover remaining rubric items.",
+            "matched_issue_ids": [
+              "OFFER-01"
+            ],
+            "missed_issue_ids": [
+              "OFFER-02",
+              "OFFER-03",
+              "OFFER-04",
+              "OFFER-05",
+              "OFFER-06"
+            ],
+            "unsupported_findings": []
+          },
+          "review": {
+            "disclaimer": "simulation only",
+            "findings": [
+              {
+                "analysis": "Exercises benchmark plumbing only.",
+                "location": "fixture",
+                "quote": "simulated quote",
+                "recommendation": "Do not interpret as legal analysis.",
+                "severity": "high",
+                "title": "Simulated document issue"
+              }
+            ],
+            "simulation_stage": "initial",
+            "summary": "Deterministic simulation output.",
+            "uncertainties": []
+          },
+          "score": {
+            "citation_quality": 1.0,
+            "composite": 0.4167,
+            "precision_proxy": 1.0,
+            "recall": 0.1667
+          },
+          "timing": {
+            "judge_seconds": 0.001,
+            "review_seconds": 0.001
+          }
+        }
+      ],
+      "judge_engine": "claude"
+    }
+  ],
+  "simulate": true
+}

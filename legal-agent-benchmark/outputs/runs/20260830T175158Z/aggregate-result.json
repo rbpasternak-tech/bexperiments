@@ -1,0 +1,59 @@
+{
+  "created_at": "20260830T175158Z",
+  "execute": true,
+  "experiment": "legal-agent-benchmark",
+  "failures": [
+    {
+      "case": "offer-letter",
+      "condition": "claude-baseline",
+      "error": "claude exited 1: Not logged in \u00b7 Please run /login"
+    },
+    {
+      "case": "offer-letter",
+      "condition": "claude-plugin",
+      "error": "claude exited 1: Not logged in \u00b7 Please run /login"
+    },
+    {
+      "case": "offer-letter",
+      "condition": "codex-baseline",
+      "error": "codex exited 1: WARNING: proceeding, even though we could not create PATH aliases: Operation not permitted (os error 1)\nError: failed to initialize in-process app-server client: Operation not permitted (os error 1)"
+    },
+    {
+      "case": "offer-letter",
+      "condition": "codex-plugin-source",
+      "error": "codex exited 1: WARNING: proceeding, even though we could not create PATH aliases: Operation not permitted (os error 1)\nError: failed to initialize in-process app-server client: Operation not permitted (os error 1)"
+    }
+  ],
+  "matrix": [
+    {
+      "case": "offer-letter",
+      "condition": "claude-baseline",
+      "engine": "claude",
+      "guidance": "baseline",
+      "judge_engine": "codex"
+    },
+    {
+      "case": "offer-letter",
+      "condition": "claude-plugin",
+      "engine": "claude",
+      "guidance": "installed-plugin",
+      "judge_engine": "codex"
+    },
+    {
+      "case": "offer-letter",
+      "condition": "codex-baseline",
+      "engine": "codex",
+      "guidance": "baseline",
+      "judge_engine": "claude"
+    },
+    {
+      "case": "offer-letter",
+      "condition": "codex-plugin-source",
+      "engine": "codex",
+      "guidance": "plugin-source",
+      "judge_engine": "claude"
+    }
+  ],
+  "orchestration": "graph",
+  "results": []
+}
