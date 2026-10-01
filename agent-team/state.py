@@ -9,6 +9,7 @@ Everything is small enough that read-modify-write per operation is fine.
 """
 
 import json
+import threading
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -24,6 +25,8 @@ class StateStore:
         self.state_dir = Path(state_dir) if state_dir else DEFAULT_STATE_DIR
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.history_limit = history_limit
+        # The clip-ingest thread and the polling loop both append history.
+        self._lock = threading.Lock()
 
     def _read_json(self, path, default):
         """Read a JSON file, returning a default on absence or corruption."""
@@ -50,11 +53,33 @@ class StateStore:
 
     def append_history(self, chat_id, speaker, text):
         """Append a transcript entry ({speaker, text, ts}) and trim to limit."""
-        history = self.get_history(chat_id)
-        history.append(
-            {"speaker": speaker, "text": text, "ts": datetime.now().isoformat()}
-        )
-        self._write_json(self._history_path(chat_id), history[-self.history_limit :])
+        with self._lock:
+            history = self.get_history(chat_id)
+            history.append(
+                {"speaker": speaker, "text": text, "ts": datetime.now().isoformat()}
+            )
+            self._write_json(self._history_path(chat_id), history[-self.history_limit :])
+
+    # --- Small named values (pending clip captions, radar proposals) ---
+
+    @property
+    def _values_path(self):
+        """Return the shared key/value file path."""
+        return self.state_dir / "values.json"
+
+    def get_value(self, key, default=None):
+        """Return a stored JSON value by key, or default."""
+        return self._read_json(self._values_path, {}).get(key, default)
+
+    def set_value(self, key, value):
+        """Store (or with value None, remove) a JSON value under key."""
+        with self._lock:
+            data = self._read_json(self._values_path, {})
+            if value is None:
+                data.pop(key, None)
+            else:
+                data[key] = value
+            self._write_json(self._values_path, data)
 
     # --- Reminders ---
 

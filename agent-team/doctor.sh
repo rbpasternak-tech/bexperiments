@@ -11,7 +11,8 @@ PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(dirname "$PROJECT_DIR")"
 LOG_FILE="$HOME/Library/Logs/agent-team/bot.log"  # written by install-launchd.sh
 LABEL="com.bexperiments.agent-team"
-PYTHON="$PROJECT_DIR/.venv/bin/python"
+PYTHON="$HOME/Library/Application Support/agent-team/.venv/bin/python"
+[ -x "$PYTHON" ] || PYTHON="$PROJECT_DIR/.venv/bin/python"
 [ -x "$PYTHON" ] || PYTHON="$(command -v python3)"
 
 echo "=== agent-team doctor ==="
@@ -159,6 +160,25 @@ if not any_data:
     print("      ^ neither day parsed — the error text above says why "
           "(folder, permissions, iCloud download, or the automation "
           "hasn't exported yet)")
+
+# Clip capture needs yt-dlp, faster-whisper (+ its model on disk) and trafilatura.
+try:
+    import yt_dlp, trafilatura, faster_whisper  # noqa: F401
+    from clips import WHISPER_DIR
+    model_name = (cfg.get("clips") or {}).get("whisper_model") or "small"
+    have_model = WHISPER_DIR.is_dir() and any(WHISPER_DIR.rglob("model.bin"))
+    if have_model:
+        print(f"PASS: clip capture ready (yt-dlp {yt_dlp.version.__version__}, "
+              f"Whisper '{model_name}' cached in {WHISPER_DIR})")
+    else:
+        print(f"WARN: Whisper model not cached in {WHISPER_DIR} — the first "
+              "shared video downloads it (~0.5 GB); ./install-launchd.sh prefetches it")
+except ImportError as exc:
+    print(f"FAIL: clip capture dependency missing ({exc.name}) — run ./install-launchd.sh")
+if not error:
+    clips_dir = vault.root / "Reading" / "clips"
+    n_clips = len([p for p in clips_dir.glob("*.md") if p.name != "README.md"]) if clips_dir.is_dir() else 0
+    print(f"INFO: {n_clips} clip note(s) in Reading/clips/")
 
 # The bot's background importer records each run; stale or failing runs
 # mean the grid is not filling itself.

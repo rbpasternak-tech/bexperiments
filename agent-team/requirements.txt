@@ -3,3 +3,8 @@ requests
 pyyaml
 google-api-python-client
 google-auth
+# Clip capture: video download, local transcription, article extraction.
+yt-dlp
+faster-whisper
+numpy
+trafilatura

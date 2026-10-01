@@ -68,6 +68,7 @@ class TelegramClient:
     def __init__(self, token):
         """Store the bot token and build the API base URL."""
         self.base_url = f"{API_BASE}/bot{token}"
+        self.file_base_url = f"{API_BASE}/file/bot{token}"
 
     def _call(self, method, params, http_timeout=40):
         """POST a Bot API method and return its "result" payload.
@@ -108,3 +109,32 @@ class TelegramClient:
         for start in range(0, max(len(text), 1), MAX_MESSAGE_LEN):
             chunk = text[start : start + MAX_MESSAGE_LEN]
             self._call("sendMessage", {"chat_id": chat_id, "text": chunk})
+
+    def download_file(self, file_id, dest_dir):
+        """Download a message attachment (video, voice, document) by file id.
+
+        Args:
+            file_id: Telegram file id from the message payload.
+            dest_dir: Folder to save into (created if missing).
+
+        Returns:
+            The local path of the downloaded file.
+
+        Raises:
+            RuntimeError: When Telegram refuses (files over 20 MB cannot be
+                fetched through the Bot API) or the download fails.
+        """
+        info = self._call("getFile", {"file_id": file_id})
+        remote = info.get("file_path")
+        if not remote:
+            raise RuntimeError("Telegram returned no file path (too large for the Bot API?)")
+        dest_dir = Path(dest_dir)
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        local = dest_dir / Path(remote).name
+        response = requests.get(f"{self.file_base_url}/{remote}", timeout=120, stream=True)
+        if response.status_code != 200:
+            raise RuntimeError(f"file download failed: HTTP {response.status_code}")
+        with open(local, "wb") as handle:
+            for chunk in response.iter_content(chunk_size=1 << 16):
+                handle.write(chunk)
+        return local

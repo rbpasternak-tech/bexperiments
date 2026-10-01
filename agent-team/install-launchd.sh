@@ -38,6 +38,27 @@ fi
 brctl download "$PROJECT_DIR/requirements.txt" >/dev/null 2>&1 || true
 "$PYTHON" -m pip install --quiet -r "$PROJECT_DIR/requirements.txt"
 
+# Clip capture transcribes videos locally. Fetch the Whisper model once, into
+# ~/Library (outside iCloud); the bot then loads it offline in about a second.
+# Best effort: without it the first shared video downloads the model itself.
+SUPPORT_DIR="$HOME/Library/Application Support/agent-team"
+mkdir -p "$SUPPORT_DIR"
+"$PYTHON" - "$PROJECT_DIR" "$SUPPORT_DIR/whisper" <<'PYEOF' || echo "WARNING: could not pre-download the Whisper model (clip transcription will fetch it on first use)." >&2
+import sys
+from pathlib import Path
+import yaml
+from faster_whisper import WhisperModel
+cfg = yaml.safe_load((Path(sys.argv[1]) / "config.yaml").read_text()) or {}
+name = ((cfg.get("clips") or {}).get("whisper_model") or "small")
+kw = {"device": "cpu", "compute_type": "int8", "download_root": sys.argv[2]}
+try:
+    WhisperModel(name, local_files_only=True, **kw)
+except Exception:
+    print(f"Downloading Whisper model '{name}' (one time, ~0.5 GB)...")
+    WhisperModel(name, **kw)
+print(f"Whisper model '{name}' ready.")
+PYEOF
+
 # The inbox sweep reads Gmail with the newsletter digest's OAuth token (it has
 # the gmail.readonly scope). Keep a copy outside iCloud so launchd can always
 # read it; the bot refreshes its own copy from then on.
