@@ -4,7 +4,9 @@ The vault is iCloud-synced but locally it's just a folder, so the bot reads
 and writes files directly. Writes are append-only: the habit grid
 (Tracking/Habits/), the reading queue Inbox, task checkboxes in
 Tasks/Master.md, and single lines appended under a section heading
-(append_under_section, e.g. daily-note captures), plus new notes
+(append_under_section, e.g. daily-note captures), approved NYC Culture
+Shortlist picks appended to the end of To-try/Culture.md
+(append_culture_lines — the only write target for that flow), plus new notes
 (clip notes, project folders). Two exceptions, both deliberate: the
 weekly cleanup moves stale queue subsections to the archive and promotes
 queue items into theme sections, and the AI radar rewrites its own note.
@@ -26,6 +28,7 @@ DAILY_TEMPLATE = "Templates/Daily.md"
 _DAILY_NOTE_RE = re.compile(r"^Daily/(\d{4}-\d{2}-\d{2})\.md$")
 _TEMPLATE_DATE_RE = re.compile(r"\{\{date(?::[^}]*)?\}\}")
 TASKS_MASTER = "Tasks/Master.md"
+CULTURE_LIST = "To-try/Culture.md"
 HABITS_DIR = "Tracking/Habits"
 CLIPS_DIR = "Reading/clips"
 QUEUE_ARCHIVE = "Archive/Reading queue archive.md"
@@ -191,6 +194,36 @@ class Vault:
             lines.append(f"\n## {section}\n{line}\n")
         path.write_text("".join(lines))
         return f"Appended to '{section}' in {relative}."
+
+    # --- To-try/Culture.md (NYC Culture Shortlist picks) ---
+
+    def read_culture_note(self):
+        """Full text of To-try/Culture.md ('' if missing), or None when the
+        vault is unavailable."""
+        if not self.available():
+            return None
+        path = self._resolve(CULTURE_LIST)
+        return _read_text(path) if path.is_file() else ""
+
+    def append_culture_lines(self, lines):
+        """Append lines to the END of To-try/Culture.md. Append-only: existing
+        lines (hand edits included) are never rewritten or reordered; the
+        caller dedupes. Creates the note if missing. Returns a status."""
+        if not self.available():
+            return self._unavailable_message()
+        lines = [l.rstrip("\n") for l in lines if l.strip()]
+        bad = [l for l in lines if "\n" in l or not l.startswith("- ")]
+        if bad:
+            return f"Refused: not single '- ' lines: {bad[:1]}"
+        if not lines:
+            return "Nothing to append."
+        path = self._resolve(CULTURE_LIST)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        existing = _read_text(path) if path.is_file() else ""
+        prefix = "\n" if existing and not existing.endswith("\n") else ""
+        with open(path, "a", encoding="utf-8") as handle:
+            handle.write(prefix + "\n".join(lines) + "\n")
+        return f"Appended {len(lines)} line(s) to {CULTURE_LIST}."
 
     # --- Daily notes ---
 

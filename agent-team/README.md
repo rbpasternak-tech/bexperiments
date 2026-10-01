@@ -61,6 +61,25 @@ clip notes and project folders) with two deliberate exceptions the weekly
 jobs own: the review's queue cleanup (archive + theme promotion) and the
 AI radar note, which is rebuilt each week.
 
+## NYC Culture Shortlist → To-try/Culture.md
+
+`culture_shortlist.py` watches for the weekly self-sent "NYC Culture
+Shortlist" email: every 30 minutes from 07:00 to 22:00 the polling loop runs
+one read-only Gmail search (`from:me subject:"NYC Culture Shortlist"
+newer_than:2d`), ignoring forwards, replies and subjects containing "Test".
+Each message id is handled once (`culture-shortlist.json` in the state dir;
+`first_live_caught` records the first real one). Jeeves posts the numbered
+picks (plus NEXT WEEK TO WATCH as an optional last pick); reply `add 1 and
+3`, `add 2-4`, `add all`, `all but 2` or `none`. Those replies are consumed
+before the persona router. Approved picks are appended to the end of
+`To-try/Culture.md` as `- [ ] Title — URL (through DATE) _(shortlist
+YYYY-MM-DD)_`, deduped by URL (or normalized title) against every existing
+line; a one-line receipt follows. Unanswered lists lapse after 48h and are
+mentioned once in the morning triage. After 3 shortlists with ≥80% approved
+the bot proposes automatic filing once; it never switches by itself. The
+inbox sweep skips these emails. Preview: `python culture_shortlist.py
+--preview <message-id> --reply "add 1 and 3"`.
+
 ## Clips: reels, videos and articles become notes
 
 Share a link from your phone to the bot (Instagram reel, TikTok, YouTube

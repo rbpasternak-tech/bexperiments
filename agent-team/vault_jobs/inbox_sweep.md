@@ -33,6 +33,8 @@ For each keeper:
 - Add a parenthetical summary of what is actually in it — the specific claim or number, not a restatement of the title. Wikilink known projects: `[[Littler Mendelson]]`, `[[Law, Reinvented]]`.
 - Line format: `- [ ] **<title>** — <URL> _(saved YYYY-MM-DD, <self-send|unread>)_ (<summary>)`
 
+The "NYC Culture Shortlist" self-send is handled by the bot's own culture flow (Rebecca approves picks in Telegram and they go to `To-try/Culture.md`); the search tool already hides it. Never add its picks to the queue.
+
 The recurring self-send of the AI Legal Technology Role Benchmark Google Sheet always carries the same URL; it will be skipped as a duplicate by design — mention it once in the flags.
 
 Write the keepers with `add_queue_items`, at most 20 items per call, repeating the same heading for more (it skips URLs already in the queue and places the subsection newest-first). If Gmail is unavailable, say "Gmail sweep skipped — <reason>" and continue.

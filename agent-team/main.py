@@ -28,6 +28,7 @@ from health_import import (
     start_background_import,
 )
 import ai_radar
+import culture_shortlist
 import clip_ingest
 from clips import MEDIA_TMP_DIR, find_urls
 from cowork_watch import cowork_warnings, format_alert
@@ -236,6 +237,10 @@ def handle_message(message, config, personas_cfg, alias_map, claude, ctx, telegr
         return
     if handle_command(text, chat_id, personas_cfg, state, telegram):
         return
+    # A reply to a pending NYC Culture Shortlist ("add 1 and 3", "add all",
+    # "none") is consumed here so it never reaches the persona router.
+    if culture_shortlist.handle_reply(text, ctx, telegram, chat_id):
+        return
     if handle_capture(text, config, claude, ctx, telegram, chat_id):
         return
     history = state.get_history(chat_id)
@@ -409,6 +414,8 @@ def run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
             continue
         state.append_history(chat_id, persona["name"], reply)
         telegram.send_message(chat_id, f"{persona['emoji']} {persona['name']}:\n{reply}")
+        if key == "morning_triage":
+            culture_shortlist.mark_triage_announced(state)
 
 
 def triage_instruction(ctx, now=None):
@@ -416,6 +423,9 @@ def triage_instruction(ctx, now=None):
     (inbox sweep, Littler intel, legal tech news; see work_desk.py)."""
     gmail = GmailReader(ctx.get("gmail_token_path"))
     facts = build_work_desk(ctx["vault"], gmail, now)
+    culture = culture_shortlist.triage_note(ctx["state"])
+    if culture:
+        facts += "\n\n" + culture
     print(f"[morning_triage] {facts[:300]!r}", flush=True)
     return SCHEDULED_DUTIES["morning_triage"][1] + "\n\n" + facts
 
@@ -553,6 +563,8 @@ def main():
         ctx, config.get("health_import_every_minutes", DEFAULT_EVERY_MINUTES)
     )
 
+    culture_gmail = GmailReader(config.get("gmail_token_path"))
+    culture_chat = (config.get("allowed_chat_ids") or [None])[0]
     vault_error = vault.availability_error()
     vault_note = "vault OK" if not vault_error else f"vault UNAVAILABLE: {vault_error}"
     print(f"Agent team online ({', '.join(personas_cfg['personas'])}); {vault_note}.")
@@ -569,6 +581,11 @@ def main():
                     )
             deliver_due_reminders(personas_cfg, state, telegram)
             run_scheduled_duties(scheduler, config, personas_cfg, claude, ctx, telegram)
+            if culture_chat is not None:
+                try:  # every 30 min, 07:00-22:00; gating lives in the module
+                    culture_shortlist.poll(ctx, telegram, culture_chat, culture_gmail)
+                except Exception as exc:
+                    print(f"[culture] check failed: {type(exc).__name__}: {exc}", flush=True)
         except KeyboardInterrupt:
             print("\nBye.")
             sys.exit(0)

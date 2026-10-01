@@ -283,6 +283,10 @@ def _handle_tool(name, args, job_ctx):
             messages = gmail.search(args["query"], args.get("max_results", 60))
         except GmailUnavailable as exc:
             return f"Gmail unavailable: {exc}"
+        # The NYC Culture Shortlist has its own approve-then-file flow
+        # (culture_shortlist.py -> To-try/Culture.md); keep it out of the
+        # reading queue so its picks are never filed twice.
+        messages = [m for m in messages if "nyc culture shortlist" not in m.get("subject", "").lower()]
         in_queue = vault.queue_urls()
         for msg in messages:
             msg["urls"] = [{"url": u, "in_queue": u in in_queue} for u in msg["urls"]]
