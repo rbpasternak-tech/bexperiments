@@ -80,6 +80,11 @@ export PYTHONUNBUFFERED=1
 # Never let git sit waiting for a password prompt nobody can answer.
 export GIT_TERMINAL_PROMPT=0
 
+notify_failure() {
+    # A macOS notification, so a failed run is never silent.
+    osascript -e "display notification \"\$1 See ~/Library/Logs/newsletter-digest/digest.log\" with title \"Newsletter digest failed\"" >/dev/null 2>&1 || true
+}
+
 echo
 echo "=== \$(date '+%Y-%m-%d %H:%M:%S') run.sh \$* ==="
 cd "\$PROJECT_DIR" || { echo "ERROR: cannot cd to \$PROJECT_DIR"; exit 1; }
@@ -98,15 +103,27 @@ is_ready() {
 }
 required=("\$PROJECT_DIR/config.yaml" "\$PROJECT_DIR/credentials.json")
 if [ -e "\$PROJECT_DIR/token.json" ]; then required+=("\$PROJECT_DIR/token.json"); fi
-for _ in \$(seq 1 60); do
+# Right after a wake from sleep the network and iCloud can take minutes to
+# come back, so keep asking for each missing file for up to 15 minutes.
+for _ in \$(seq 1 90); do
     all_ready=1
-    for f in "\${required[@]}"; do is_ready "\$f" || all_ready=0; done
+    for f in "\${required[@]}"; do
+        if ! is_ready "\$f"; then
+            all_ready=0
+            command -v brctl >/dev/null 2>&1 && brctl download "\$f" >/dev/null 2>&1
+        fi
+    done
     [ "\$all_ready" = 1 ] && break
-    sleep 2
+    sleep 10
 done
 for f in "\${required[@]}"; do
     if ! is_ready "\$f"; then
-        echo "ERROR: \$f is still not available locally (iCloud). Giving up."
+        echo "ERROR: \$f is still not readable after 15 minutes. Giving up."
+        echo "  ls -lO: \$(ls -lO "\$f" 2>&1)"
+        echo "  read:   \$(head -c 1 "\$f" 2>&1 >/dev/null || true)"
+        echo "  ('dataless' above = iCloud evicted it; 'Operation not permitted' = macOS"
+        echo "   privacy is blocking background access to ~/Documents.)"
+        notify_failure "iCloud had not downloaded \$(basename "\$f")."
         exit 1
     fi
 done
@@ -114,6 +131,7 @@ done
 ANTHROPIC_API_KEY="\$(security find-generic-password -s $KEYCHAIN_SERVICE -w 2>/dev/null)"
 if [ -z "\$ANTHROPIC_API_KEY" ]; then
     echo "ERROR: could not read Keychain item $KEYCHAIN_SERVICE (is the login keychain locked?)."
+    notify_failure "Could not read the Anthropic key from Keychain."
     exit 1
 fi
 export ANTHROPIC_API_KEY
@@ -121,6 +139,7 @@ export ANTHROPIC_API_KEY
 "\$PYTHON" -u main.py "\$@"
 status=\$?
 echo "=== \$(date '+%Y-%m-%d %H:%M:%S') exit \$status ==="
+if [ "\$status" != 0 ]; then notify_failure "The run exited with code \$status."; fi
 exit \$status
 RUNNER
 chmod 700 "$RUNNER"
