@@ -13,11 +13,13 @@ tool set, works until done, and its final summary goes to Telegram.
 """
 
 import json
+import re
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from cowork_watch import last_gmail_sweep
 from gmail_reader import GmailReader, GmailUnavailable
+from vault import _URL_RE, _clean_url
 
 MAX_ROUNDS = 40
 MAX_TOKENS = 16000
@@ -44,6 +46,37 @@ DEFAULT_SCHEDULES = {
 }
 
 QUEUE_RETENTION_DAYS = 30
+
+# Inbox sweep pickiness, enforced in the tool handler (not just the prompt).
+SWEEP_DAILY_ITEM_CAP = 5  # new queue items per day swept; self-sends always kept
+SWEEP_FLAG_LINE_CAP = 5   # decision lines in "Sweep flags", after one counts line
+# Senders never worth queueing (Patch, Nextdoor, NYT Cooking/Games addresses).
+_SWEEP_EXCLUDE_FROM_RE = re.compile(
+    r"[@.]patch\.com|nextdoor|cooking@|cooking-recommendations@|nytcooking|"
+    r"nyt cooking|nytgames|nyt games|games@nytimes|wordle",
+    re.I,
+)
+# NYT Cooking and Games newsletters share nytdirect@nytimes.com with the news
+# newsletters; tell them apart by the newsletter name or where links point.
+_NYT_FROM_RE = re.compile(r"nytimes\.com", re.I)
+_NYT_EXCLUDE_TEXT_RE = re.compile(
+    r"nytimes\.com\s+(?:Ad\s+)*(?:Cooking|Bake Time|Five Weeknight Dishes|Games|"
+    r"Gameplay|Wordle|Connections|Spelling Bee)\b|\bNYT (?:Cooking|Games)\b|"
+    r"\bcrossword\b|\bwordle\b|\bspelling bee\b",
+    re.I,
+)
+_NYT_EXCLUDE_URL_RE = re.compile(
+    r"cooking\.nytimes\.com|nytimes\.com/(?:games|crosswords|puzzles)", re.I
+)
+# Rebecca's own scheduled digests that mail themselves to her: not captures.
+_SWEEP_OWN_DIGEST_RE = re.compile(
+    r"daily ai competitive intelligence|tech (?:&|and) legal tech digest|"
+    r"ai legal technology role benchmark",
+    re.I,
+)
+_GMAIL_LINK_RE = re.compile(r"https?://mail\.google\.com/", re.I)
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+_ITEM_SOURCE_RE = re.compile(r"_\(saved [^,)]*,\s*([a-z-]+)", re.I)
 
 TOOLS = [
     {
@@ -169,6 +202,9 @@ def run_job(job_key, claude, model, ctx, today=None, gmail=None):
     vault.ensure_daily_notes(today)
     gmail = gmail or GmailReader(ctx.get("gmail_token_path"))
     job_ctx = {"vault": vault, "gmail": gmail, "job": job_key, "today": today}
+    if job_key == "vault_inbox_sweep":
+        job_ctx["sweep_cap"] = SWEEP_DAILY_ITEM_CAP * _sweep_lookback_days(vault, today)
+        job_ctx["sweep_added"] = 0
     now = datetime.now()
     system = (
         f"You are running unattended inside Rebecca's Telegram bot as the "
@@ -249,6 +285,105 @@ def _pre_step(job_key, vault, today):
     return note
 
 
+def _sweep_lookback_days(vault, today):
+    """Days the sweep covers (same rule as inbox_sweep.md: 1..14, 2 if unknown)."""
+    try:
+        last = last_gmail_sweep(vault)
+    except Exception:
+        last = None
+    if not last:
+        return 2
+    return max(1, min(14, (today - last).days))
+
+
+def _is_self_send(msg):
+    """True when the sender's address is also a recipient (Rebecca to herself)."""
+    sender = {e.lower() for e in _EMAIL_RE.findall(msg.get("from", ""))}
+    to = {e.lower() for e in _EMAIL_RE.findall(msg.get("to", ""))}
+    return bool(sender & to)
+
+
+def _sweep_exclusion(msg):
+    """Why a message is never reading-queue material ('' to keep it)."""
+    sender, subject = msg.get("from", ""), msg.get("subject", "")
+    if _SWEEP_OWN_DIGEST_RE.search(subject):
+        return "own scheduled digest"
+    if _SWEEP_EXCLUDE_FROM_RE.search(sender):
+        return "Patch/Nextdoor/NYT Cooking/NYT Games"
+    if _NYT_FROM_RE.search(sender):
+        urls = msg.get("urls", [])
+        nyt_hits = sum(1 for u in urls if _NYT_EXCLUDE_URL_RE.search(u))
+        text = f"{subject}\n{msg.get('snippet', '')}"
+        if _NYT_EXCLUDE_TEXT_RE.search(text) or (urls and nyt_hits * 2 >= len(urls)):
+            return "Patch/Nextdoor/NYT Cooking/NYT Games"
+    return ""
+
+
+def _filter_sweep_messages(messages):
+    """Drop excluded senders and own digests; tag self-sends.
+
+    Returns (kept_messages, {reason: count})."""
+    kept, hidden = [], {}
+    for msg in messages:
+        reason = _sweep_exclusion(msg)
+        if reason:
+            hidden[reason] = hidden.get(reason, 0) + 1
+            continue
+        msg["self_send"] = _is_self_send(msg)
+        kept.append(msg)
+    return kept, hidden
+
+
+def _item_source(item):
+    """'self-send', 'unread', 'daily-note', ... from an item's '_(saved D, src)_'."""
+    found = _ITEM_SOURCE_RE.search(item)
+    return found.group(1).lower() if found else ""
+
+
+def _gate_sweep_items(items, job_ctx):
+    """Apply the sweep's pickiness rules to add_queue_items lines.
+
+    Self-sends are always kept. Anything else needs a real (non-Gmail)
+    article link and fits only while the run is under its cap
+    (SWEEP_DAILY_ITEM_CAP per day swept). Self-sends are taken first, then the
+    rest in the order given (the prompt asks for priority order). Duplicates
+    pass through untouched so add_queue_sweep reports them and they do not
+    use up the cap. Returns (items_to_add, [(reason, item), ...]).
+    """
+    in_queue = job_ctx["vault"].queue_urls()
+    cap = job_ctx.get("sweep_cap", SWEEP_DAILY_ITEM_CAP)
+    ordered = [i for i in items if _item_source(i) == "self-send"]
+    ordered += [i for i in items if _item_source(i) != "self-send"]
+    kept, refused = [], []
+    for item in ordered:
+        source = _item_source(item)
+        urls = [_clean_url(u) for u in _URL_RE.findall(item)]
+        if urls and all(u in in_queue for u in urls):
+            kept.append(item)
+            continue
+        if source != "self-send":
+            if not [u for u in urls if not _GMAIL_LINK_RE.search(u)]:
+                refused.append(("no article link (Gmail-only)", item))
+                continue
+            if job_ctx.get("sweep_added", 0) >= cap:
+                refused.append((f"over the {cap}-item cap", item))
+                continue
+        kept.append(item)
+        in_queue.update(urls)
+        job_ctx["sweep_added"] = job_ctx.get("sweep_added", 0) + 1
+    return kept, refused
+
+
+def _cap_sweep_flags(body):
+    """Keep the counts line plus at most SWEEP_FLAG_LINE_CAP flag lines."""
+    lines = [l for l in body.strip().splitlines() if l.strip()]
+    limit = 1 + SWEEP_FLAG_LINE_CAP
+    if len(lines) <= limit:
+        return body
+    extra = len(lines) - limit
+    return "\n".join(lines[:limit] + [f"- (+{extra} lower-priority flag(s) trimmed by the {SWEEP_FLAG_LINE_CAP}-line cap)"])
+
+
 def run_daily_notes(ctx, today=None):
     """Deterministic nightly job: make sure notes exist through tomorrow."""
     today = today or date.today()
@@ -287,14 +422,29 @@ def _handle_tool(name, args, job_ctx):
         # (culture_shortlist.py -> To-try/Culture.md); keep it out of the
         # reading queue so its picks are never filed twice.
         messages = [m for m in messages if "nyc culture shortlist" not in m.get("subject", "").lower()]
+        note = ""
+        if job == "vault_inbox_sweep":
+            messages, hidden = _filter_sweep_messages(messages)
+            if hidden:
+                note = "Hidden by sweep filters (count as dropped noise): " + ", ".join(
+                    f"{n} {why}" for why, n in sorted(hidden.items())) + "\n"
         in_queue = vault.queue_urls()
         for msg in messages:
             msg["urls"] = [{"url": u, "in_queue": u in in_queue} for u in msg["urls"]]
-        return json.dumps(messages, ensure_ascii=False)[:120000] if messages else "[] (no messages)"
+        body = json.dumps(messages, ensure_ascii=False)[:120000] if messages else "[] (no messages)"
+        return note + body
     if name == "add_queue_items":
         if "add_queue_items" not in allowed:
             return "Not allowed: this job may not write to the reading queue."
-        return vault.add_queue_sweep(args["heading"], args.get("items", []))
+        items = args.get("items", [])
+        refused = []
+        if job == "vault_inbox_sweep":
+            items, refused = _gate_sweep_items(items, job_ctx)
+        result = vault.add_queue_sweep(args["heading"], items) if items else "Nothing added."
+        if refused:
+            result += f" Refused {len(refused)} by sweep rules: " + "; ".join(
+                f"{why}: {item[:80]}" for why, item in refused)
+        return result
     if name == "promote_queue_items":
         if "promote_queue_items" not in allowed:
             return "Not allowed: this job may not reorganize the reading queue."
@@ -308,5 +458,8 @@ def _handle_tool(name, args, job_ctx):
             return f"Not allowed: this job may not add a section called '{heading}'."
         if not args["path"].startswith("Daily/"):
             return "Not allowed: sections may only be added to daily notes."
-        return vault.append_section(args["path"], heading, args["body"])
+        body = args["body"]
+        if job == "vault_inbox_sweep" and heading.startswith("Sweep flags"):
+            body = _cap_sweep_flags(body)
+        return vault.append_section(args["path"], heading, body)
     return f"Unknown tool: {name}"

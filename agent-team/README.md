@@ -198,6 +198,15 @@ Override a slot or disable a job with `off` under `schedules:` in
 newsletter digest's token, which `install-launchd.sh` places in
 `~/Library/Application Support/agent-team/gmail_token.json`.
 
+The sweep is deliberately picky, and `vault_jobs.py` enforces it: self-sends
+are always kept; Patch, Nextdoor, NYT Cooking/Games and Rebecca's own
+scheduled digests (Daily AI Competitive Intelligence, Tech & Legal Tech
+Digest, Role Benchmark refresh) are hidden from it; other mail needs a real
+article link (never a Gmail link); new items are capped at about 5 per day
+swept (`SWEEP_DAILY_ITEM_CAP`, self-sends first); and the `Sweep flags`
+section keeps one counts line plus at most 5 decision lines
+(`SWEEP_FLAG_LINE_CAP`). Tests: `.venv/bin/python -m unittest test_sweep_rules`.
+
 The duties that read or write daily notes also create any missing ones, and
 at the morning triage `cowork_watch.py` posts one alert if a daily note had
 to be backfilled, the Gmail sweep is more than a day old, or (Mondays)
