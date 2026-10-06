@@ -116,4 +116,5 @@ Edit `config.yaml` to customize:
 | `trend_extractor.py` | Claude structured extraction → `trends-dashboard/data/` JSON + `index.json` |
 | `dashboard_publisher.py` | Commits dashboard data onto `origin/main` and pushes it (see SETUP.md) |
 | `install-launchd.sh` | Installs the scheduled launchd job (see SETUP.md) |
+| `schedule_guard.py` | Decides whether a Wed/Fri slot is due, so runs missed during sleep catch up |
 | `selfcheck.py` | Offline self-check: publisher against temp git repos, parsers, dry-run |

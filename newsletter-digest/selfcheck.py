@@ -27,6 +27,7 @@ sys.dont_write_bytecode = True
 
 import dashboard_publisher as dp  # noqa: E402
 import digest_formatter  # noqa: E402
+import schedule_guard  # noqa: E402
 import trend_extractor  # noqa: E402
 
 DATA = dp.DATA_REL
@@ -429,6 +430,31 @@ def email_html_is_escaped():
 
 
 @check
+def schedule_slots_catch_up():
+    """The latest Wed/Fri 08:00 slot is due until recorded, then not."""
+    slot = schedule_guard.last_slot
+    # 2026-10-06 is a Tuesday: the latest slot is Friday 2026-10-02.
+    assert slot(datetime(2026, 10, 6, 12, 0)) == datetime(2026, 10, 2, 8, 0)
+    assert slot(datetime(2026, 10, 7, 7, 59)) == datetime(2026, 10, 2, 8, 0)
+    assert slot(datetime(2026, 10, 7, 8, 0)) == datetime(2026, 10, 7, 8, 0)
+    assert slot(datetime(2026, 10, 9, 23, 0)) == datetime(2026, 10, 9, 8, 0)
+    tmp = tempfile.mkdtemp(prefix="selfcheck-guard-")
+    try:
+        state = os.path.join(tmp, "last-digest-slot")
+        tue = datetime(2026, 10, 6, 12, 0)
+        assert schedule_guard.is_due(state, tue)  # never sent
+        schedule_guard.mark_sent(state, tue)
+        assert not schedule_guard.is_due(state, tue)
+        assert not schedule_guard.is_due(state, datetime(2026, 10, 7, 7, 59))
+        assert schedule_guard.is_due(state, datetime(2026, 10, 7, 8, 0))
+        with open(state, "w") as f:
+            f.write("garbage")
+        assert schedule_guard.is_due(state, tue)  # unreadable counts as unsent
+    finally:
+        shutil.rmtree(tmp)
+
+
+@check
 def dry_run_has_no_side_effects():
     """--dry-run never extracts trends, writes data or publishes."""
     calls = []
@@ -451,13 +477,19 @@ def dry_run_has_no_side_effects():
     try:
         import main
         main.publish_dashboard_data = lambda *a, **k: calls.append("publish") or True
+        state = os.path.join(tempfile.mkdtemp(prefix="selfcheck-state-"), "slot")
+        os.environ[schedule_guard.STATE_ENV_VAR] = state
         for argv in (["--dry-run"], ["--dry-run", "--trends-only"],
                      ["--dry-run", "--backfill", "2026-04-15"]):
             assert main.main(argv) == 0
         assert calls == [], f"dry run had side effects: {calls}"
+        assert not os.path.exists(state), "dry run recorded a sent slot"
         assert main.main(["--skip-trends"]) == 0
         assert calls == ["send_email"], calls
+        assert not schedule_guard.is_due(state), "real send did not record the slot"
+        shutil.rmtree(os.path.dirname(state))
     finally:
+        os.environ.pop(schedule_guard.STATE_ENV_VAR, None)
         for name, module in saved.items():
             if module is None:
                 sys.modules.pop(name, None)

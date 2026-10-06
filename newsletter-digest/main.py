@@ -207,7 +207,13 @@ def run_pipeline(args):
 
     ok = True
     if not args.trends_only:
-        ok = send_digest(args, config, newsletters, rss_articles, date_start, date_end) and ok
+        sent = send_digest(args, config, newsletters, rss_articles, date_start, date_end)
+        if sent and not args.dry_run:
+            # Recorded right away so a later trends/publish failure, which the
+            # scheduler retries, never sends the same digest twice.
+            from schedule_guard import mark_sent_from_env
+            mark_sent_from_env()
+        ok = sent and ok
 
     if args.skip_trends:
         pass

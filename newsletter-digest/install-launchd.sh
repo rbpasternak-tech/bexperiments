@@ -1,7 +1,10 @@
 #!/bin/bash
-# Installs the newsletter digest as a macOS launchd user agent that runs
-# Wednesdays and Fridays at 08:00 (a run missed while the Mac slept starts on
-# wake). See SETUP.md for the full picture.
+# Installs the newsletter digest as a macOS launchd user agent for the
+# Wednesday and Friday 08:00 digest. launchd starts the runner every 30
+# minutes and on wake; schedule_guard.py decides whether a slot is due, so a
+# digest missed while the Mac was asleep, shut or offline goes out shortly
+# after it is back instead of being skipped. Optionally also schedules the Mac
+# to wake at 07:55 on those days. See SETUP.md for the full picture.
 #
 # Everything launchd needs at spawn time lives under ~/Library, which iCloud
 # does not sync: the venv, the generated runner script and the log. The repo
@@ -25,6 +28,8 @@ RUNNER="$APP_DIR/run.sh"
 LOG_DIR="$HOME/Library/Logs/newsletter-digest"
 LOG_FILE="$LOG_DIR/digest.log"
 KEYCHAIN_SERVICE="newsletter-digest-anthropic"
+GUARD="$APP_DIR/schedule_guard.py"
+STATE_FILE="$APP_DIR/last-digest-slot"
 
 # ---- Preconditions: refuse to install a job that cannot work ----
 if [ ! -f "$PROJECT_DIR/config.yaml" ]; then
@@ -59,6 +64,10 @@ echo "Installing/updating requirements..."
 "$VENV_DIR/bin/python" -m pip install --quiet --upgrade pip
 "$VENV_DIR/bin/python" -m pip install --quiet -r "$PROJECT_DIR/requirements.txt"
 
+# The schedule check runs every 30 minutes, so keep a copy outside iCloud
+# where reading it never needs a download.
+cp "$PROJECT_DIR/schedule_guard.py" "$GUARD"
+
 # ---- Runner script (generated; values baked in at install time) ----
 cat > "$RUNNER" <<RUNNER
 #!/bin/bash
@@ -72,6 +81,20 @@ PYTHON="$VENV_DIR/bin/python"
 # Fallbacks if the venv under ~/Library was removed.
 if [ ! -x "\$PYTHON" ]; then PYTHON="\$PROJECT_DIR/.venv/bin/python"; fi
 if [ ! -x "\$PYTHON" ]; then PYTHON="\$(command -v python3)"; fi
+GUARD="$GUARD"
+STATE_FILE="$STATE_FILE"
+# main.py records the slot here as soon as the email is sent.
+export NEWSLETTER_DIGEST_STATE="\$STATE_FILE"
+
+# launchd passes --scheduled every 30 minutes and on wake. Exit quietly
+# unless the latest Wed/Fri 08:00 slot has not been sent yet; a failed run
+# stays due and is retried on the next check. Manual runs skip this check.
+SCHEDULED=0
+if [ "\${1:-}" = "--scheduled" ]; then
+    SCHEDULED=1
+    shift
+    "\$PYTHON" "\$GUARD" due "\$STATE_FILE" >/dev/null 2>&1 || exit 0
+fi
 
 # launchd's PATH is minimal; include Homebrew so the usual git (and its
 # credential helper) is found.
@@ -118,8 +141,13 @@ if [ -z "\$ANTHROPIC_API_KEY" ]; then
 fi
 export ANTHROPIC_API_KEY
 
-"\$PYTHON" -u main.py "\$@"
+# caffeinate keeps the Mac from idling back to sleep mid-run (for example
+# after a scheduled wake).
+/usr/bin/caffeinate -i "\$PYTHON" -u main.py "\$@"
 status=\$?
+if [ "\$SCHEDULED" = 1 ] && [ "\$status" = 0 ]; then
+    "\$PYTHON" "\$GUARD" mark "\$STATE_FILE"
+fi
 echo "=== \$(date '+%Y-%m-%d %H:%M:%S') exit \$status ==="
 exit \$status
 RUNNER
@@ -139,6 +167,7 @@ cat > "$PLIST" <<PLIST
     <array>
         <string>/bin/bash</string>
         <string>$RUNNER</string>
+        <string>--scheduled</string>
     </array>
     <!-- Start outside iCloud; the runner cds into the project itself. -->
     <key>WorkingDirectory</key>
@@ -150,27 +179,13 @@ cat > "$PLIST" <<PLIST
         <key>PYTHONUNBUFFERED</key>
         <string>1</string>
     </dict>
-    <key>StartCalendarInterval</key>
-    <array>
-        <dict>
-            <key>Weekday</key>
-            <integer>3</integer>
-            <key>Hour</key>
-            <integer>8</integer>
-            <key>Minute</key>
-            <integer>0</integer>
-        </dict>
-        <dict>
-            <key>Weekday</key>
-            <integer>5</integer>
-            <key>Hour</key>
-            <integer>8</integer>
-            <key>Minute</key>
-            <integer>0</integer>
-        </dict>
-    </array>
+    <!-- Check every 30 minutes, at load and after wake (launchd fires a
+         missed interval once on wake). The runner only does real work when
+         a Wed/Fri 08:00 slot is due and unsent. -->
+    <key>StartInterval</key>
+    <integer>1800</integer>
     <key>RunAtLoad</key>
-    <false/>
+    <true/>
     <key>StandardOutPath</key>
     <string>$LOG_FILE</string>
     <key>StandardErrorPath</key>
@@ -184,9 +199,22 @@ launchctl bootstrap "gui/$(id -u)" "$PLIST"
 echo "--- launchd status ---"
 launchctl print "gui/$(id -u)/$LABEL" | grep -E "state|last exit" || true
 echo
-echo "Installed $LABEL (Wed/Fri 08:00)."
+echo "Installed $LABEL (Wed/Fri 08:00; catches up within 30 minutes of wake)."
 echo "  Runner: $RUNNER"
 echo "  Log:    $LOG_FILE"
+echo "  State:  $STATE_FILE"
+
+# ---- Optional: wake the Mac for the 08:00 slot ----
+if [ -t 0 ]; then
+    echo
+    echo "Current power schedule (pmset -g sched):"
+    pmset -g sched 2>/dev/null | sed 's/^/  /' || true
+    read -r -p "Wake the Mac at 07:55 Wed/Fri so the digest is on time even when asleep? This replaces any repeating schedule above and asks for your password. [y/N] " answer
+    case "$answer" in
+        [yY]*) sudo pmset repeat wakeorpoweron WF 07:55:00 && pmset -g sched ;;
+        *) echo "Skipped. Missed slots still go out within 30 minutes of the next wake." ;;
+    esac
+fi
 if [ ! -f "$PROJECT_DIR/token.json" ]; then
     echo
     echo "Next: do the one-time Gmail consent from this Terminal:"
