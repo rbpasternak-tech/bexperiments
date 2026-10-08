@@ -98,8 +98,10 @@ if command -v brctl >/dev/null 2>&1; then
 fi
 
 is_ready() {
-    # A real, readable file (not an iCloud "dataless" placeholder).
-    [ -f "\$1" ] && ! ls -lO "\$1" 2>/dev/null | grep -q dataless && head -c 1 "\$1" >/dev/null 2>&1
+    # A real file, not an iCloud "dataless" placeholder. Metadata only: macOS
+    # privacy blocks this launchd shell from opening files in ~/Documents
+    # ("Operation not permitted"), while Python itself can read them.
+    [ -f "\$1" ] && ! ls -lO "\$1" 2>/dev/null | grep -q dataless
 }
 required=("\$PROJECT_DIR/config.yaml" "\$PROJECT_DIR/credentials.json")
 if [ -e "\$PROJECT_DIR/token.json" ]; then required+=("\$PROJECT_DIR/token.json"); fi
