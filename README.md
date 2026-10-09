@@ -47,6 +47,14 @@ logs, clause examples, and an interactive pattern board.
 A vanilla JavaScript PWA for daily habit tracking, monthly grids, statistics,
 and offline use.
 
+### Legal Agent Benchmark
+
+[`legal-agent-benchmark/`](legal-agent-benchmark/)
+
+Saved results from an August 2026 benchmark comparing Claude and Codex,
+baseline versus plugin, on legal drafting tasks such as an offer letter and a
+contractor SOW.
+
 ### Legal Doc Catalog
 
 [`legal-doc-catalog/`](legal-doc-catalog/) ·
