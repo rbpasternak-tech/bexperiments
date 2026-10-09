@@ -14,6 +14,10 @@ project lives in a self-contained root-level folder.
 
 [`agent-team/`](agent-team/)
 
+**Retired 2026-10-09** (replaced by Morning Bot, Health Bot and Fun Bot). See
+[`agent-team/RETIRED.md`](agent-team/RETIRED.md) for what it did and how to
+restore it.
+
 A Telegram bot hosting a team of Claude-powered literary personas that plan,
 nudge, set reminders, and read newsletter-digest data.
 
