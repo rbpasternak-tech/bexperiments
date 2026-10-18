@@ -565,8 +565,8 @@ function bindFormEvents() {
 
 function bindSendButtons(data) {
   document.getElementById('email-caption').textContent = RECIPIENT_EMAIL
-    ? `Both open a draft addressed to ${RECIPIENT_EMAIL} with the full report written — you just press send.`
-    : 'Both open a draft with the full report written — add the address and press send.';
+    ? `Opens a short, pre-addressed draft to ${RECIPIENT_EMAIL} with the report link — you just press send.`
+    : 'Opens a short draft with the report link — add the address and press send.';
 
   document.getElementById('copy-link-btn').onclick = () => {
     copyToClipboard(resultsUrl(data), 'Results link copied. Send it with confidence.');
@@ -580,14 +580,43 @@ function bindSendButtons(data) {
 
   const status = document.getElementById('copy-status');
   const dateStr = formatDate(data.date);
+  const avg = averageRating(data.ratings);
+  const verdict = STAR_META[Math.max(1, Math.min(5, Math.round(avg)))].label;
   const subject = encodeURIComponent(`The Wife Review${dateStr ? ` — ${dateStr}` : ''}`);
-  const body = encodeURIComponent(buildSummaryText(data));
+  // Mail apps truncate or reject long mailto/compose URLs, so the email is a
+  // short note carrying the results link; the link holds the full report.
+  const shortBody = [
+    `A wife review has been filed${dateStr ? ` for ${dateStr}` : ''}.`,
+    '',
+    `Overall score: ${avg.toFixed(1)} / 5 — ${verdict}`,
+    '',
+    'Open the full report:',
+    resultsUrl(data),
+  ].join('\n');
+  const body = encodeURIComponent(shortBody);
 
-  const markSent = (message) => {
+  const shareOption = document.getElementById('share-option');
+  if (navigator.share) {
+    shareOption.classList.remove('hidden');
+    document.getElementById('share-btn').onclick = async () => {
+      try {
+        await navigator.share({
+          title: `The Wife Review${dateStr ? ` — ${dateStr}` : ''}`,
+          text: `Wife review filed: ${avg.toFixed(1)} / 5 — ${verdict}. Full report:`,
+          url: resultsUrl(data),
+        });
+        markSent('✓ Review on its way — delivered through your share sheet.');
+      } catch {
+        // Share sheet dismissed — no state change.
+      }
+    };
+  }
+
+  function markSent(message) {
     const stepBanner = document.getElementById('step-banner');
     stepBanner.classList.add('sent');
     stepBanner.textContent = message;
-  };
+  }
 
   document.getElementById('gmail-btn').onclick = () => {
     const opened = window.open(
