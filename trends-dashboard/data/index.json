@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-10-16T08:04:03.325654",
+  "last_updated": "2026-10-21T08:04:40.191358",
   "digests": [
     {
       "id": "2026-W09-sat",
@@ -387,6 +387,15 @@
       "file": "digest-2026-W42-fri.json",
       "newsletter_count": 19,
       "rss_article_count": 128
+    },
+    {
+      "id": "2026-W43-wed",
+      "run_date": "2026-10-21",
+      "date_range_start": "2026-10-18",
+      "date_range_end": "2026-10-21",
+      "file": "digest-2026-W43-wed.json",
+      "newsletter_count": 16,
+      "rss_article_count": 123
     }
   ]
 }
