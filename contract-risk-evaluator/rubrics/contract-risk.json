@@ -1,0 +1,166 @@
+{
+  "name": "contract-risk",
+  "description": "Risk and compliance review for commercial and employment contracts, from the perspective of the party receiving the draft.",
+  "gate": {
+    "id": "is_contract",
+    "label": "Is a contract",
+    "type": "noul",
+    "instructions": "Is `contract_text` a contract or agreement that creates obligations between parties, such as an agreement, offer letter, statement of work, or terms of service?",
+    "criteria": {
+      "true": "A contract, agreement, offer letter, statement of work, or similar document the parties sign or accept",
+      "false": "Not a contract: for example a memo, policy, handbook, log, report, guide, or notes"
+    }
+  },
+  "dimensions": [
+    {
+      "id": "overall_risk",
+      "label": "Overall risk",
+      "type": "score",
+      "instructions": "Taken as a whole, how much legal and commercial risk does this contract pose to the party receiving it?",
+      "criteria": [
+        "Low: standard, balanced terms with no material concerns",
+        "Moderate: a few one-sided or unusual terms worth negotiating",
+        "High: several materially unfavorable or missing protections",
+        "Critical: terms that expose the party to severe or unbounded liability"
+      ]
+    },
+    {
+      "id": "liability_cap",
+      "label": "Limitation of liability",
+      "type": "choice",
+      "instructions": "How does the contract limit each party's liability?",
+      "criteria": {
+        "mutual_cap": "Both parties' liability is capped, with customary carve-outs",
+        "one_sided_cap": "Only one party benefits from a liability cap",
+        "uncapped": "Liability is expressly unlimited or the cap is illusory",
+        "not_addressed": "The contract has no limitation-of-liability clause"
+      },
+      "risk": {
+        "mutual_cap": 0.0,
+        "one_sided_cap": 0.7,
+        "uncapped": 1.0,
+        "not_addressed": 0.3
+      }
+    },
+    {
+      "id": "indemnification",
+      "label": "Indemnification",
+      "type": "score",
+      "instructions": "How balanced are the indemnification obligations?",
+      "criteria": [
+        "Mutual and proportionate to each party's fault, or reasonably absent",
+        "Mostly balanced with minor asymmetries",
+        "One-sided: the receiving party indemnifies broadly",
+        "Broad, one-sided, and uncapped indemnity, including the other party's own negligence"
+      ]
+    },
+    {
+      "id": "termination_rights",
+      "label": "Termination rights",
+      "type": "choice",
+      "instructions": "What termination rights does the contract give the parties?",
+      "criteria": {
+        "mutual_convenience": "Either party may terminate for convenience on reasonable notice",
+        "mutual_cause_only": "Either party may terminate, but only for cause",
+        "one_sided": "Only one party has meaningful termination rights",
+        "not_addressed": "The contract does not address termination"
+      },
+      "risk": {
+        "mutual_convenience": 0.0,
+        "mutual_cause_only": 0.3,
+        "one_sided": 0.9,
+        "not_addressed": 0.3
+      }
+    },
+    {
+      "id": "auto_renewal",
+      "label": "Auto-renewal trap",
+      "type": "noul",
+      "instructions": "Does the contract renew automatically unless a party gives notice, with a notice window that is short or easy to miss?",
+      "criteria": {
+        "true": "Evergreen or automatic renewal with a narrow or burdensome opt-out",
+        "false": "No automatic renewal, or renewal with a reasonable opt-out"
+      }
+    },
+    {
+      "id": "unilateral_amendment",
+      "label": "Unilateral changes",
+      "type": "noul",
+      "instructions": "Can one party change the terms, pricing, or policies without the other party's written agreement?",
+      "criteria": {
+        "true": "One party may amend terms, fees, or incorporated policies unilaterally",
+        "false": "Amendments require mutual written agreement"
+      }
+    },
+    {
+      "id": "data_protection",
+      "label": "Data protection",
+      "type": "choice",
+      "instructions": "How adequately does the contract address personal data, privacy, and security obligations?",
+      "criteria": {
+        "adequate": "Clear data-processing, security, and breach-notification obligations",
+        "partial": "Some data or security terms, with notable gaps",
+        "absent": "Personal data is handled but the contract has no meaningful protections",
+        "not_applicable": "The contract does not involve personal data"
+      },
+      "risk": {
+        "adequate": 0.0,
+        "partial": 0.5,
+        "absent": 1.0,
+        "not_applicable": 0.0
+      }
+    },
+    {
+      "id": "confidentiality",
+      "label": "Confidentiality",
+      "type": "score",
+      "instructions": "How strong are the confidentiality protections for the receiving party's information?",
+      "criteria": [
+        "Robust and mutual, with clear exclusions and survival",
+        "Present but with gaps in scope, duration, or remedies",
+        "Weak or one-sided",
+        "Absent"
+      ]
+    },
+    {
+      "id": "ip_overreach",
+      "label": "IP overreach",
+      "type": "noul",
+      "instructions": "Does the contract assign or license to the other party intellectual property beyond the work product of this engagement? Examples include inventions made outside working hours, inventions made without the other party's resources, inventions unrelated to the other party's business, or intellectual property the receiving party owned before the contract.",
+      "criteria": {
+        "true": "Assigns or licenses \"all inventions\" or similar, reaching off-hours work, unrelated inventions, or pre-existing intellectual property",
+        "false": "Assigns or licenses only the deliverables or work product created for this engagement, or the contract has no intellectual property terms"
+      }
+    },
+    {
+      "id": "restrictive_covenants",
+      "label": "Restrictive covenants",
+      "type": "noul",
+      "instructions": "Does the contract impose non-compete, non-solicitation, or exclusivity restrictions that are broad in scope, geography, or duration?",
+      "criteria": {
+        "true": "Broad non-compete, non-solicit, or exclusivity restrictions",
+        "false": "No restrictive covenants, or narrowly tailored ones"
+      }
+    },
+    {
+      "id": "governing_law_gap",
+      "label": "Governing law gap",
+      "type": "noul",
+      "instructions": "Does the contract fail to specify a governing law and a forum or method for resolving disputes?",
+      "criteria": {
+        "true": "Governing law or dispute forum is missing or ambiguous",
+        "false": "Governing law and dispute resolution are clearly specified"
+      }
+    },
+    {
+      "id": "compliance_red_flags",
+      "label": "Compliance red flags",
+      "type": "noul",
+      "instructions": "Does the contract contain terms likely to be unenforceable or noncompliant with law, such as waivers of statutory rights, unlawful restrictions, or misclassification of workers?",
+      "criteria": {
+        "true": "Contains terms that likely violate law or regulation",
+        "false": "No apparent legal or regulatory compliance issues"
+      }
+    }
+  ]
+}

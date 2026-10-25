@@ -1,0 +1,3 @@
+# Reports describe contracts that may be confidential; keep them local.
+outputs/
+work/
